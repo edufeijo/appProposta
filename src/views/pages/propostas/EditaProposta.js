@@ -78,7 +78,6 @@ const EditaProposta = () => {
         localStorage.removeItem('@appproposta/propostas')
       } else {
         if (id !== undefined) { // Carrega a proposta id
-          setOperacao('Atualizar')
           const query = {
             bd: "propostas",
             operador: "get",
@@ -91,10 +90,10 @@ const EditaProposta = () => {
           .then((resposta) => { 
             setProposta(resposta) 
             setVersaoDaProposta(resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1])
-  
+            setOperacao('Atualizar')
             let alertaLigado = false
             let msg = ALERTA_FOLLOWUP_CLIENTE
-            if (resposta.hasOwnProperty('msgDoAlerta')) {
+            if (resposta.alertaEm !== null) {
               alertaLigado = true
               msg = resposta.msgDoAlerta
             }
@@ -112,8 +111,8 @@ const EditaProposta = () => {
             }))   
           })
           .catch((err) => {
-            setErro(err)
-            setErro(null)
+/*             setErro(err)
+            setErro(null) */
           })  
         }
 
@@ -139,8 +138,8 @@ const EditaProposta = () => {
           }))
         })
         .catch((err) => {
-/*           setErro(err)
-          setErro(null) */
+          setErro(err)
+          setErro(null) 
         }) 
       }
     }

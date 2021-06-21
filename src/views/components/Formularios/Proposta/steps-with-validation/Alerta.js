@@ -183,7 +183,6 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
     trigger()
     if (isObjEmpty(errors)) {
       salvaRascunhoPorErroDeConexao()
-
       if (operacao === 'Criar') {
         criarCliente()
       } else {
@@ -194,6 +193,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
 
   const handleChange = e => {
     const { name, value } = e.target
+    console.log("proposta=", proposta)
     setProposta(registroAnterior => ({
       ...registroAnterior, 
       [name]: value
@@ -212,7 +212,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
     <Fragment>
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row>
-          {proposta && <FormGroup tag={Col} md='2'>
+          {operacao === 'Criar' && proposta && <FormGroup tag={Col} md='2'>
             <Label className='form-label' for='isAlertaLigado'>
               Alerta ligado?
             </Label>
@@ -222,13 +222,42 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
                 id='isAlertaLigado'
                 name='isAlertaLigado'
                 inline
-                checked={proposta.isAlertaLigado}
+                defaultChecked
+                onChange={handleChangeSwitch}
+              />
+            </div>
+          </FormGroup>}
+          {operacao === 'Atualizar' && proposta && proposta.isAlertaLigado && <FormGroup tag={Col} md='2'>
+            <Label className='form-label' for='isAlertaLigado'>
+              Alerta ligado?
+            </Label>
+            <div>
+              <CustomInput
+                type='switch'
+                id='isAlertaLigado'
+                name='isAlertaLigado'
+                inline
+                defaultChecked
+                onChange={handleChangeSwitch}
+              />
+            </div>
+          </FormGroup>}
+          {operacao === 'Atualizar' && proposta && !proposta.isAlertaLigado && <FormGroup tag={Col} md='2'>
+            <Label className='form-label' for='isAlertaDesLigado'>
+              Alerta ligado?
+            </Label>
+            <div>
+              <CustomInput
+                type='switch'
+                id='isAlertaDesLigado'
+                name='isAlertaDesLigado'
+                inline
                 onChange={handleChangeSwitch}
               />
             </div>
           </FormGroup>}
 
-          {proposta && <FormGroup tag={Col} md='7'>
+          {operacao === 'Criar' && proposta && <FormGroup tag={Col} md='7'>
             <Label className='form-label' for='msgDoAlerta'>
               Mensagem do alerta
             </Label>
@@ -240,7 +269,23 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
               innerRef={register({ required: true })}
               invalid={errors.msgDoAlerta && true}
               onChange={handleChange}
-              disabled={(!proposta.isAlertaLigado)}
+              disabled={!proposta.isAlertaLigado}
+            />
+            {errors && errors.msgDoAlerta && <FormFeedback>Mensagem do alerta com no mínimo {QTDADE_MIN_LETRAS_ALERTA} e no máximo {QTDADE_MAX_LETRAS_ALERTA} caracteres</FormFeedback>}
+          </FormGroup>}
+          {operacao === 'Atualizar' && proposta && <FormGroup tag={Col} md='7'>
+            <Label className='form-label' for='msgDoAlerta'>
+              Mensagem do alerta
+            </Label>
+            <Input
+              name='msgDoAlerta'
+              id='msgDoAlerta'
+              value={proposta.msgDoAlerta}
+              autoComplete="off"
+              innerRef={register({ required: true })}
+              invalid={errors.msgDoAlerta && true}
+              onChange={handleChange}
+              disabled={!proposta.isAlertaLigado}
             />
             {errors && errors.msgDoAlerta && <FormFeedback>Mensagem do alerta com no mínimo {QTDADE_MIN_LETRAS_ALERTA} e no máximo {QTDADE_MAX_LETRAS_ALERTA} caracteres</FormFeedback>}
           </FormGroup>}

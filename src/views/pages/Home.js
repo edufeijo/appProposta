@@ -2,13 +2,6 @@
 //
 //
 // No List View de propostas
-// - Fiaalizar rascunho off line da proposta:
-//    - Testar Criar novo cliente com rascunho
-//    - Testar cliente existente com rascunho 
-//    - Testar atualizar proposta com rascunho   
-//    - Testar Criar cliente sem rascunho
-//    - Testar Cliente existente sem rascunho
-//    - Testar atualizar proposta
 // - Fazer rascunho da proposta comandao pelo cliente
 // - Página bonita para preview Proposta, Cliente, versões da proposta e ações
 // 

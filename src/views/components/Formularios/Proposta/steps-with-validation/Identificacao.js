@@ -12,7 +12,7 @@ import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../../Toasts/ToastTypes'
 import { NomeDoClientePesquisado } from '../../../AutoComplete/NomeDoClientePesquisado'
 
-const NomeDoNovoCliente = ({ proposta, setProposta, operacao }) => {
+const NomeDoNovoCliente = ({ proposta, setProposta }) => {
   const SignupSchema = yup.object().shape({
     nomeDoCliente: yup.string().min(QTDADE_MIN_LETRAS_NOME_DO_USUARIO).max(QTDADE_MAX_LETRAS_NOME_DO_USUARIO).required()
   })
@@ -31,39 +31,24 @@ const NomeDoNovoCliente = ({ proposta, setProposta, operacao }) => {
     }))
   }
 
-  if (operacao === 'Criar') {
-    return (
-      <div>
-        <Label className='form-label' for='nomeDoCliente'>
-          Nome do cliente
-        </Label>
-        <Input
-          name='nomeDoCliente'
-          id='nomeDoCliente'
-          placeholder='Nome do cliente'
-          defaultValue={proposta.nomeDoCliente}
-          autoComplete="off"
-          innerRef={register({ required: true })}
-          invalid={errors.nomeDoCliente && true}
-          onChange={handleChange}
-        />
-        {errors && errors.nomeDoCliente && <FormFeedback>Nome do cliente com no mínimo {QTDADE_MIN_LETRAS_NOME_DO_USUARIO} e no máximo {QTDADE_MAX_LETRAS_NOME_DO_USUARIO} caracteres</FormFeedback>}
-      </div>
-    ) 
-  } else {
-      return (
-        <div>
-          <Label className='form-label' for='nomeDoCliente'>
-            Nome do cliente
-          </Label>
-          <Input
-            value={proposta.nomeDoCliente}
-            disabled
-          />
-          {errors && errors.nomeDoCliente && <FormFeedback>Nome do cliente com no mínimo {QTDADE_MIN_LETRAS_NOME_DO_USUARIO} e no máximo {QTDADE_MAX_LETRAS_NOME_DO_USUARIO} caracteres</FormFeedback>}
-        </div>
-      )
-    }
+  return (
+    <div>
+      <Label className='form-label' for='nomeDoCliente'>
+        Nome do cliente
+      </Label>
+      <Input
+        name='nomeDoCliente'
+        id='nomeDoCliente'
+        placeholder='Nome do cliente'
+        defaultValue={proposta.nomeDoCliente}
+        autoComplete="off"
+        innerRef={register({ required: true })}
+        invalid={errors.nomeDoCliente && true}
+        onChange={handleChange}
+      />
+      {errors && errors.nomeDoCliente && <FormFeedback>Nome do cliente com no mínimo {QTDADE_MIN_LETRAS_NOME_DO_USUARIO} e no máximo {QTDADE_MAX_LETRAS_NOME_DO_USUARIO} caracteres</FormFeedback>}
+    </div>
+  ) 
 }
 
 const Identificacao = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, operacao, stepper, type }) => {
@@ -146,7 +131,6 @@ const Identificacao = ({ userData, empresa, proposta, setProposta, versaoDaPropo
             <NomeDoNovoCliente 
               proposta={proposta} 
               setProposta={setProposta} 
-              operacao={operacao} 
             />
           </FormGroup>}
           {(operacao === 'Criar') && !proposta.isNewCliente && <FormGroup tag={Col} md='9'>
@@ -176,13 +160,17 @@ const Identificacao = ({ userData, empresa, proposta, setProposta, versaoDaPropo
           </FormGroup>}
 
           {(operacao === 'Atualizar') && <FormGroup tag={Col} md='9'>
-            <NomeDoNovoCliente 
-              proposta={proposta} 
-              setProposta={setProposta} 
-              operacao={operacao} 
+            <Label className='form-label' for='nomeDoCliente'>
+              Nome do cliente
+            </Label>
+            <Input
+              name='nomeDoCliente'
+              id='nomeDoCliente'
+              value={proposta.nomeDoCliente}
+              disabled
             />
           </FormGroup>}
-
+          
           {(operacao === 'Atualizar') && <FormGroup tag={Col} md='3'>
             <Label className='form-label' for='idDaProposta'>
               Identificador da proposta
@@ -195,7 +183,7 @@ const Identificacao = ({ userData, empresa, proposta, setProposta, versaoDaPropo
             />
           </FormGroup>}
 
-          {operacao === 'Criar' && <FormGroup tag={Col} md='3'>
+          <FormGroup tag={Col} md='3'>
             <Label>Pedido de proposta recebido por:</Label>
             <Select
               name='comoPediu'
@@ -211,24 +199,7 @@ const Identificacao = ({ userData, empresa, proposta, setProposta, versaoDaPropo
               onChange={handleChangeSelect}
               autoComplete="off"
             /> 
-          </FormGroup>}
-          {operacao === 'Atualizar' && <FormGroup tag={Col} md='3'>
-            <Label>Pedido de proposta recebido por:</Label>
-            <Select
-              name='comoPediu'
-              id='comoPediu'
-              theme={selectThemeColors}
-              className='react-select'
-              classNamePrefix='select'
-              options={config.COMO_PEDIU_OPTIONS}
-              value={config.COMO_PEDIU_OPTIONS[config.COMO_PEDIU_OPTIONS.findIndex(element => element.value === proposta.comoPediu)]}
-              isClearable={false}
-              innerRef={register({ required: true })}
-              invalid={errors.comoPediu && true}
-              onChange={handleChangeSelect}
-              autoComplete="off"
-            /> 
-          </FormGroup>}
+          </FormGroup>
 
           {operacao === 'Criar' && labelDeQuemPediu && <FormGroup tag={Col} md='9'>
             <Label className='form-label' for='quemPediu'>
