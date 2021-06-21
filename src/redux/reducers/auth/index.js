@@ -15,7 +15,10 @@ const authReducer = (state = initialState, action) => {
     case 'LOGOUT':
       const obj = { ...action }
       delete obj.type
-      return { ...state, userData: {}, ...obj }
+      return { 
+        ...state, 
+        userData: {}, 
+        ...obj }
     default:
       return state
   }

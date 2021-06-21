@@ -5,13 +5,13 @@
   "dependencies": {
     "@casl/ability": "5.2.2",
     "@casl/react": "2.1.1",
-    "@fullcalendar/core": "5.7.2",
-    "@fullcalendar/daygrid": "5.7.2",
-    "@fullcalendar/interaction": "5.7.2",
-    "@fullcalendar/list": "5.7.2",
-    "@fullcalendar/react": "5.7.0",
-    "@fullcalendar/timegrid": "5.7.2",
-    "@fullcalendar/timeline": "5.7.2",
+    "@fullcalendar/core": "5.3.0",
+    "@fullcalendar/daygrid": "5.3.0",
+    "@fullcalendar/interaction": "5.3.0",
+    "@fullcalendar/list": "5.3.0",
+    "@fullcalendar/react": "5.3.0",
+    "@fullcalendar/timegrid": "5.3.0",
+    "@fullcalendar/timeline": "5.3.0",
     "@hookform/resolvers": "1.3.4",
     "@uppy/react": "1.10.8",
     "animate.css": "4.1.1",
@@ -34,9 +34,10 @@
     "html-to-draftjs": "1.5.0",
     "intl-messageformat": "7.8.4",
     "jquery": "3.5.1",
+    "json-server": "^0.16.3",
     "jsonwebtoken": "8.5.1",
     "leaflet": "1.6.0",
-    "moment": "2.29.1",
+    "moment": "^2.29.1",
     "nouislider": "14.6.2",
     "nouislider-react": "3.3.8",
     "postcss-rtl": "1.5.0",
@@ -68,7 +69,7 @@
     "react-shepherd": "3.3.0",
     "react-slidedown": "2.4.5",
     "react-sortablejs": "6.0.0",
-    "react-toastify": "7.0.3",
+    "react-toastify": "^7.0.3",
     "reactstrap": "8.6.0",
     "recharts": "2.0.4",
     "redux": "4.0.5",
@@ -82,6 +83,7 @@
     "sweetalert2-react-content": "3.0.1",
     "swiper": "6.0.4",
     "uppy": "1.21.2",
+    "use-file-picker": "^1.2.0",
     "webpack": "4.43.0",
     "wnumb": "1.2.0",
     "xlsx": "0.16.2",
@@ -89,6 +91,8 @@
     "yup": "0.32.8"
   },
   "scripts": {
+    "server": "node ./server.js",
+    "dev": "concurrently \"react-app-rewired start\"",
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
@@ -100,8 +104,10 @@
     "extends": "react-app"
   },
   "devDependencies": {
+    "@babel/core": "^7.14.3",
+    "@babel/eslint-parser": "^7.14.4",
     "@types/sortablejs": "^1.10.6",
-    "eslint": "^7.8.0",
+    "eslint": "^7.27.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-react": "^7.20.6",
     "node-sass": "^4.13.1",
@@ -111,10 +117,17 @@
     "react-app-rewired": "^2.1.6",
     "sass-loader": "^8.0.2"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not op_mini all"
-  ],
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
   "homepage": ""
 }

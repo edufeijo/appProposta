@@ -32,19 +32,37 @@ import './@core/assets/fonts/feather/iconfont.css'
 import './@core/scss/core.scss'
 import './assets/scss/style.scss'
 
+// ** Initial ability & context
+import ability from './configs/acl/ability'
+import { AbilityContext } from './utility/context/Can'
+
 // ** Service Worker
 import * as serviceWorker from './serviceWorker'
 
 // ** Lazy load app
 const LazyApp = lazy(() => import('./App'))
 
-ReactDOM.render(
+/* ReactDOM.render(
   <Provider store={store}>
     <Suspense fallback={<Spinner />}>
       <ThemeContext>
         <LazyApp />
         <ToastContainer newestOnTop />
       </ThemeContext>
+    </Suspense>
+  </Provider>,
+  document.getElementById('root')
+) */
+
+ReactDOM.render(
+  <Provider store={store}>
+    <Suspense fallback={<Spinner />}>
+      <AbilityContext.Provider value={ability}>
+        <ThemeContext>
+          <LazyApp />
+          <ToastContainer newestOnTop />
+        </ThemeContext>
+      </AbilityContext.Provider>
     </Suspense>
   </Provider>,
   document.getElementById('root')

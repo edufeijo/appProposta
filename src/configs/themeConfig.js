@@ -3,8 +3,9 @@
 //Template config options
 const themeConfig = {
   app: {
-    appName: 'Vuexy',
-    appLogoImage: require('@src/assets/images/logo/logo.svg').default
+    appName: 'appProposta',
+    appLogoImage: require('@src/assets/images/logo/logo appProposta.png').default,
+    appLogoName: require('@src/assets/images/logo/appProposta.png').default
   },
   layout: {
     isRTL: false,

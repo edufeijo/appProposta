@@ -57,16 +57,16 @@ const Router = () => {
     return { LayoutRoutes, LayoutPaths }
   }
 
-  const NotAuthorized = lazy(() => import('@src/views/NotAuthorized'))
-
   // ** Init Error Component
-  const Error = lazy(() => import('@src/views/Error'))
+  const Error = lazy(() => import('@src/views/pages/misc/Error'))
+
+  const NotAuthorized = lazy(() => import('@src/views/pages/misc/NotAuthorized'))
 
   /**
    ** Final Route Component Checks for Login & User Role and then redirects to the route
    */
   const FinalRoute = props => {
-    const route = props.route
+    const route = props.route     
     let action, resource
 
     // ** Assign vars based on route meta
@@ -92,7 +92,7 @@ const Router = () => {
       return <Redirect to='/' />
     } else if (isUserLoggedIn() && !ability.can(action || 'read', resource)) {
       // ** If user is Logged in and doesn't have ability to visit the page redirect the user to Not Authorized
-      return <Redirect to='/misc/not-authorized' />
+      return <Redirect to='/misc/not-authorized'  />
     } else {
       // ** If none of the above render component
       return <route.component {...props} />
@@ -168,8 +168,7 @@ const Router = () => {
                               : {})}
                             /*eslint-enable */
                           >
-                            <route.component {...props} />
-                            {/* <FinalRoute route={route} {...props} /> */}
+                            <FinalRoute route={route} {...props} />
                           </LayoutWrapper>
                         </Suspense>
                       )
@@ -188,24 +187,17 @@ const Router = () => {
     <AppRouter basename={process.env.REACT_APP_BASENAME}>
       <Switch>
         {/* If user is logged in Redirect user to DefaultRoute else to login */}
-        {/* <Route
+        <Route
           exact
           path='/'
           render={() => {
             return isUserLoggedIn() ? <Redirect to={DefaultRoute} /> : <Redirect to='/login' />
           }}
-        /> */}
-        <Route
-          exact
-          path='/'
-          render={() => {
-            return <Redirect to={DefaultRoute} />
-          }}
         />
         {/* Not Auth Route */}
         <Route
           exact
-          path='/not-authorized'
+          path='/misc/not-authorized'
           render={props => (
             <Layouts.BlankLayout>
               <NotAuthorized />
@@ -213,8 +205,9 @@ const Router = () => {
           )}
         />
         {ResolveRoutes()}
+
         {/* NotFound Error page */}
-        <Route path='*' component={Error} />/
+        <Route path='*' component={Error} />
       </Switch>
     </AppRouter>
   )

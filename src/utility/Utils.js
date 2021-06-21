@@ -1,3 +1,5 @@
+import config from '../configs/comoPediuOptions'
+
 // ** Checks if an object is empty (returns boolean)
 export const isObjEmpty = obj => Object.keys(obj).length === 0
 
@@ -60,8 +62,9 @@ export const getUserData = () => JSON.parse(localStorage.getItem('userData'))
  * @param {String} userRole Role of user
  */
 export const getHomeRouteForLoggedInUser = userRole => {
+  if (userRole === 'master') return '/home-master' 
   if (userRole === 'admin') return '/'
-  if (userRole === 'client') return '/access-control'
+  if (userRole === 'user') return '/'
   return '/login'
 }
 
@@ -77,3 +80,14 @@ export const selectThemeColors = theme => ({
     neutral30: '#ededed' // for input hover border-color
   }
 })
+
+export function capitalizeFirst(str) {
+  const subst = str.toLowerCase().replace(/(?:^|\s)\S/g, function(a) { return a.toUpperCase() })
+  return subst
+}
+
+export function corDeComoPediu(comoPediu) {
+  let color = 'light-primary'
+  if (comoPediu !== undefined) color = config.COMO_PEDIU_OPTIONS[config.COMO_PEDIU_OPTIONS.findIndex(element => element.value === comoPediu)].color
+  return color
+}
