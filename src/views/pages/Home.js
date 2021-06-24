@@ -2,6 +2,7 @@
 //
 //
 // No List View de propostas
+// - Fazer array com itens da proposta
 // - Fazer rascunho da proposta comandao pelo cliente
 // - Página bonita para preview Proposta, Cliente, versões da proposta e ações
 // 
@@ -55,7 +56,7 @@
 //
 // REGRAS DE NEGÓCIO DA VERSÃO 0.1
 // 1. Um email poderá ter apenas 1 Empresa
-//
+// 2. Nesta versão, usar template fixo de imagem (gerada pelo Powerpoint). Em versão futura, permitir vários templates com ajuste de imagem
 //
 // BATCH NO SERVIDOR
 // 1. Checar validade da proposta e alterar status. Dá pra fazer trigger no BD?

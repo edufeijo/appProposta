@@ -14,8 +14,8 @@ const Erro = props => {
     toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
   }
 
-//  console.log("erro=", erro)
   const str = String(erro)
+
   if (erro) {
     if (str.match(/401/)) {   
       dispatch(handleLogout())

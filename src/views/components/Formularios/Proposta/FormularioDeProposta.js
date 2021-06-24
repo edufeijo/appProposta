@@ -42,6 +42,22 @@ const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versao
       />
     },
     {
+      id: 'config',
+      title: 'Configuração',
+      subtitle: 'Configure a exibição da proposta',
+      content: <Detalhes 
+        userData={userData} 
+        empresa={empresa} 
+        proposta={proposta} 
+        setProposta={setProposta} 
+        versaoDaProposta={versaoDaProposta}
+        setVersaoDaProposta={setVersaoDaProposta}
+        operacao={operacao}
+        stepper={stepper} 
+        type='wizard-horizontal' 
+      />
+    },
+    {
       id: 'alerta',
       title: 'Alerta',
       subtitle: 'Acompanhe o status da proposta',

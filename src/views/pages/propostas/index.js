@@ -121,9 +121,18 @@ const InvoiceList = () => {
     if (isUserLoggedIn() !== null) {
       setUserData(JSON.parse(localStorage.getItem('userData')))
       setUserDataCarregado(!userDataCarregado)
-      if (propostasEmLocalStorage !== null) AvisoDePropostaEmLocalStorage()
     } 
   }, []) 
+
+  useEffect(() => {
+    if (userDataCarregado) {
+      if (propostasEmLocalStorage !== null) {
+        if (propostasEmLocalStorage.empresa._id === userData.idDaEmpresa) {
+          AvisoDePropostaEmLocalStorage()
+        }
+      }
+    } 
+  }, [userDataCarregado]) 
 
   useEffect(() => {
     if (userDataCarregado) {

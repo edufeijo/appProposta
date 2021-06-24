@@ -27,7 +27,7 @@ import {
   Calendar
 } from 'react-feather'
 
-import config from '../../../configs/statusDePropostas'
+import config from '../../../../../../configs/statusDePropostas'
 
 // ** renders client column
 const renderClient = row => {
@@ -121,10 +121,10 @@ export const columns = [
     center: true,
     cell: row => (
       <div className='column-action d-flex align-items-center'>
-        <Calendar size={17} id={`send-tooltip-${row._id}`} />
+{/*         <Calendar size={17} id={`send-tooltip-${row._id}`} />
         <UncontrolledTooltip placement='top' target={`send-tooltip-${row._id}`}>
           Proposta emitida por {row.versoesDaProposta[row.versoesDaProposta.length - 1].nomeDoUsuario} e válida até {moment(row.versoesDaProposta[row.versoesDaProposta.length - 1].venceEm).format("DD.MM.YYYY HH:mm")}.
-        </UncontrolledTooltip>
+        </UncontrolledTooltip> */}
 
         <Link to={`#`} id={`pw-tooltip-${row._id}`}>
           <Layers size={17} className='mx-1' />
@@ -133,11 +133,11 @@ export const columns = [
           {row.versoesDaProposta.length === 1 ? 'Esta proposta tem versão única.' : `Esta proposta tem ${row.versoesDaProposta.length} versões.`}
         </UncontrolledTooltip>
 
-        <AlertTriangle size={17} id={`alert-tooltip-${row._id}`} /> 
+{/*         <AlertTriangle size={17} id={`alert-tooltip-${row._id}`} /> 
         <UncontrolledTooltip placement='top' target={`alert-tooltip-${row._id}`}>
           <div>{row.alertaEm === null ? 'Esta proposta não tem alerta programado.' : `Um alerta está programado para ${moment(row.alertaEm).format("DD.MM.YYYY HH:mm")} com a mensagem "${row.msgDoAlerta}".`}</div>
           <div>{row.versoesDaProposta[row.versoesDaProposta.length - 1].comentarioDaProposta === null ? '' : `Visualize a proposta para ler seus comentários.`}</div>
-        </UncontrolledTooltip> 
+        </UncontrolledTooltip>  */}
       </div>
     )
   },

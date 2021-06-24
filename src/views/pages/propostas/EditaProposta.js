@@ -1,5 +1,5 @@
 import { Fragment, useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useHistory } from 'react-router-dom'
 import { Row, Col } from 'reactstrap'
 import FormularioDeProposta from '../../components/Formularios/Proposta/FormularioDeProposta'
 import { isUserLoggedIn } from '@utils'
@@ -7,22 +7,23 @@ import db from '../../../db'
 import { ALERTA_FOLLOWUP_CLIENTE } from '../../../configs/appProposta'
 import config from '../../../configs/comoPediuOptions'
 import Erro from '../../components/Erro'
+import { toast } from 'react-toastify'
+import { ErrorToast }  from '../../components/Toasts/ToastTypes'
 
 const EditaProposta = () => {
   const { id, rascunho } = useParams()
-
   const [erro, setErro] = useState(null)
+  const history = useHistory()
 
-  const [userData, setUserData] = useState(null)
-  const [empresa, setEmpresa] = useState(null)
-  const [userDataCarregado, setUserDataCarregado] = useState(false)
+  let msgToast = ''
+  const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
 
   const valoresIniciaisDaProposta = { 
     // Valores que não dependem do usuário
     idDaEmpresa: null, 
     statusDaProposta: "ativa",
     isPropostaEnabled: true,
-    propostaCriadaPor: "Documento externo",
+    propostaCriadaPor: "Linha a linha", // "Documento externo",
 
     // STEP 1
     isNewCliente: true,
@@ -32,13 +33,10 @@ const EditaProposta = () => {
     quemPediu: "",
     idDaProposta: null,
     comentarioDaProposta: '',
-
-    // STEP 4
     isAlertaLigado: true,
     msgDoAlerta: ALERTA_FOLLOWUP_CLIENTE, 
     diasParaAlerta: null,
-
-    // Armazena versões da proposta
+    avatar: '',
     versoesDaProposta: []
   }
 
@@ -55,7 +53,11 @@ const EditaProposta = () => {
     // STEP 3
     arquivoDaProposta: null
   }
-  
+
+  const [userData, setUserData] = useState(null)
+  const [userDataCarregado, setUserDataCarregado] = useState(false)
+
+  const [empresa, setEmpresa] = useState(null)
   const [proposta, setProposta] = useState(valoresIniciaisDaProposta)
   const [versaoDaProposta, setVersaoDaProposta] = useState(valoresIniciaisDaVersaoDaProposta)
   const [operacao, setOperacao] = useState('Criar')
@@ -74,46 +76,58 @@ const EditaProposta = () => {
         setProposta(propostasEmLocalStorage.proposta)
         setVersaoDaProposta(propostasEmLocalStorage.versaoDaProposta)
         setEmpresa(propostasEmLocalStorage.empresa)
-        setOperacao(propostasEmLocalStorage.operacao)
+        setOperacao(propostasEmLocalStorage.operacao) 
         localStorage.removeItem('@appproposta/propostas')
       } else {
         if (id !== undefined) { // Carrega a proposta id
-          const query = {
-            bd: "propostas",
-            operador: "get",
-            cardinalidade: "one",
-            pesquisa: { 
-              ['_id']: id
-            }
-          } 
-          db.getGenerico(query, false) 
-          .then((resposta) => { 
-            setProposta(resposta) 
-            setVersaoDaProposta(resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1])
-            setOperacao('Atualizar')
-            let alertaLigado = false
-            let msg = ALERTA_FOLLOWUP_CLIENTE
-            if (resposta.alertaEm !== null) {
-              alertaLigado = true
-              msg = resposta.msgDoAlerta
-            }
-            setProposta(registroAnterior => ({
-              ...registroAnterior, 
-              isAlertaLigado: alertaLigado,
-              msgDoAlerta: msg,
-              diasParaAlerta: null,
-              isNewCliente: false
-            }))
-            setVersaoDaProposta(registroAnterior => ({
-              ...registroAnterior, 
-              diasDeValidadeDaProposta: null,
-              dataDaProposta: null
-            }))   
-          })
-          .catch((err) => {
-/*             setErro(err)
-            setErro(null) */
-          })  
+          if (id.length !== 24) {
+            msgToast = 'Proposta não encontrada. Preencha o formulário para criar uma nova proposta'
+            notifyError()
+          } else {
+            const query = {
+              bd: "propostas",
+              operador: "get",
+              cardinalidade: "one",
+              pesquisa: { 
+                ['_id']: id, 
+                idDaEmpresa: userData.idDaEmpresa
+              }
+            } 
+            db.getGenerico(query, false) 
+            .then((resposta) => { 
+              if (resposta !== null) {
+                setProposta(resposta) 
+                setVersaoDaProposta(resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1])
+                setOperacao('Atualizar')
+                let alertaLigado = false
+                let msg = ALERTA_FOLLOWUP_CLIENTE
+                if (resposta.alertaEm !== null) {
+                  alertaLigado = true
+                  msg = resposta.msgDoAlerta
+                }
+                setProposta(registroAnterior => ({
+                  ...registroAnterior, 
+                  isAlertaLigado: alertaLigado,
+                  msgDoAlerta: msg,
+                  diasParaAlerta: null,
+                  isNewCliente: false
+                }))              
+                setVersaoDaProposta(registroAnterior => ({
+                  ...registroAnterior, 
+                  diasDeValidadeDaProposta: null,
+                  dataDaProposta: null,
+                  valorDaProposta: String(resposta.valorDaProposta).replace(".", ",")
+                }))    
+              } else {
+                msgToast = 'Proposta não encontrada. Preencha o formulário para criar uma nova proposta'
+                notifyError()
+              }
+            })
+            .catch((err) => {
+  /*             setErro(err)
+              setErro(null) */
+            })  
+          }
         }
 
         const query = { // Carrega es informações da empresa

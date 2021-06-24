@@ -21,7 +21,7 @@ const MostraCliente = () => {
     } 
   }, [])
 
-  useEffect(() => {
+  useEffect(() => { // Falta tratamento de erro se id não tem 24 caracteres ou se não encontrou no BD. Ver como fazer em EditaProposta
     if (userDataCarregado) {
       if (id !== undefined) { // Carrega a proposta id
         const query = {
@@ -29,7 +29,8 @@ const MostraCliente = () => {
           operador: "get",
           cardinalidade: "one",
           pesquisa: { 
-            ['_id']: id
+            ['_id']: id, 
+            idDaEmpresa: userData.idDaEmpresa
           }
         } 
         db.getGenerico(query, false) 
