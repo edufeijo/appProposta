@@ -63,7 +63,11 @@ const PropostaExterna = ({ userData, empresa, proposta, setProposta, versaoDaPro
         </Row>
 
         <div className='d-flex justify-content-between'>
-          <Button.Ripple color='primary' className='btn-prev' onClick={() => stepper.previous()}>
+          <Button.Ripple 
+            color='primary' 
+            className='btn-prev' 
+            onClick={() => setProposta(registroAnterior => ({...registroAnterior, propostaCriadaPor: "Linha a linha"}))}
+          >
             <ArrowLeft size={14} className='align-middle mr-sm-25 mr-0'></ArrowLeft>
             <span className='align-middle d-sm-inline-block d-none'>Voltar</span>
           </Button.Ripple>

@@ -26,9 +26,9 @@ const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versao
       />
     },
     {
-      id: 'detalhes',
-      title: 'Informações',
-      subtitle: 'Detalhe a proposta',
+      id: 'itens',
+      title: 'Itens da proposta',
+      subtitle: 'Inclua itens na proposta',
       content: <Detalhes 
         userData={userData} 
         empresa={empresa} 
@@ -41,7 +41,7 @@ const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versao
         type='wizard-horizontal' 
       />
     },
-    {
+/*     {
       id: 'config',
       title: 'Configuração',
       subtitle: 'Configure a exibição da proposta',
@@ -56,7 +56,7 @@ const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versao
         stepper={stepper} 
         type='wizard-horizontal' 
       />
-    },
+    }, */
     {
       id: 'alerta',
       title: 'Alerta',

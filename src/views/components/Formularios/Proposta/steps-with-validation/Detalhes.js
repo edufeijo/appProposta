@@ -1,13 +1,4 @@
-import * as yup from 'yup'
-import { Fragment, useState, useEffect } from 'react'
-import { isObjEmpty } from '@utils'
-import { useForm } from 'react-hook-form'
-import { ArrowLeft, ArrowRight, X, Plus } from 'react-feather'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } from '../../../../../configs/appProposta'
-import { Form, Label, Input, FormGroup, Row, Col, Button, FormFeedback, InputGroup, InputGroupAddon, InputGroupText, Card, CardHeader, CardBody, CardText } from 'reactstrap'
-
-import '@styles/react/libs/flatpickr/flatpickr.scss'
+import { Fragment } from 'react'
 import PropostaExterna from './detalhes/PropostaExterna'
 import LinhaALinha from './detalhes/LinhaALinha'
 
@@ -25,6 +16,7 @@ const Detalhes = ({ userData, empresa, proposta, setProposta, versaoDaProposta, 
         stepper={stepper} 
         type='wizard-horizontal' 
       />}
+
       {proposta && proposta.propostaCriadaPor === 'Documento externo' && <PropostaExterna 
         userData={userData} 
         empresa={empresa} 
