@@ -60,6 +60,7 @@ const EditaProposta = () => {
   const [empresa, setEmpresa] = useState(null)
   const [proposta, setProposta] = useState(valoresIniciaisDaProposta)
   const [versaoDaProposta, setVersaoDaProposta] = useState(valoresIniciaisDaVersaoDaProposta)
+  const [tabelaDeItens, setTabelaDeItens] = useState([])
   const [operacao, setOperacao] = useState('Criar')
 
   useEffect(() => {
@@ -170,6 +171,8 @@ const EditaProposta = () => {
             setProposta={setProposta} 
             versaoDaProposta={versaoDaProposta}
             setVersaoDaProposta={setVersaoDaProposta}
+            tabelaDeItens={tabelaDeItens}
+            setTabelaDeItens={setTabelaDeItens}
             operacao={operacao}
           />
         </Col>

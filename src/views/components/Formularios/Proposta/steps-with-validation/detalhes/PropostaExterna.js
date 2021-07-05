@@ -8,7 +8,7 @@ import { QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } from '../../../../../../confi
 import { Form, Label, Input, FormGroup, Row, Col, Button, FormFeedback, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap'
 import Arquivo from '../../../../UploadDeArquivo/Arquivo'
 
-const PropostaExterna = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, operacao, stepper, type }) => {
+const PropostaExterna = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, operacao, stepper, type }) => {
   const SignupSchema = yup.object().shape({
     valorDaProposta: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required()
   })

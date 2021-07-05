@@ -17,7 +17,7 @@ import Spinner from '@components/spinner/Loading-spinner'
 import Flatpickr from 'react-flatpickr'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
 
-const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, operacao, stepper, type }) => {
+const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, operacao, stepper, type }) => {
   const [erro, setErro] = useState(null)
   const history = useHistory()
   const [block, setBlock] = useState(false)
@@ -233,9 +233,6 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
       isAlertaLigado: !proposta.isAlertaLigado
     }))
   }
-
-  console.log("proposta=", proposta)
-  console.log("versaoDaProposta=", versaoDaProposta)
 
   return (
     <UILoader blocking={block} loader={<Loader />}>

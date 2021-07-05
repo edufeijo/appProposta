@@ -1,43 +1,62 @@
 import { useState, useEffect, Fragment } from 'react'
-import { Link } from 'react-router-dom'
-import { columns } from './columns'
-import { ChevronDown, ArrowLeft, ArrowRight, Upload, Plus, Save } from 'react-feather'
-import DataTable from 'react-data-table-component'
-import { Button, Label, Input, CustomInput, Row, Col, FormFeedback, Form, FormGroup, InputGroup, InputGroupAddon, InputGroupText } from 'reactstrap'
+import { ArrowLeft, ArrowRight, Upload, Plus, Save, Trash } from 'react-feather'
+import { Button, Label, Input, Row, Col, FormFeedback, Form, InputGroup, InputGroupAddon, InputGroupText, TabContent, TabPane, Nav, NavItem, NavLink, Card, CardHeader, CardBody, CardText, FormGroup } from 'reactstrap'
 import '@styles/react/apps/app-invoice.scss'
-import '@styles/react/libs/tables/react-dataTable-component.scss'
 import Erro from '../../../../Erro'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm  } from 'react-hook-form'
 import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM, QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA, QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM } from '../../../../../../configs/appProposta'
 import { isObjEmpty } from '@utils'
+import PropostaExterna from './PropostaExterna'
+import Repeater from '@components/repeater'
+import { SlideDown } from 'react-slidedown'
 
-const NomeDoNovoItem = ({ item, setItem, errors, register }) => {
+const NomeDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens, erroNoFormulario, setErroNoFormulario }) => {
+  const SignupSchema = yup.object().shape({
+    [`nomeDoItem${index}`]: yup.string().min(QTDADE_MIN_LETRAS_NOME_DO_ITEM).max(QTDADE_MAX_LETRAS_NOME_DO_ITEM).required()
+  })
+
+  const { register, errors, handleSubmit, trigger } = useForm({ 
+    mode: 'onChange', 
+    resolver: yupResolver(SignupSchema)
+  })
+
   const handleChange = e => {
     const { name, value } = e.target
-    setItem(registroAnterior => ({
-      ...registroAnterior, 
-      nomeDoItem: value
-    }))
+    const temporaryarray = Array.from(tabelaDeItens)
+    temporaryarray[index].nomeDoItem = value
+    setTabelaDeItens(temporaryarray)
+    
+    if (isObjEmpty(errors)) setErroNoFormulario(false)
+    else setErroNoFormulario(true)
   }
+
+  console.log("================ No NomeDoNovoItem")
+  console.log("tabelaDeItens=", tabelaDeItens)
+  console.log("errors=", errors)
+  console.log("erroNoFormulario=", erroNoFormulario)
+
+  const defaultValue = tabelaDeItens === null ? null : tabelaDeItens[index].nomeDoItem
 
   return (
     <div>
-      <Label className='form-label' for='nomeDoItem'>
+      <Label className='form-label' for={`nomeDoItem${index}`}>
         Nome do item
       </Label>
-      <Input
-        name='nomeDoItem'
-        id='nomeDoItem'
-        placeholder='Nome do item'
-        defaultValue={item.nomeDoItem}
-        autoComplete="off"
-        innerRef={register({ required: true })}
-        invalid={errors.nomeDoItem && true}
-        onChange={handleChange}
-      />
-      {errors && errors.nomeDoItem && <FormFeedback>Nome do item com no mínimo {QTDADE_MIN_LETRAS_NOME_DO_ITEM} e no máximo {QTDADE_MAX_LETRAS_NOME_DO_ITEM} caracteres</FormFeedback>}
+      <InputGroup className='input-group-merge mb-2'>
+        <Input
+          name={`nomeDoItem${index}`}
+          id={`nomeDoItem${index}`}
+          placeholder='Nome do item'
+          defaultValue={defaultValue}
+          autoComplete="off"
+          innerRef={register({ required: true })}
+          invalid={errors[`nomeDoItem${index}`] && true}
+          onChange={handleChange}
+        />
+      {errors && errors[`nomeDoItem${index}`] && <FormFeedback>Nome do item com no mínimo {QTDADE_MIN_LETRAS_NOME_DO_ITEM} e no máximo {QTDADE_MAX_LETRAS_NOME_DO_ITEM} caracteres</FormFeedback>}
+      </InputGroup>
     </div>
   ) 
 }
@@ -107,52 +126,23 @@ const DescricaoDoNovoItem = ({ item, setItem, errors, register }) => {
   ) 
 }
 
-const CustomHeader = ({ value, setValue, handleStatusValue, statusValue, handlePeriodo}) => {
-  return (
-    <div className='invoice-list-table-header w-100 py-2'>
-{/*       <Row>
-        <Col lg='6' className='d-flex align-items-center px-0 px-lg-1'>
-          <div className='d-flex align-items-center mr-2'>
-            <Label for='rows-per-page'>Período</Label>
-            <CustomInput
-              className='form-control ml-50 pr-3'
-              type='select'
-              id='periodo'
-              onChange={handlePeriodo}
-            >
-              <option value='7'>últimos 7 dias</option>
-              <option value='30'>últimos 30 dias</option>
-              <option value='all'>Tudo</option>
-            </CustomInput>
-          </div>
-
-          <Button.Ripple tag={Link} to='/proposta/new' color='primary'>
-            Criar proposta
-          </Button.Ripple>
-        </Col>
-
-        <Col
-          lg='6'
-          className='actions-right d-flex align-items-center justify-content-lg-end flex-lg-nowrap flex-wrap mt-lg-0 mt-1 pr-lg-1 p-0'
-        >
-          <Input className='w-auto ' type='select' value={statusValue} onChange={handleStatusValue}>
-            <option value=''>Selecione status</option>
-            <option value='ativa'>ativa</option>
-            <option value='aprovada'>aprovada</option>
-            <option value='contratada'>contratada</option>
-            <option value='vencida'>vencida</option>
-            <option value='rejeitada'>rejeitada</option>
-            <option value='rascunho'>rascunho</option>
-          </Input>
-
-        </Col>
-      </Row> */}
-    </div>
-  )
-}
-
-const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, operacao, stepper, type }) => {
+const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, operacao, stepper, type }) => {
   const [erro, setErro] = useState(null)
+  const [erroNoFormulario, setErroNoFormulario] = useState(false)
+
+  const SignupSchema = yup.object().shape({
+    precoDoItem: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required(),
+    descricaoDoItem: yup.string().max(QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM)
+  })
+  const { register, errors, handleSubmit, trigger } = useForm({ 
+    mode: 'onChange', 
+    resolver: yupResolver(SignupSchema)
+  })
+
+  const [active, setActive] = useState('1')
+  const toggle = tab => {
+    setActive(tab)
+  }
 
   const valoresIniciaisItem = { 
     id: 0,
@@ -161,43 +151,32 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     descricaoDoItem: '' 
   }
 
+  const [count, setCount] = useState(1)
   const [item, setItem] = useState(valoresIniciaisItem)
-  const [tabelaDeItens, setTabelaDeItens] = useState([])
 
-  const [userDataCarregado, setUserDataCarregado] = useState(false)
-  const [quantidadeDePropostas, setQuantidadeDePropostas] = useState()
+  if (tabelaDeItens.length === 0) tabelaDeItens.push(valoresIniciaisItem)
 
-  const [currentPage, setCurrentPage] = useState(1)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [sortCriteria, setSortCriteria] = useState({ ultimaAtualizacao: -1 }) // ordenado em ordem decrescente de atualização da proposta
-  const [recarregaPagina, setRecarregaPagina] = useState(false)
-
-  const handleSort = (column, sortDirection) => {
-    let criterioDeSort = {}
-    if (sortDirection === 'asc') criterioDeSort = { [column.selector]: 1 }
-    else criterioDeSort = { [column.selector]: -1 }
-
-    setSortCriteria(criterioDeSort)
-    setCurrentPage(1)
-    setRecarregaPagina(!recarregaPagina)
+  const increaseCount = () => {
+    trigger()    
+    if (!erroNoFormulario) {
+      tabelaDeItens.push(valoresIniciaisItem)
+      setCount(count + 1)
+    } 
   }
 
-  /* function deleteTask(index) {
-    const itensCopy = Array.from(data)
-    itensCopy.splice(index, 1)
-    setData(itensCopy)
-  } */
-  
-  const SignupSchema = yup.object().shape({
-    nomeDoItem: yup.string().min(QTDADE_MIN_LETRAS_NOME_DO_ITEM).max(QTDADE_MAX_LETRAS_NOME_DO_ITEM).required(),
-    precoDoItem: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required(),
-    descricaoDoItem: yup.string().max(QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM)
-  })
-
-  const { register, errors, handleSubmit, trigger } = useForm({ 
-    mode: 'onChange', 
-    resolver: yupResolver(SignupSchema)
-  })
+  const deleteForm = (i) => {
+    console.log('----------------------------- No deleteForm')
+    console.log("====== i=", i)
+    if (tabelaDeItens.length > 0) {
+      if (tabelaDeItens.length !== i) {
+        const itensCopy = Array.from(tabelaDeItens)
+        itensCopy.splice(i, 1)
+        setTabelaDeItens(itensCopy)
+      } else {
+        setCount(count - 1)
+      }
+    }
+  }
 
   const onSubmit = () => {
     trigger()    
@@ -214,89 +193,163 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
   }
 
   console.log("======================= No LinhaALinha")
-  console.log("item=", item)
   console.log("tabelaDeItens=", tabelaDeItens)
-  console.log("errors=", errors)
+  console.log("Na raiz: errors=", errors)
+  console.log("count=", count)
+  console.log("erroNoFormulario=", erroNoFormulario)
 
   return (
     <Fragment>
-      {tabelaDeItens.length > 0 && <div className='invoice-list-wrapper'> 
-        <div className='invoice-list-dataTable'>
-          <DataTable
-            noHeader
-            subHeader={true}
-            columns={columns}
-            responsive={true}
-            sortIcon={<ChevronDown />}
-            className='react-dataTable'
-            data={tabelaDeItens}
-            onSort={handleSort}
-            sortServer
-            subHeaderComponent={
-              <CustomHeader
-              />
-            }
+      <Nav className='justify-content-end' pills>
+        <NavItem>
+          <NavLink
+            active={active === '1'}
+            onClick={() => {
+              toggle('1')
+            }}
+          >
+            Itens
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === '2'}
+            onClick={() => {
+              toggle('2')
+            }}
+          >
+            Salvar
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            active={active === '3'}
+            onClick={() => {
+              toggle('3')
+            }}
+          >
+            Carregar
+          </NavLink>
+        </NavItem>
+      </Nav>
+
+      <TabContent className='py-50' activeTab={active}>
+        <TabPane tabId='1'>
+          <Repeater count={count}>
+            {i => {
+              const Tag = i === 0 ? 'div' : SlideDown
+              console.log("i=", i)
+
+              return (
+                <Tag key={i}>
+                  <Form>
+                    <Row className='justify-content-between align-items-center'>
+                      <Col md={6}>
+                        <NomeDoNovoItem 
+                          index={i}
+                          tabelaDeItens={tabelaDeItens}
+                          setTabelaDeItens={setTabelaDeItens}
+                          erroNoFormulario={erroNoFormulario}
+                          setErroNoFormulario={setErroNoFormulario}
+                        />
+                      </Col>
+                      <Col md={4}>
+                        <PrecoDoNovoItem 
+                          item={item}
+                          setItem={setItem}
+                          errors={errors}
+                          register={register}
+                        />
+                      </Col>
+                      <Col md={2}>
+                        <Button.Ripple block color='danger' className='text-nowrap px-1' onClick={() => deleteForm(i)} outline>
+                          <Trash size={14} className='mr-50' />
+                          <span>Excluir</span>
+                        </Button.Ripple>
+                      </Col>
+                      <Col md={12}>
+                        <DescricaoDoNovoItem 
+                          item={item}
+                          setItem={setItem}
+                          errors={errors}
+                          register={register}
+                        />
+                      </Col>
+                      <Col sm={12}>
+                        <hr />
+                      </Col>
+                    </Row>
+                  </Form>
+                </Tag>
+              )
+            }}
+          </Repeater>
+          <Button.Ripple block outline className='btn-icon' color='primary' onClick={handleSubmit(increaseCount)}>
+            <Plus size={14} />
+            <span className='align-middle ml-25'>Novo item</span>
+          </Button.Ripple>
+          <Col sm={12}>
+            <hr />
+          </Col>
+
+
+{/*           
+                        <FormGroup>
+                          <Label for={`animation-price-${i}`}>Price</Label>
+                          <input
+                            className='form-control-plaintext'
+                            type='number'
+                            id={`animation-price-${i}`}
+                            value='$32'
+                            placeholder='$32'
+                            readOnly
+                            disabled
+                          />
+                        </FormGroup>
+
+<NomeDoNovoItem 
+            item={item}
+            setItem={setItem}
+            errors={errors}
+            register={register}
           />
-        </div>
-      </div>}
+          <DescricaoDoNovoItem 
+            item={item}
+            setItem={setItem}
+            errors={errors}
+            register={register}
+          />
+          <PrecoDoNovoItem 
+            item={item}
+            setItem={setItem}
+            errors={errors}
+            register={register}
+          /> */}
+        </TabPane>
+        <TabPane tabId='2'>
+          <p>
+            Pudding candy canes sugar plum cookie chocolate cake powder croissant. Carrot cake tiramisu danish candy
+            cake muffin croissant tart dessert. Tiramisu caramels candy canes chocolate cake sweet roll liquorice icing
+            cupcake.Bear claw chocolate chocolate cake jelly-o pudding lemon drops sweet roll sweet candy. Chocolate
+            sweet chocolate bar candy chocolate bar chupa chups gummi bears lemon drops.
+          </p>
+        </TabPane>
+        <TabPane tabId='3'>
+          <PropostaExterna
+            userData={userData} 
+            empresa={empresa} 
+            proposta={proposta} 
+            setProposta={setProposta} 
+            versaoDaProposta={versaoDaProposta}
+            setVersaoDaProposta={setVersaoDaProposta}
+            tabelaDeItens={tabelaDeItens}
+            setTabelaDeItens={setTabelaDeItens}
+            operacao={operacao}
+          />
+        </TabPane>
+      </TabContent>
+
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <div className='invoice-preview-wrapper'>
-          <Row className='invoice-preview'>
-            <Col xl={9} md={8} sm={12}>
-              <NomeDoNovoItem 
-                item={item}
-                setItem={setItem}
-                errors={errors}
-                register={register}
-              />
-              <DescricaoDoNovoItem 
-                item={item}
-                setItem={setItem}
-                errors={errors}
-                register={register}
-              />
-              <PrecoDoNovoItem 
-                item={item}
-                setItem={setItem}
-                errors={errors}
-                register={register}
-              />
-            </Col>
-
-            <Col xl={3} md={4} sm={12}>
-              <Label className='form-label' for='nomeDoItem'>
-                Ações:
-              </Label>
-              <Button.Ripple 
-                color='primary' 
-                block 
-                className='mb-75'
-                type='submit' 
-              >
-                <span>Incluir item</span>
-                <Plus size={14} className='align-middle ml-sm-25 ml-0'></Plus>
-              </Button.Ripple>
-              <Button.Ripple color='secondary' block outline className='mb-75'>
-                <span>Guardar rascunho</span>
-                <Save size={14} className='align-middle ml-sm-25 ml-0'></Save>
-              </Button.Ripple>
-              <Label className='form-label' for='nomeDoItem'>
-                Proposta gerada em outro sistema:
-              </Label>
-              <Button.Ripple 
-                color='secondary' 
-                block 
-                outline 
-                className='mb-75'
-                onClick={() => setProposta(registroAnterior => ({...registroAnterior, propostaCriadaPor: 'Documento externo'}))}
-              >
-                <span>Carregar proposta</span>
-                <Upload size={14} className='align-middle ml-sm-25 ml-0'></Upload>
-              </Button.Ripple>
-            </Col>
-          </Row>
-        </div>
-
         <div className='d-flex justify-content-between'>
           <Button.Ripple 
             color='primary' 

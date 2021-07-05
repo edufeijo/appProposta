@@ -4,7 +4,7 @@ import Alerta from './steps-with-validation/Alerta'
 import Detalhes from './steps-with-validation/Detalhes'
 import Identificacao from './steps-with-validation/Identificacao'
 
-const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, operacao }) => {
+const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, operacao }) => {
   const [stepper, setStepper] = useState(null)
   const ref = useRef(null)
 
@@ -20,6 +20,8 @@ const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versao
         setProposta={setProposta} 
         versaoDaProposta={versaoDaProposta}
         setVersaoDaProposta={setVersaoDaProposta}
+        tabelaDeItens={tabelaDeItens}
+        setTabelaDeItens={setTabelaDeItens}
         operacao={operacao}
         stepper={stepper} 
         type='wizard-horizontal' 
@@ -36,6 +38,8 @@ const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versao
         setProposta={setProposta} 
         versaoDaProposta={versaoDaProposta}
         setVersaoDaProposta={setVersaoDaProposta}
+        tabelaDeItens={tabelaDeItens}
+        setTabelaDeItens={setTabelaDeItens}
         operacao={operacao}
         stepper={stepper} 
         type='wizard-horizontal' 
@@ -52,6 +56,8 @@ const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versao
         setProposta={setProposta} 
         versaoDaProposta={versaoDaProposta}
         setVersaoDaProposta={setVersaoDaProposta}
+        tabelaDeItens={tabelaDeItens}
+        setTabelaDeItens={setTabelaDeItens}
         operacao={operacao}
         stepper={stepper} 
         type='wizard-horizontal' 
@@ -68,6 +74,8 @@ const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versao
         setProposta={setProposta} 
         versaoDaProposta={versaoDaProposta}
         setVersaoDaProposta={setVersaoDaProposta}
+        tabelaDeItens={tabelaDeItens}
+        setTabelaDeItens={setTabelaDeItens}
         operacao={operacao}
         stepper={stepper} 
         type='wizard-horizontal' 
