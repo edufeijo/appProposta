@@ -11,8 +11,10 @@ import { isObjEmpty } from '@utils'
 import PropostaExterna from './PropostaExterna'
 import Repeater from '@components/repeater'
 import { SlideDown } from 'react-slidedown'
+import { toast } from 'react-toastify'
+import { ErrorToast }  from '../../../../Toasts/ToastTypes'
 
-const NomeDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens, erroNoFormulario, setErroNoFormulario }) => {
+const NomeDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens }) => {
   const SignupSchema = yup.object().shape({
     [`nomeDoItem${index}`]: yup.string().min(QTDADE_MIN_LETRAS_NOME_DO_ITEM).max(QTDADE_MAX_LETRAS_NOME_DO_ITEM).required()
   })
@@ -26,18 +28,14 @@ const NomeDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens, erroNoFormular
     const { name, value } = e.target
     const temporaryarray = Array.from(tabelaDeItens)
     temporaryarray[index].nomeDoItem = value
+
+    if (isObjEmpty(errors)) delete temporaryarray[index].erroNoFormulario.nomeDoItem
+    else temporaryarray[index].erroNoFormulario.nomeDoItem = true   
+ 
     setTabelaDeItens(temporaryarray)
-    
-    if (isObjEmpty(errors)) setErroNoFormulario(false)
-    else setErroNoFormulario(true)
   }
 
-  console.log("================ No NomeDoNovoItem")
-  console.log("tabelaDeItens=", tabelaDeItens)
-  console.log("errors=", errors)
-  console.log("erroNoFormulario=", erroNoFormulario)
-
-  const defaultValue = tabelaDeItens === null ? null : tabelaDeItens[index].nomeDoItem
+  const defaultValue = tabelaDeItens[index].nomeDoItem
 
   return (
     <div>
@@ -61,18 +59,32 @@ const NomeDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens, erroNoFormular
   ) 
 }
 
-const PrecoDoNovoItem = ({ item, setItem, errors, register }) => {
+const PrecoDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens }) => {
+  const SignupSchema = yup.object().shape({
+    [`precoDoItem${index}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required()
+  })
+
+  const { register, errors, handleSubmit, trigger } = useForm({ 
+    mode: 'onChange', 
+    resolver: yupResolver(SignupSchema)
+  })
+
   const handleChange = e => {
     const { name, value } = e.target
-    setItem(registroAnterior => ({
-      ...registroAnterior, 
-      precoDoItem: value
-    }))  
+    const temporaryarray = Array.from(tabelaDeItens)
+    temporaryarray[index].precoDoItem = value
+
+    if (isObjEmpty(errors)) delete temporaryarray[index].erroNoFormulario.precoDoItem
+    else temporaryarray[index].erroNoFormulario.precoDoItem = true   
+
+    setTabelaDeItens(temporaryarray)
   }
+
+  const defaultValue = tabelaDeItens[index].precoDoItem
 
   return (
     <div>
-      <Label className='form-label' for='precoDoItem'>
+      <Label className='form-label' for={`precoDoItem${index}`}>
         Preço do item
       </Label>
       <InputGroup className='input-group-merge mb-2'>
@@ -80,47 +92,61 @@ const PrecoDoNovoItem = ({ item, setItem, errors, register }) => {
           <InputGroupText>R$</InputGroupText>
         </InputGroupAddon>
         <Input
-          name='precoDoItem'
-          id='precoDoItem'
+          name={`precoDoItem${index}`}
+          id={`precoDoItem${index}`}
           placeholder={"1000,00"}
-          defaultValue={item.precoDoItem}
+          defaultValue={defaultValue}
           autoComplete="off"
           innerRef={register({ required: true })}
-          invalid={errors.precoDoItem && true}
+          invalid={errors[`precoDoItem${index}`] && true}
           onChange={handleChange}
         />
-        {errors && errors.precoDoItem && <FormFeedback>Exemplos: 1244 ou 283,15</FormFeedback>}
+        {errors && errors[`precoDoItem${index}`] && <FormFeedback>Exemplos: 1244 ou 283,15</FormFeedback>}
       </InputGroup>
       </div>
   )
 }
 
-const DescricaoDoNovoItem = ({ item, setItem, errors, register }) => {
+const DescricaoDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens })  => {
+  const SignupSchema = yup.object().shape({
+    [`descricaoDoItem${index}`]: yup.string().max(QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM)
+  })
+
+  const { register, errors, handleSubmit, trigger } = useForm({ 
+    mode: 'onChange', 
+    resolver: yupResolver(SignupSchema)
+  })
+
   const handleChange = e => {
     const { name, value } = e.target
-    setItem(registroAnterior => ({
-      ...registroAnterior, 
-      descricaoDoItem: value
-    }))
+    const temporaryarray = Array.from(tabelaDeItens)
+    temporaryarray[index].descricaoDoItem = value
+
+    if (isObjEmpty(errors)) delete temporaryarray[index].erroNoFormulario.descricaoDoItem
+    else temporaryarray[index].erroNoFormulario.descricaoDoItem = true   
+
+    setTabelaDeItens(temporaryarray)
   }
+
+  const defaultValue = tabelaDeItens[index].descricaoDoItem
 
   return (
     <div>
-      <Label className='form-label' for='descricaoDoItem'>
+      <Label className='form-label' for={`descricaoDoItem${index}`}>
         Descrição do item
       </Label>
       <InputGroup className='input-group-merge'>
         <Input 
-          name='descricaoDoItem'
-          id='descricaoDoItem'
-          defaultValue={item.descricaoDoItem}
+          name={`descricaoDoItem${index}`}
+          id={`descricaoDoItem${index}`}
+          defaultValue={defaultValue}
           innerRef={register({ required: true })}
-          invalid={errors.descricaoDoItem && true}
+          invalid={errors[`descricaoDoItem${index}`] && true}
           onChange={handleChange}
           type='textarea' 
           placeholder='Descrição do item'
         />
-        {errors && errors.descricaoDoItem && <FormFeedback>Máximo de {QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM} caracteres</FormFeedback>}
+        {errors && errors[`descricaoDoItem${index}`] && <FormFeedback>Máximo de {QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM} caracteres</FormFeedback>}
       </InputGroup>
     </div>
   ) 
@@ -128,16 +154,9 @@ const DescricaoDoNovoItem = ({ item, setItem, errors, register }) => {
 
 const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, operacao, stepper, type }) => {
   const [erro, setErro] = useState(null)
-  const [erroNoFormulario, setErroNoFormulario] = useState(false)
 
-  const SignupSchema = yup.object().shape({
-    precoDoItem: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required(),
-    descricaoDoItem: yup.string().max(QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM)
-  })
-  const { register, errors, handleSubmit, trigger } = useForm({ 
-    mode: 'onChange', 
-    resolver: yupResolver(SignupSchema)
-  })
+  let msgToast = ''
+  const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 2000 })
 
   const [active, setActive] = useState('1')
   const toggle = tab => {
@@ -148,55 +167,45 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     id: 0,
     nomeDoItem: '', 
     precoDoItem: null, 
-    descricaoDoItem: '' 
+    descricaoDoItem: '',
+    erroNoFormulario: {
+      nomeDoItem: true, 
+      precoDoItem: true
+    }
   }
 
-  const [count, setCount] = useState(1)
-  const [item, setItem] = useState(valoresIniciaisItem)
-
   if (tabelaDeItens.length === 0) tabelaDeItens.push(valoresIniciaisItem)
+  const [count, setCount] = useState(tabelaDeItens.length)
 
   const increaseCount = () => {
-    trigger()    
+    const erroNoFormulario = tabelaDeItens.reduce((erroNoFormulario, item) => erroNoFormulario || (!isObjEmpty(item.erroNoFormulario)), false)
     if (!erroNoFormulario) {
       tabelaDeItens.push(valoresIniciaisItem)
       setCount(count + 1)
-    } 
+    } else {
+      msgToast = 'Nome e preço do item são de preenchimento obrigatório'
+      notifyError()  
+    }
   }
 
   const deleteForm = (i) => {
-    console.log('----------------------------- No deleteForm')
-    console.log("====== i=", i)
-    if (tabelaDeItens.length > 0) {
-      if (tabelaDeItens.length !== i) {
-        const itensCopy = Array.from(tabelaDeItens)
-        itensCopy.splice(i, 1)
-        setTabelaDeItens(itensCopy)
-      } else {
-        setCount(count - 1)
-      }
+    if (tabelaDeItens.length > 1) {
+      const itensCopy = Array.from(tabelaDeItens)
+      itensCopy.splice(i, 1)
+      setTabelaDeItens(itensCopy)
+      setCount(count - 1)
     }
   }
 
   const onSubmit = () => {
-    trigger()    
-    console.log("===================== No onSubmit")
-    console.log("errors=", errors)
-
-    if (isObjEmpty(errors)) {
-      console.log("Não há erros")
-      if (tabelaDeItens.length) item.id = tabelaDeItens[tabelaDeItens.length - 1].id + 1
-      else item.id = 1
-      tabelaDeItens.push(item)
-      setItem(valoresIniciaisItem)
-    } else console.log("===================== Tem erros")
+    const erroNoFormulario = tabelaDeItens.reduce((erroNoFormulario, item) => erroNoFormulario || (!isObjEmpty(item.erroNoFormulario)), false)
+    if (!erroNoFormulario) {
+      stepper.next()
+    } else {
+      msgToast = 'Nome e preço do item são de preenchimento obrigatório'
+      notifyError()  
+    }
   }
-
-  console.log("======================= No LinhaALinha")
-  console.log("tabelaDeItens=", tabelaDeItens)
-  console.log("Na raiz: errors=", errors)
-  console.log("count=", count)
-  console.log("erroNoFormulario=", erroNoFormulario)
 
   return (
     <Fragment>
@@ -235,31 +244,43 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
 
       <TabContent className='py-50' activeTab={active}>
         <TabPane tabId='1'>
+          <h3>
+            <div>
+              Valor total da proposta = {tabelaDeItens.reduce((total, item) => total + (item.precoDoItem === null ? 0 : parseFloat(item.precoDoItem.replace(",", "."))), 0)}
+            </div>
+            <div>
+              Quantidade de itens da proposta = {tabelaDeItens.length}
+            </div>
+          </h3>
           <Repeater count={count}>
             {i => {
               const Tag = i === 0 ? 'div' : SlideDown
-              console.log("i=", i)
-
               return (
                 <Tag key={i}>
                   <Form>
                     <Row className='justify-content-between align-items-center'>
+                      <Col sm={12}>
+                        <div className='divider'>
+                          <div className='divider-text'><h4>{`Item ${i + 1}`}</h4></div>
+                        </div>
+                      </Col>
                       <Col md={6}>
-                        <NomeDoNovoItem 
-                          index={i}
-                          tabelaDeItens={tabelaDeItens}
-                          setTabelaDeItens={setTabelaDeItens}
-                          erroNoFormulario={erroNoFormulario}
-                          setErroNoFormulario={setErroNoFormulario}
-                        />
+                        <div key={tabelaDeItens.length}>
+                          <NomeDoNovoItem 
+                            index={i}
+                            tabelaDeItens={tabelaDeItens}
+                            setTabelaDeItens={setTabelaDeItens}
+                          />
+                        </div>
                       </Col>
                       <Col md={4}>
-                        <PrecoDoNovoItem 
-                          item={item}
-                          setItem={setItem}
-                          errors={errors}
-                          register={register}
-                        />
+                        <div key={tabelaDeItens.length}>
+                          <PrecoDoNovoItem 
+                            index={i}
+                            tabelaDeItens={tabelaDeItens}
+                            setTabelaDeItens={setTabelaDeItens}
+                          />
+                        </div>
                       </Col>
                       <Col md={2}>
                         <Button.Ripple block color='danger' className='text-nowrap px-1' onClick={() => deleteForm(i)} outline>
@@ -268,12 +289,13 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
                         </Button.Ripple>
                       </Col>
                       <Col md={12}>
-                        <DescricaoDoNovoItem 
-                          item={item}
-                          setItem={setItem}
-                          errors={errors}
-                          register={register}
-                        />
+                        <div key={tabelaDeItens.length}>
+                          <DescricaoDoNovoItem 
+                            index={i}
+                            tabelaDeItens={tabelaDeItens}
+                            setTabelaDeItens={setTabelaDeItens}
+                          />
+                        </div>
                       </Col>
                       <Col sm={12}>
                         <hr />
@@ -284,47 +306,19 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
               )
             }}
           </Repeater>
-          <Button.Ripple block outline className='btn-icon' color='primary' onClick={handleSubmit(increaseCount)}>
+          <Button.Ripple 
+            block 
+            outline 
+            className='btn-icon' 
+            color='primary' 
+            onClick={increaseCount}
+          >
             <Plus size={14} />
             <span className='align-middle ml-25'>Novo item</span>
           </Button.Ripple>
           <Col sm={12}>
             <hr />
           </Col>
-
-
-{/*           
-                        <FormGroup>
-                          <Label for={`animation-price-${i}`}>Price</Label>
-                          <input
-                            className='form-control-plaintext'
-                            type='number'
-                            id={`animation-price-${i}`}
-                            value='$32'
-                            placeholder='$32'
-                            readOnly
-                            disabled
-                          />
-                        </FormGroup>
-
-<NomeDoNovoItem 
-            item={item}
-            setItem={setItem}
-            errors={errors}
-            register={register}
-          />
-          <DescricaoDoNovoItem 
-            item={item}
-            setItem={setItem}
-            errors={errors}
-            register={register}
-          />
-          <PrecoDoNovoItem 
-            item={item}
-            setItem={setItem}
-            errors={errors}
-            register={register}
-          /> */}
         </TabPane>
         <TabPane tabId='2'>
           <p>
@@ -349,7 +343,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
         </TabPane>
       </TabContent>
 
-      <Form onSubmit={handleSubmit(onSubmit)}>
+      <Form>
         <div className='d-flex justify-content-between'>
           <Button.Ripple 
             color='primary' 
@@ -362,6 +356,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
           <Button.Ripple 
             color='primary' 
             className='btn-next'
+            onClick={onSubmit}
           >
             <span className='align-middle d-sm-inline-block d-none'>Avançar</span>
             <ArrowRight size={14} className='align-middle ml-sm-25 ml-0'></ArrowRight>
