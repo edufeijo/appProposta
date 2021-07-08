@@ -101,7 +101,7 @@ const PrecoDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens }) => {
           invalid={errors[`precoDoItem${index}`] && true}
           onChange={handleChange}
         />
-        {errors && errors[`precoDoItem${index}`] && <FormFeedback>Exemplos: 1244 ou 283,15</FormFeedback>}
+        {errors && errors[`precoDoItem${index}`] && <FormFeedback>Exemplos: 1244 ou 283,15, máximo de {QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } dígitos</FormFeedback>}
       </InputGroup>
       </div>
   )
@@ -207,6 +207,17 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     }
   }
 
+  let precoTotal = 0
+  const calculaPreco = () => {
+    const zero = 0
+    precoTotal =  tabelaDeItens.reduce((total, item) => total + (item.precoDoItem === null ? 0 : parseFloat(item.precoDoItem.replace(",", "."))), 0)
+    if (isNaN(precoTotal)) return zero.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: 0})
+    else {
+      precoTotal = precoTotal.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: 0})
+      return precoTotal
+    }
+  }
+
   return (
     <Fragment>
       <Nav className='justify-content-end' pills>
@@ -244,14 +255,37 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
 
       <TabContent className='py-50' activeTab={active}>
         <TabPane tabId='1'>
-          <h3>
-            <div>
-              Valor total da proposta = {tabelaDeItens.reduce((total, item) => total + (item.precoDoItem === null ? 0 : parseFloat(item.precoDoItem.replace(",", "."))), 0)}
-            </div>
-            <div>
-              Quantidade de itens da proposta = {tabelaDeItens.length}
-            </div>
-          </h3>
+          <Row>
+            <Col md={6}>
+              <div key={precoTotal}>
+                <Label className='form-label' for='qtdadedeitens'>
+                  Quantidade de itens da proposta
+                </Label>
+                <Input
+                  name='qtdadedeitens'
+                  id='qtdadedeitens'
+                  defaultValue={tabelaDeItens.length}
+                  disabled
+                />
+              </div>
+            </Col>
+            <Col md={6}>
+              <div key={precoTotal}>
+                <Label className='form-label' for='precototal'>
+                  Preço total da proposta
+                </Label>
+                <InputGroup className='input-group-merge mb-2'>
+                  <Input
+                    name='precototal'
+                    id='precototal'
+                    defaultValue={calculaPreco()}
+                    disabled
+                  />
+                </InputGroup>
+              </div>
+            </Col>
+          </Row>
+
           <Repeater count={count}>
             {i => {
               const Tag = i === 0 ? 'div' : SlideDown

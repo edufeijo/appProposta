@@ -48,7 +48,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
   })  
 
   const salvaRascunhoPorErroDeConexao = () => {
-    localStorage.setItem('@appproposta/propostas', JSON.stringify({ proposta, versaoDaProposta, empresa, operacao }))
+    localStorage.setItem('@appproposta/propostas', JSON.stringify({ proposta, versaoDaProposta, tabelaDeItens, empresa, operacao }))
   }
 
   const criarProposta = (idDoCliente) => {
