@@ -1,11 +1,10 @@
 import { Fragment, useState, useEffect } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Row, Col } from 'reactstrap'
 import FormularioDeProposta from '../../components/Formularios/Proposta/FormularioDeProposta'
 import { isUserLoggedIn } from '@utils'
 import db from '../../../db'
-import { ALERTA_FOLLOWUP_CLIENTE } from '../../../configs/appProposta'
-import config from '../../../configs/comoPediuOptions'
+import { ALERTA_FOLLOWUP_CLIENTE, VALORES_INICIAIS_DO_ITEM, VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA, VALORES_INICIAIS_DA_PROPOSTA } from '../../../configs/appProposta'
 import Erro from '../../components/Erro'
 import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../components/Toasts/ToastTypes'
@@ -13,54 +12,17 @@ import { ErrorToast }  from '../../components/Toasts/ToastTypes'
 const EditaProposta = () => {
   const { id, rascunho } = useParams()
   const [erro, setErro] = useState(null)
-  const history = useHistory()
 
   let msgToast = ''
   const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
-
-  const valoresIniciaisDaProposta = { 
-    // Valores que não dependem do usuário
-    idDaEmpresa: null, 
-    statusDaProposta: "ativa",
-    isPropostaEnabled: true,
-    propostaCriadaPor: "Linha a linha", // "Documento externo",
-
-    // STEP 1
-    isNewCliente: true,
-    idDoCliente: null,
-    nomeDoCliente: "",
-    comoPediu: config.COMO_PEDIU_OPTIONS[0].value,
-    quemPediu: "",
-    idDaProposta: null,
-    comentarioDaProposta: '',
-    isAlertaLigado: true,
-    msgDoAlerta: ALERTA_FOLLOWUP_CLIENTE, 
-    diasParaAlerta: null,
-    avatar: '',
-    versoesDaProposta: []
-  }
-
-  const valoresIniciaisDaVersaoDaProposta = { 
-    // Valores que não dependem do usuário
-    idDoUsuario: null,
-    dataDaVersaoDaProposta: null,
-
-    // STEP 2
-    valorDaProposta: null,
-    dataDaProposta: null,
-    diasDeValidadeDaProposta: null,
-
-    // STEP 3
-    arquivoDaProposta: null
-  }
 
   const [userData, setUserData] = useState(null)
   const [userDataCarregado, setUserDataCarregado] = useState(false)
 
   const [empresa, setEmpresa] = useState(null)
-  const [proposta, setProposta] = useState(valoresIniciaisDaProposta)
-  const [versaoDaProposta, setVersaoDaProposta] = useState(valoresIniciaisDaVersaoDaProposta)
-  const [tabelaDeItens, setTabelaDeItens] = useState([])
+  const [proposta, setProposta] = useState(VALORES_INICIAIS_DA_PROPOSTA)
+  const [versaoDaProposta, setVersaoDaProposta] = useState(VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA)
+  const [tabelaDeItens, setTabelaDeItens] = useState([VALORES_INICIAIS_DO_ITEM])
   const [operacao, setOperacao] = useState('Criar')
 
   useEffect(() => {
@@ -76,6 +38,7 @@ const EditaProposta = () => {
         const propostasEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/propostas'))
         setProposta(propostasEmLocalStorage.proposta)
         setVersaoDaProposta(propostasEmLocalStorage.versaoDaProposta)
+        setTabelaDeItens(propostasEmLocalStorage.tabelaDeItens)
         setEmpresa(propostasEmLocalStorage.empresa)
         setOperacao(propostasEmLocalStorage.operacao) 
         localStorage.removeItem('@appproposta/propostas')
@@ -116,9 +79,16 @@ const EditaProposta = () => {
                 setVersaoDaProposta(registroAnterior => ({
                   ...registroAnterior, 
                   diasDeValidadeDaProposta: null,
-                  dataDaProposta: null,
-                  valorDaProposta: String(resposta.valorDaProposta).replace(".", ",")
-                }))    
+                  dataDaProposta: null
+                }))   
+
+                const copiaDaTabelaDeItens = resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1].itensDaVersaoDaProposta
+                const tabelaDeItensString = copiaDaTabelaDeItens.map((item, index, array) => {
+                  item.precoDoItem = String(item.precoDoItem).replace(".", ",")
+                  item.erroNoFormulario = {}
+                  return item
+                })  
+                setTabelaDeItens(tabelaDeItensString)  
               } else {
                 msgToast = 'Proposta não encontrada. Preencha o formulário para criar uma nova proposta'
                 notifyError()

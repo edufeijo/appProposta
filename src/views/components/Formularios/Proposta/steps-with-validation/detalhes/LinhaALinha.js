@@ -1,12 +1,12 @@
-import { useState, useEffect, Fragment } from 'react'
-import { ArrowLeft, ArrowRight, Upload, Plus, Save, Trash } from 'react-feather'
+import { useState, Fragment, useEffect } from 'react'
+import { ArrowLeft, ArrowRight, Plus, Trash } from 'react-feather'
 import { Button, Label, Input, Row, Col, FormFeedback, Form, InputGroup, InputGroupAddon, InputGroupText, TabContent, TabPane, Nav, NavItem, NavLink, Card, CardHeader, CardBody, CardText, FormGroup } from 'reactstrap'
 import '@styles/react/apps/app-invoice.scss'
 import Erro from '../../../../Erro'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm  } from 'react-hook-form'
-import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM, QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA, QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM } from '../../../../../../configs/appProposta'
+import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM, QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA, QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM, VALORES_INICIAIS_DO_ITEM } from '../../../../../../configs/appProposta'
 import { isObjEmpty } from '@utils'
 import PropostaExterna from './PropostaExterna'
 import Repeater from '@components/repeater'
@@ -163,24 +163,17 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     setActive(tab)
   }
 
-  const valoresIniciaisItem = { 
-    id: 0,
-    nomeDoItem: '', 
-    precoDoItem: null, 
-    descricaoDoItem: '',
-    erroNoFormulario: {
-      nomeDoItem: true, 
-      precoDoItem: true
-    }
-  }
-
-  if (tabelaDeItens.length === 0) tabelaDeItens.push(valoresIniciaisItem)
   const [count, setCount] = useState(tabelaDeItens.length)
 
+  useEffect(() => {
+    if (operacao === 'Atualizar') setCount(tabelaDeItens.length)
+  }, [tabelaDeItens.length]) 
+
   const increaseCount = () => {
+    console.log("tabelaDeItens=", tabelaDeItens)
     const erroNoFormulario = tabelaDeItens.reduce((erroNoFormulario, item) => erroNoFormulario || (!isObjEmpty(item.erroNoFormulario)), false)
     if (!erroNoFormulario) {
-      tabelaDeItens.push(valoresIniciaisItem)
+      tabelaDeItens.push(VALORES_INICIAIS_DO_ITEM)
       setCount(count + 1)
     } else {
       msgToast = 'Nome e preço do item são de preenchimento obrigatório'
@@ -257,14 +250,14 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
         <TabPane tabId='1'>
           <Row>
             <Col md={6}>
-              <div key={precoTotal}>
+              <div key={count}>
                 <Label className='form-label' for='qtdadedeitens'>
                   Quantidade de itens da proposta
                 </Label>
                 <Input
                   name='qtdadedeitens'
                   id='qtdadedeitens'
-                  defaultValue={tabelaDeItens.length}
+                  defaultValue={count}
                   disabled
                 />
               </div>
@@ -299,7 +292,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
                         </div>
                       </Col>
                       <Col md={6}>
-                        <div key={tabelaDeItens.length}>
+                        <div key={count}>
                           <NomeDoNovoItem 
                             index={i}
                             tabelaDeItens={tabelaDeItens}
@@ -308,7 +301,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
                         </div>
                       </Col>
                       <Col md={4}>
-                        <div key={tabelaDeItens.length}>
+                        <div key={count}>
                           <PrecoDoNovoItem 
                             index={i}
                             tabelaDeItens={tabelaDeItens}
@@ -323,7 +316,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
                         </Button.Ripple>
                       </Col>
                       <Col md={12}>
-                        <div key={tabelaDeItens.length}>
+                        <div key={count}>
                           <DescricaoDoNovoItem 
                             index={i}
                             tabelaDeItens={tabelaDeItens}

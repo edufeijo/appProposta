@@ -1,3 +1,5 @@
+import config from './comoPediuOptions'
+
 const QTDADE_MIN_LETRAS_NOME_DO_USUARIO = 3
 const QTDADE_MIN_LETRAS_QUEM_PEDIU = 3
 const QTDADE_MIN_LETRAS_EMAIL_DO_USUARIO = 6
@@ -5,7 +7,7 @@ const QTDADE_MIN_LETRAS_SENHA_DO_USUARIO = 6
 const QTDADE_MIN_LETRAS_NOME_DA_EMPRESA = 3
 const QTDADE_MIN_CARACTERES_ID_DA_PROPOSTA = 3
 const QTDADE_MIN_LETRAS_ALERTA = 10
-const QTDADE_MIN_LETRAS_NOME_DO_ITEM = 4
+const QTDADE_MIN_LETRAS_NOME_DO_ITEM = 2
 
 const QTDADE_MAX_LETRAS_NOME_DO_USUARIO = 30
 const QTDADE_MAX_LETRAS_QUEM_PEDIU = 50
@@ -24,6 +26,50 @@ const QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM = 500
 
 // Alertas
 const ALERTA_FOLLOWUP_CLIENTE = 'Entre em contato com o cliente'
+
+// Valores iniciais
+const VALORES_INICIAIS_DA_PROPOSTA = { 
+  // Valores que não dependem do usuário
+  idDaEmpresa: null, 
+  statusDaProposta: "ativa",
+  isPropostaEnabled: true,
+  propostaCriadaPor: "Linha a linha", // "Documento externo",
+
+  // STEP 1
+  isNewCliente: true,
+  idDoCliente: null,
+  nomeDoCliente: "",
+  comoPediu: config.COMO_PEDIU_OPTIONS[0].value,
+  quemPediu: "",
+  idDaProposta: null,
+  comentarioDaProposta: '',
+  isAlertaLigado: true,
+  msgDoAlerta: ALERTA_FOLLOWUP_CLIENTE, 
+  diasParaAlerta: null,
+  avatar: '',
+  versoesDaProposta: []
+} 
+
+const VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA = { 
+  // Valores que não dependem do usuário
+  idDoUsuario: null,
+  dataDaVersaoDaProposta: null,
+
+  // STEP 2
+  dataDaProposta: null,
+  diasDeValidadeDaProposta: null,
+  arquivoDaProposta: null
+} 
+
+const VALORES_INICIAIS_DO_ITEM = { 
+  nomeDoItem: '', 
+  precoDoItem: null, 
+  descricaoDoItem: '',
+  erroNoFormulario: {
+    nomeDoItem: true, 
+    precoDoItem: true
+  }
+}
 
 export {
     QTDADE_MIN_LETRAS_NOME_DO_USUARIO,
@@ -48,5 +94,8 @@ export {
     ALERTA_FOLLOWUP_CLIENTE,
     QTDADE_MIN_LETRAS_NOME_DO_ITEM, 
     QTDADE_MAX_LETRAS_NOME_DO_ITEM,
-    QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM
+    QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM,
+    VALORES_INICIAIS_DO_ITEM, 
+    VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA,
+    VALORES_INICIAIS_DA_PROPOSTA
 }

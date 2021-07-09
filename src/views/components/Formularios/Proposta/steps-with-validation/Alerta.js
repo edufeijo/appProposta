@@ -52,14 +52,19 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
   }
 
   const criarProposta = (idDoCliente) => {
-    const novaVersaoDaProposta = versaoDaProposta
+    const copiaDaTabelaDeItens = tabelaDeItens.map((item, index, array) => {
+      item.precoDoItem = parseFloat(item.precoDoItem.replace(",", "."))
+      delete item.erroNoFormulario
+      return item
+    })
 
+    const novaVersaoDaProposta = versaoDaProposta
     novaVersaoDaProposta.dataDaVersaoDaProposta = moment().local().format()
     if (versaoDaProposta.dataDaProposta === null) novaVersaoDaProposta.dataDaProposta = moment().local().format()
     if (versaoDaProposta.diasDeValidadeDaProposta === null) novaVersaoDaProposta.venceEm = moment(novaVersaoDaProposta.dataDaProposta).add(empresa.config.diasDeValidadeDaProposta, 'days').format() 
     else novaVersaoDaProposta.venceEm = moment(novaVersaoDaProposta.dataDaProposta).add(parseInt(versaoDaProposta.diasDeValidadeDaProposta), 'days').format() 
     delete novaVersaoDaProposta.diasDeValidadeDaProposta
-    novaVersaoDaProposta.valorDaProposta = parseFloat(versaoDaProposta.valorDaProposta.replace(",", "."))
+    novaVersaoDaProposta.itensDaVersaoDaProposta = copiaDaTabelaDeItens
 
     const propostaAtualizada = proposta 
     if (proposta.isAlertaLigado) {
@@ -86,7 +91,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
 
     propostaAtualizada.versoesDaProposta.push(novaVersaoDaProposta)
     propostaAtualizada.idDoCliente = idDoCliente
-    propostaAtualizada.valorDaProposta = novaVersaoDaProposta.valorDaProposta // O valor da proposta é duplicado no objeto
+    propostaAtualizada.valorDaProposta = novaVersaoDaProposta.itensDaVersaoDaProposta.reduce((total, item) => total + parseFloat(item.precoDoItem), 0) 
     propostaAtualizada.ultimaAtualizacao = novaVersaoDaProposta.dataDaVersaoDaProposta 
 
     if (operacao === 'Criar') {
@@ -185,7 +190,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
         }
       } 
       db.getGenerico(novoCliente, false) 
-      .then(async (cliente) => {          
+      .then(async (cliente) => {        
         criarProposta(cliente.insertedId) 
       })
       .catch((err) => {
