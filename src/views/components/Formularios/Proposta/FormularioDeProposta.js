@@ -29,7 +29,7 @@ const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versao
     },
     {
       id: 'itens',
-      title: 'Itens da proposta',
+      title: 'Descrição',
       subtitle: 'Inclua itens na proposta',
       content: <Detalhes 
         userData={userData} 
@@ -65,7 +65,7 @@ const FormularioDeProposta = ({ userData, empresa, proposta, setProposta, versao
     }, */
     {
       id: 'alerta',
-      title: 'Alerta',
+      title: 'Configuração',
       subtitle: 'Acompanhe o status da proposta',
       content: <Alerta 
         userData={userData} 

@@ -13,6 +13,8 @@ import Repeater from '@components/repeater'
 import { SlideDown } from 'react-slidedown'
 import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../../../Toasts/ToastTypes'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
 
 const NomeDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens }) => {
   const SignupSchema = yup.object().shape({
@@ -158,6 +160,27 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
   let msgToast = ''
   const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 2000 })
 
+  const MySwal = withReactContent(Swal)
+  const AvisoDeSalvarProposta = () => {
+    return MySwal.fire({
+      title: `Há uma proposta pendente!`,
+      text: `Quer abrir a proposta agora ou em outro momento?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Abrir',
+      cancelButtonText: 'Depois',
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-outline-danger ml-1'
+      },
+      buttonsStyling: false
+    }).then(function (result) {
+      if (result.value) {
+        history.push('/proposta/review/1')
+      }
+    })
+  }
+
   const [active, setActive] = useState('1')
   const toggle = tab => {
     setActive(tab)
@@ -166,14 +189,13 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
   const [count, setCount] = useState(tabelaDeItens.length)
 
   useEffect(() => {
-    if (operacao === 'Atualizar') setCount(tabelaDeItens.length)
+    setCount(tabelaDeItens.length)
   }, [tabelaDeItens.length]) 
 
   const increaseCount = () => {
-    console.log("tabelaDeItens=", tabelaDeItens)
     const erroNoFormulario = tabelaDeItens.reduce((erroNoFormulario, item) => erroNoFormulario || (!isObjEmpty(item.erroNoFormulario)), false)
     if (!erroNoFormulario) {
-      tabelaDeItens.push(VALORES_INICIAIS_DO_ITEM)
+      tabelaDeItens.push(Object.assign({}, VALORES_INICIAIS_DO_ITEM))
       setCount(count + 1)
     } else {
       msgToast = 'Nome e preço do item são de preenchimento obrigatório'
@@ -211,6 +233,12 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     }
   }
 
+  console.log("proposta=", proposta)
+  console.log("versaoDaProposta=", versaoDaProposta)
+  console.log("tabelaDeItens=", tabelaDeItens)
+  console.log("VALORES_INICIAIS_DO_ITEM=", VALORES_INICIAIS_DO_ITEM)
+  console.log("count=", count)
+
   return (
     <Fragment>
       <Nav className='justify-content-end' pills>
@@ -221,7 +249,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
               toggle('1')
             }}
           >
-            Itens
+            Descrever
           </NavLink>
         </NavItem>
         <NavItem>
@@ -349,11 +377,8 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
         </TabPane>
         <TabPane tabId='2'>
           <p>
-            Pudding candy canes sugar plum cookie chocolate cake powder croissant. Carrot cake tiramisu danish candy
-            cake muffin croissant tart dessert. Tiramisu caramels candy canes chocolate cake sweet roll liquorice icing
-            cupcake.Bear claw chocolate chocolate cake jelly-o pudding lemon drops sweet roll sweet candy. Chocolate
-            sweet chocolate bar candy chocolate bar chupa chups gummi bears lemon drops.
-          </p>
+           jkhafhjdsfhjkadsjhkhjfdkjfskffhkdjkha fhjdsfhjkadsjhkhjfdkjfskffhkdjkhafhjdsfhjkadsjhk hjfdkjfskffhkdjkhafhjdsfhjkadsjhkhjfdkjfskffhkdjkhafh jdsfhjkadsjhkhjfdkjfskffhkdjkhafhjdsfhjkadsjhkhjfdkjfskf fhkdjkhafhjdsfhjkadsjhkhjfdkjfskffhkd
+         </p>
         </TabPane>
         <TabPane tabId='3'>
           <PropostaExterna

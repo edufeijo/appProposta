@@ -1,5 +1,5 @@
 import { Fragment, useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useHistory } from 'react-router-dom'
 import { Row, Col } from 'reactstrap'
 import FormularioDeProposta from '../../components/Formularios/Proposta/FormularioDeProposta'
 import { isUserLoggedIn } from '@utils'
@@ -12,6 +12,7 @@ import { ErrorToast }  from '../../components/Toasts/ToastTypes'
 const EditaProposta = () => {
   const { id, rascunho } = useParams()
   const [erro, setErro] = useState(null)
+  const history = useHistory()
 
   let msgToast = ''
   const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
@@ -20,9 +21,9 @@ const EditaProposta = () => {
   const [userDataCarregado, setUserDataCarregado] = useState(false)
 
   const [empresa, setEmpresa] = useState(null)
-  const [proposta, setProposta] = useState(VALORES_INICIAIS_DA_PROPOSTA)
-  const [versaoDaProposta, setVersaoDaProposta] = useState(VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA)
-  const [tabelaDeItens, setTabelaDeItens] = useState([VALORES_INICIAIS_DO_ITEM])
+  const [proposta, setProposta] = useState(Object.assign({}, VALORES_INICIAIS_DA_PROPOSTA))
+  const [versaoDaProposta, setVersaoDaProposta] = useState(Object.assign({}, VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA))
+  const [tabelaDeItens, setTabelaDeItens] = useState([Object.assign({}, VALORES_INICIAIS_DO_ITEM)])
   const [operacao, setOperacao] = useState('Criar')
 
   useEffect(() => {
@@ -36,12 +37,14 @@ const EditaProposta = () => {
     if (userDataCarregado) {
       if (rascunho === '1') { // Proposta rascunho está gravada em Local Storage
         const propostasEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/propostas'))
-        setProposta(propostasEmLocalStorage.proposta)
-        setVersaoDaProposta(propostasEmLocalStorage.versaoDaProposta)
-        setTabelaDeItens(propostasEmLocalStorage.tabelaDeItens)
-        setEmpresa(propostasEmLocalStorage.empresa)
-        setOperacao(propostasEmLocalStorage.operacao) 
-        localStorage.removeItem('@appproposta/propostas')
+        if (propostasEmLocalStorage !==  null) {
+          setProposta(propostasEmLocalStorage.proposta)
+          setVersaoDaProposta(propostasEmLocalStorage.versaoDaProposta)
+          setTabelaDeItens(propostasEmLocalStorage.tabelaDeItens)
+          setEmpresa(propostasEmLocalStorage.empresa)
+          setOperacao(propostasEmLocalStorage.operacao) 
+          localStorage.removeItem('@appproposta/propostas')
+        } else history.push('/proposta/list')
       } else {
         if (id !== undefined) { // Carrega a proposta id
           if (id.length !== 24) {
@@ -123,8 +126,9 @@ const EditaProposta = () => {
           }))
         })
         .catch((err) => {
-          setErro(err)
-          setErro(null) 
+/*           msgToast = 'Você está sem conexão com o servidor. Tente novamente mais tarde'
+          notifyError() */
+          history.push('/proposta/list')
         }) 
       }
     }

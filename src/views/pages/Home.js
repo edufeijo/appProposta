@@ -2,10 +2,10 @@
 //
 //
 // No List View de propostas
-// - Fazer array com itens da proposta - OK
-//  - Testar rascunho no Criar proposta e Atualizar proposta
-// - Fazer rascunho da proposta comandao pelo cliente
-// - Página bonita para preview Proposta, Cliente, versões da proposta e ações
+// - Fazer rascunho da proposta comandada pelo cliente
+// - Fazer versões da proposta
+// - Gerar PDF
+// - Página bonita para preview Proposta, Cliente e ações
 // 
 //
 // No Proposta Externa:
