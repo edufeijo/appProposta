@@ -4,7 +4,7 @@ import { Row, Col } from 'reactstrap'
 import FormularioDeProposta from '../../components/Formularios/Proposta/FormularioDeProposta'
 import { isUserLoggedIn } from '@utils'
 import db from '../../../db'
-import { ALERTA_FOLLOWUP_CLIENTE, VALORES_INICIAIS_DO_ITEM, VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA, VALORES_INICIAIS_DA_PROPOSTA } from '../../../configs/appProposta'
+import { ALERTA_FOLLOWUP_CLIENTE, VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA, VALORES_INICIAIS_DA_PROPOSTA } from '../../../configs/appProposta'
 import Erro from '../../components/Erro'
 import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../components/Toasts/ToastTypes'
@@ -13,6 +13,16 @@ const EditaProposta = () => {
   const { id, rascunho } = useParams()
   const [erro, setErro] = useState(null)
   const history = useHistory()
+
+  const VALORES_INICIAIS_DO_ITEM = { 
+    nomeDoItem: '', 
+    precoDoItem: null, 
+    descricaoDoItem: '',
+    erroNoFormulario: {
+      nomeDoItem: true, 
+      precoDoItem: true
+    }
+  }
 
   let msgToast = ''
   const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
@@ -85,11 +95,14 @@ const EditaProposta = () => {
                   dataDaProposta: null
                 }))   
 
-                const copiaDaTabelaDeItens = resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1].itensDaVersaoDaProposta
+                const copiaDaTabelaDeItens = Array.from(resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1].itensDaVersaoDaProposta)
                 const tabelaDeItensString = copiaDaTabelaDeItens.map((item, index, array) => {
-                  item.precoDoItem = String(item.precoDoItem).replace(".", ",")
-                  item.erroNoFormulario = {}
-                  return item
+                  const copiaDoItem = {}
+                  copiaDoItem.nomeDoItem = item.nomeDoItem
+                  copiaDoItem.precoDoItem = String(item.precoDoItem).replace(".", ",")
+                  copiaDoItem.descricaoDoItem = item.descricaoDoItem
+                  copiaDoItem.erroNoFormulario = {}
+                  return copiaDoItem
                 })  
                 setTabelaDeItens(tabelaDeItensString)  
               } else {

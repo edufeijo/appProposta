@@ -1,5 +1,5 @@
 import * as yup from 'yup'
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import { isObjEmpty } from '@utils'
 import { useForm } from 'react-hook-form'
 import { ArrowLeft } from 'react-feather'
@@ -51,20 +51,21 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
     localStorage.setItem('@appproposta/propostas', JSON.stringify({ proposta, versaoDaProposta, tabelaDeItens, empresa, operacao }))
   }
 
-  const criarProposta = (idDoCliente) => {
+  const criarVersaoDaProposta = (idDoCliente) => {
     const copiaDaTabelaDeItens = tabelaDeItens.map((item, index, array) => {
       item.precoDoItem = parseFloat(item.precoDoItem.replace(",", "."))
       delete item.erroNoFormulario
       return item
     })
-
+    
     const novaVersaoDaProposta = versaoDaProposta
+
     novaVersaoDaProposta.dataDaVersaoDaProposta = moment().local().format()
     if (versaoDaProposta.dataDaProposta === null) novaVersaoDaProposta.dataDaProposta = moment().local().format()
     if (versaoDaProposta.diasDeValidadeDaProposta === null) novaVersaoDaProposta.venceEm = moment(novaVersaoDaProposta.dataDaProposta).add(empresa.config.diasDeValidadeDaProposta, 'days').format() 
     else novaVersaoDaProposta.venceEm = moment(novaVersaoDaProposta.dataDaProposta).add(parseInt(versaoDaProposta.diasDeValidadeDaProposta), 'days').format() 
     delete novaVersaoDaProposta.diasDeValidadeDaProposta
-    novaVersaoDaProposta.itensDaVersaoDaProposta = copiaDaTabelaDeItens
+    novaVersaoDaProposta.itensDaVersaoDaProposta = Array.from(copiaDaTabelaDeItens)
 
     const propostaAtualizada = proposta 
     if (proposta.isAlertaLigado) {
@@ -76,12 +77,16 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
       delete propostaAtualizada.msgDoAlerta
     }
 
-    if (moment(novaVersaoDaProposta.venceEm).isBefore(moment().local().format())) {
-      propostaAtualizada.statusDaProposta = 'vencida'
-      propostaAtualizada.alertaEm = null
-      delete propostaAtualizada.msgDoAlerta
-    } else propostaAtualizada.statusDaProposta = 'ativa'
-    
+    if (propostaAtualizada.statusDaProposta === 'rascunho-temporario') {
+      propostaAtualizada.statusDaProposta = 'rascunho'
+    } else {
+      if (moment(novaVersaoDaProposta.venceEm).isBefore(moment().local().format())) {
+        propostaAtualizada.statusDaProposta = 'vencida'
+        propostaAtualizada.alertaEm = null
+        delete propostaAtualizada.msgDoAlerta
+      } else propostaAtualizada.statusDaProposta = 'ativa'
+    } 
+
     delete propostaAtualizada.diasParaAlerta
     delete propostaAtualizada.isAlertaLigado
     delete propostaAtualizada.isNewCliente
@@ -89,6 +94,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
 
     propostaAtualizada.avatar = ''
 
+    novaVersaoDaProposta.statusDaVersaoDaProposta = propostaAtualizada.statusDaProposta
     propostaAtualizada.versoesDaProposta.push(novaVersaoDaProposta)
     propostaAtualizada.idDoCliente = idDoCliente
     propostaAtualizada.valorDaProposta = novaVersaoDaProposta.itensDaVersaoDaProposta.reduce((total, item) => total + parseFloat(item.precoDoItem), 0) 
@@ -191,7 +197,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
       } 
       db.getGenerico(novoCliente, false) 
       .then(async (cliente) => {        
-        criarProposta(cliente.insertedId) 
+        criarVersaoDaProposta(cliente.insertedId) 
       })
       .catch((err) => {
 /*         setErro(err)
@@ -199,7 +205,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
         history.push('/proposta/list')
       }) 
     } else {
-      criarProposta(proposta.idDoCliente) 
+      criarVersaoDaProposta(proposta.idDoCliente) 
     }
   }
 
@@ -211,7 +217,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
       if (operacao === 'Criar') {
         criarCliente()
       } else {
-        criarProposta(proposta.idDoCliente) 
+        criarVersaoDaProposta(proposta.idDoCliente) 
       }
     }
   }
@@ -239,9 +245,20 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
     }))
   }
 
+  useEffect(() => {
+    if (proposta && proposta.statusDaProposta === 'rascunho-temporario') {
+      salvaRascunhoPorErroDeConexao()
+      if (operacao === 'Criar') {
+        criarCliente()
+      } else {
+        criarVersaoDaProposta(proposta.idDoCliente) 
+      }
+    } 
+  }, [proposta.statusDaProposta])
+
   return (
     <UILoader blocking={block} loader={<Loader />}>
-      <Fragment>
+      {proposta && proposta.statusDaProposta !== 'rascunho-temporario' && <Fragment>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Row>
 
@@ -406,7 +423,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
           </div>
         </Form>
         <Erro erro={erro} />
-      </Fragment>
+      </Fragment>}
     </UILoader>
   )
 }

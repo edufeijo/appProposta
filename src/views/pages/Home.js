@@ -2,9 +2,10 @@
 //
 //
 // No List View de propostas
-// - Fazer rascunho da proposta comandada pelo cliente
 // - Fazer versões da proposta
 // - Gerar PDF
+// - Se não tem proposta em 7 dias, então aumentar para 30 dias, senão aumentar...
+// - Se não tem proposta, não mostrar a tabela com msg em ingles
 // - Página bonita para preview Proposta, Cliente e ações
 // 
 //

@@ -158,17 +158,32 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
   const [erro, setErro] = useState(null)
 
   let msgToast = ''
-  const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 2000 })
+  const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
+
+  const VALORES_INICIAIS_DO_ITEM = { 
+    nomeDoItem: '', 
+    precoDoItem: null, 
+    descricaoDoItem: '',
+    erroNoFormulario: {
+      nomeDoItem: true, 
+      precoDoItem: true
+    }
+  }
+
+  const [active, setActive] = useState('1')
+  const toggle = tab => {
+    setActive(tab)
+  }
 
   const MySwal = withReactContent(Swal)
   const AvisoDeSalvarProposta = () => {
     return MySwal.fire({
-      title: `Há uma proposta pendente!`,
-      text: `Quer abrir a proposta agora ou em outro momento?`,
+      title: `Quer salvar um rascunho da proposta?`,
+      text: `A proposta será salva no servidor com o status de rascunho. Caso contrário, clique em Cancelar e continue a editar a proposta`,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Abrir',
-      cancelButtonText: 'Depois',
+      confirmButtonText: 'Salvar',
+      cancelButtonText: 'Cancelar',
       customClass: {
         confirmButton: 'btn btn-primary',
         cancelButton: 'btn btn-outline-danger ml-1'
@@ -176,14 +191,15 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
       buttonsStyling: false
     }).then(function (result) {
       if (result.value) {
-        history.push('/proposta/review/1')
+        setProposta(registroAnterior => ({
+          ...registroAnterior, 
+          statusDaProposta: 'rascunho-temporario'
+        }))
+        stepper.next()
+      } else {
+        toggle('1')
       }
     })
-  }
-
-  const [active, setActive] = useState('1')
-  const toggle = tab => {
-    setActive(tab)
   }
 
   const [count, setCount] = useState(tabelaDeItens.length)
@@ -222,6 +238,17 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     }
   }
 
+  const onSave = () => {
+    const erroNoFormulario = tabelaDeItens.reduce((erroNoFormulario, item) => erroNoFormulario || (!isObjEmpty(item.erroNoFormulario)), false)
+    if (!erroNoFormulario) {
+      toggle('2')
+      AvisoDeSalvarProposta()
+    } else {
+      msgToast = 'Nome e preço do item são de preenchimento obrigatório. Corrija os itens da proposta antes de salva-la'
+      notifyError()  
+    }
+  }
+
   let precoTotal = 0
   const calculaPreco = () => {
     const zero = 0
@@ -233,11 +260,46 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     }
   }
 
+  const CabecalhoDoLinhaALinha = ({ tabId })  => {
+    return (
+      <div>
+        <Row>
+          <Col md={6}>
+            <div key={count}>
+              <Label className='form-label' for={`qtdadedeitens${tabId}`}>
+                Quantidade de itens da proposta
+              </Label>
+              <Input
+                name={`qtdadedeitens${tabId}`}
+                id={`qtdadedeitens${tabId}`}
+                defaultValue={count}
+                disabled
+              />
+            </div>
+          </Col>
+          <Col md={6}>
+            <div key={precoTotal}>
+              <Label className='form-label' for={`precototal${tabId}`}>
+                Preço total da proposta
+              </Label>
+              <InputGroup className='input-group-merge mb-2'>
+                <Input
+                  name={`precototal${tabId}`}
+                  id={`precototal${tabId}`}
+                  defaultValue={calculaPreco()}
+                  disabled
+                />
+              </InputGroup>
+            </div>
+          </Col>
+        </Row>
+      </div>
+    )
+  }
+    
   console.log("proposta=", proposta)
   console.log("versaoDaProposta=", versaoDaProposta)
   console.log("tabelaDeItens=", tabelaDeItens)
-  console.log("VALORES_INICIAIS_DO_ITEM=", VALORES_INICIAIS_DO_ITEM)
-  console.log("count=", count)
 
   return (
     <Fragment>
@@ -256,7 +318,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
           <NavLink
             active={active === '2'}
             onClick={() => {
-              toggle('2')
+              onSave()
             }}
           >
             Salvar
@@ -276,37 +338,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
 
       <TabContent className='py-50' activeTab={active}>
         <TabPane tabId='1'>
-          <Row>
-            <Col md={6}>
-              <div key={count}>
-                <Label className='form-label' for='qtdadedeitens'>
-                  Quantidade de itens da proposta
-                </Label>
-                <Input
-                  name='qtdadedeitens'
-                  id='qtdadedeitens'
-                  defaultValue={count}
-                  disabled
-                />
-              </div>
-            </Col>
-            <Col md={6}>
-              <div key={precoTotal}>
-                <Label className='form-label' for='precototal'>
-                  Preço total da proposta
-                </Label>
-                <InputGroup className='input-group-merge mb-2'>
-                  <Input
-                    name='precototal'
-                    id='precototal'
-                    defaultValue={calculaPreco()}
-                    disabled
-                  />
-                </InputGroup>
-              </div>
-            </Col>
-          </Row>
-
+          <CabecalhoDoLinhaALinha tabId={'1'} />
           <Repeater count={count}>
             {i => {
               const Tag = i === 0 ? 'div' : SlideDown
@@ -376,9 +408,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
           </Col>
         </TabPane>
         <TabPane tabId='2'>
-          <p>
-           jkhafhjdsfhjkadsjhkhjfdkjfskffhkdjkha fhjdsfhjkadsjhkhjfdkjfskffhkdjkhafhjdsfhjkadsjhk hjfdkjfskffhkdjkhafhjdsfhjkadsjhkhjfdkjfskffhkdjkhafh jdsfhjkadsjhkhjfdkjfskffhkdjkhafhjdsfhjkadsjhkhjfdkjfskf fhkdjkhafhjdsfhjkadsjhkhjfdkjfskffhkd
-         </p>
+          <CabecalhoDoLinhaALinha tabId={'2'} />
         </TabPane>
         <TabPane tabId='3'>
           <PropostaExterna

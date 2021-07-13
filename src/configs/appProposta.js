@@ -61,16 +61,6 @@ const VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA = {
   arquivoDaProposta: null
 } 
 
-const VALORES_INICIAIS_DO_ITEM = { 
-  nomeDoItem: '', 
-  precoDoItem: null, 
-  descricaoDoItem: '',
-  erroNoFormulario: {
-    nomeDoItem: true, 
-    precoDoItem: true
-  }
-}
-
 export {
     QTDADE_MIN_LETRAS_NOME_DO_USUARIO,
     QTDADE_MIN_LETRAS_QUEM_PEDIU,
@@ -95,7 +85,6 @@ export {
     QTDADE_MIN_LETRAS_NOME_DO_ITEM, 
     QTDADE_MAX_LETRAS_NOME_DO_ITEM,
     QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM,
-    VALORES_INICIAIS_DO_ITEM, 
     VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA,
     VALORES_INICIAIS_DA_PROPOSTA
 }
