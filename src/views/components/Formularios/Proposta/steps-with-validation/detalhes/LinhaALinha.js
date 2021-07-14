@@ -296,10 +296,6 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
       </div>
     )
   }
-    
-  console.log("proposta=", proposta)
-  console.log("versaoDaProposta=", versaoDaProposta)
-  console.log("tabelaDeItens=", tabelaDeItens)
 
   return (
     <Fragment>

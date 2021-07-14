@@ -9,7 +9,7 @@ import { columns } from './columns'
 import ReactPaginate from 'react-paginate'
 import { ChevronDown } from 'react-feather'
 import DataTable from 'react-data-table-component'
-import { Button, Label, Input, CustomInput, Row, Col, Card } from 'reactstrap'
+import { Button, Label, Input, CustomInput, Row, Col, Card, CardHeader, CardTitle, CardBody, Media } from 'reactstrap'
 
 // ** Styles
 import '@styles/react/apps/app-invoice.scss'
@@ -24,6 +24,7 @@ import moment from 'moment'
 import { NomeDoClientePesquisado } from '../../components/AutoComplete/NomeDoClientePesquisado'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import Timeline from '@components/timeline'
 
 const CustomHeader = ({ value, setValue, handleStatusValue, statusValue, handlePeriodo}) => {
   return (
@@ -243,6 +244,48 @@ const InvoiceList = () => {
     )
   }
 
+  const formataVersoesDaProposta = (pos) => {
+    console.log("data=", data)
+    console.log("pos=", pos)
+    const versoesDaProposta = data[pos].versoesDaProposta.map((versao, index, array) => {
+      versao.title = versao.dataDaVersaoDaProposta
+      return versao
+    })   
+
+/*     
+Criada em: dataDaVersaoDaProposta
+Valor total: precoDoItem (TOTAL) e quantidade de itens
+
+Criada por: <Avatar> nomeDoUsuario
+Criada como: statusDaVersaoDaProposta
+Anexo: se tem arquivoDaProposta mostra ícone
+
+Botão com opções:
+- Visualizar
+- Editar
+ */
+
+    return versoesDaProposta
+  }
+
+  const ExpandableTable = ({ data }) => {
+    return (
+      <Card>
+      <CardHeader>
+        <CardTitle tag='h4'>Versões da proposta {data.idDaProposta}</CardTitle>
+      </CardHeader>
+      <CardBody>
+        <Col lg='6'>
+          <Timeline data={formataVersoesDaProposta(0)} />
+        </Col>
+      </CardBody>
+        <div className='divider'>
+          <div className='divider-text'></div>
+        </div>
+    </Card>
+    )
+  }
+
   return (
     <div className='invoice-list-wrapper'>
       <BreadCrumbsPage breadCrumbTitle='Propostas' breadCrumbParent={`Visualizar ${quantidadeDePropostas} proposta${(quantidadeDePropostas !== 1) ? 's' : ''}`}/>
@@ -262,6 +305,9 @@ const InvoiceList = () => {
             data={data}
             onSort={handleSort}
             sortServer
+            expandableRows
+            expandOnRowClicked
+            expandableRowsComponent={<ExpandableTable />}
             subHeaderComponent={
               <CustomHeader
                 value={value}

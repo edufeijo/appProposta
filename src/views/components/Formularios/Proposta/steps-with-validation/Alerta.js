@@ -15,6 +15,7 @@ import { SuccessToast, ErrorToast }  from '../../../Toasts/ToastTypes'
 import UILoader from '@components/ui-loader'
 import Spinner from '@components/spinner/Loading-spinner'
 import Flatpickr from 'react-flatpickr'
+import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
 
 const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, operacao, stepper, type }) => {
@@ -261,7 +262,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
       {proposta && proposta.statusDaProposta !== 'rascunho-temporario' && <Fragment>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Row>
-
+          
             <FormGroup tag={Col} md='9'>
               <Label className='form-label' for='dataDaProposta'>
                 Data de emissão da proposta
@@ -271,6 +272,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
                 name='dataDaProposta'
                 id='dataDaProposta'
                 className='form-control'
+                disabled={proposta && proposta.propostaCriadaPor !== "Documento externo"}
                 onChange={date => {
                   setPicker(date)  
                   setVersaoDaProposta(registroAnterior => ({
@@ -283,12 +285,12 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
                 options={{
                   altInput: true,
                   altFormat: 'd/m/Y',
-                  dateFormat: 'd-m-Y',
+                  dateFormat: 'd.m.Y',
                   maxDate: 'today',
                   minDate: '01.01.2021',
                   locale: Portuguese
                 }}
-              />
+              /> 
             </FormGroup> 
 
             {empresa && <FormGroup tag={Col} md='3'>
