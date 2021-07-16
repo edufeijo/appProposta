@@ -13,7 +13,7 @@ const PropostaExterna = ({ userData, empresa, proposta, setProposta, versaoDaPro
     valorDaProposta: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required()
   })
 
-  const { register, errors, handleSubmit, trigger } = useForm({ 
+  const { register, errors, handleSubmit, trigger } = useForm({  
     mode: 'onChange', 
     resolver: yupResolver(SignupSchema)
   })

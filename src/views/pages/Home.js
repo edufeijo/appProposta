@@ -2,6 +2,10 @@
 //
 //
 // No List View de propostas
+// - Em PropostaExterna:
+//   - Atualizar itensDaVersaoDaProposta
+//   - Testar todos os links do formulário, especialmente a validação de docto externo para avançar e salvar
+//   - Passar Comentário da proposta para Alerta
 // - Fazer versões da proposta
 // - Gerar PDF
 // - Se não tem proposta em 7 dias, então aumentar para 30 dias, senão aumentar...

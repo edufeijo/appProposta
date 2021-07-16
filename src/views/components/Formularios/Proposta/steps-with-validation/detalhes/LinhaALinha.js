@@ -15,6 +15,8 @@ import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../../../Toasts/ToastTypes'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import { useHistory } from "react-router-dom"
+
 
 const NomeDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens }) => {
   const SignupSchema = yup.object().shape({
@@ -156,6 +158,7 @@ const DescricaoDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens })  => {
 
 const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, operacao, stepper, type }) => {
   const [erro, setErro] = useState(null)
+  const history = useHistory()
 
   let msgToast = ''
   const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
@@ -175,11 +178,13 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     setActive(tab)
   }
 
+  const [count, setCount] = useState(tabelaDeItens.length)
+
   const MySwal = withReactContent(Swal)
   const AvisoDeSalvarProposta = () => {
     return MySwal.fire({
       title: `Quer salvar um rascunho da proposta?`,
-      text: `A proposta será salva no servidor com o status de rascunho. Caso contrário, clique em Cancelar e continue a editar a proposta`,
+      text: `A proposta será salva no servidor com o status de rascunho. Ou clique em Cancelar e continue a editar a proposta`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Salvar',
@@ -202,7 +207,88 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     })
   }
 
-  const [count, setCount] = useState(tabelaDeItens.length)
+  const AvisoDeApagarVersaoDaProposta = () => {
+    return MySwal.fire({
+      title: `Todos os itens desta proposta serão apagados!`,
+      text: `Clique em Apagar e carregue um arquivo externo com a descrição da proposta. Ou clique em Cancelar se deseja voltar para a descrição dos itens`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Apagar',
+      cancelButtonText: 'Cancelar',
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-outline-danger ml-1'
+      },
+      buttonsStyling: false
+    }).then(function (result) {
+      if (result.value) {
+        setProposta(registroAnterior => ({
+          ...registroAnterior, 
+          propostaCriadaPor: 'Documento externo'
+        }))
+        setCount(1)
+        setTabelaDeItens([Object.assign({}, VALORES_INICIAIS_DO_ITEM)])
+      } else {
+        toggle('1')
+      }
+    })
+  }
+
+  const AvisoDeApagarArquivoExterno = () => {
+    return MySwal.fire({
+      title: `Todos os arquivos carregados nesta proposta serão apagados!`,
+      text: `Clique em Apagar e siga para a descrição da proposta. Ou clique em Cancelar se deseja manter os arquivos carregados`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Apagar',
+      cancelButtonText: 'Cancelar',
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-outline-danger ml-1'
+      },
+      buttonsStyling: false
+    }).then(function (result) {
+      if (result.value) {
+        setProposta(registroAnterior => ({
+          ...registroAnterior, 
+          propostaCriadaPor: 'Linha a linha'
+        }))
+        setVersaoDaProposta(registroAnterior => ({
+          ...registroAnterior, 
+          arquivoDaProposta: null
+        }))
+        setCount(1)
+        setTabelaDeItens([Object.assign({}, VALORES_INICIAIS_DO_ITEM)])
+      } else {
+        toggle('3')
+      }
+    })
+  }
+
+  const AvisoDeNaoPodeAlterarTipoDaProposta = (tipo) => {
+    const title = (tipo === 'Documento externo') ? `Somente uma nova proposta pode carregar um arquivo externo!` : 'Proposta criada com arquivo externo não pode ter descrição de itens!'
+    const text = (tipo === 'Documento externo') ? `Clique em Criar para gerar uma nova proposta e carregar um arquivo externo. Ou clique em Cancelar se deseja voltar para a descrição dos itens` : `Clique em Criar para gerar uma nova proposta e descrever os itens. Ou clique em Cancelar se deseja carregar um novo arquivo externo`
+    return MySwal.fire({
+      title: `${title}`,
+      text: `${text}`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Criar',
+      cancelButtonText: 'Cancelar',
+      customClass: {
+        confirmButton: 'btn btn-primary',
+        cancelButton: 'btn btn-outline-danger ml-1'
+      },
+      buttonsStyling: false
+    }).then(function (result) {
+      if (result.value) {
+        history.push('/proposta/new')
+      } else {
+        if (tipo === 'Documento externo') toggle('1')
+        else toggle('3')
+      }
+    })
+  }
 
   useEffect(() => {
     setCount(tabelaDeItens.length)
@@ -246,6 +332,26 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     } else {
       msgToast = 'Nome e preço do item são de preenchimento obrigatório. Corrija os itens da proposta antes de salva-la'
       notifyError()  
+    }
+  }
+
+  const onImport = () => {
+    if (proposta.versoesDaProposta.length === 0) {
+      toggle('3')
+      AvisoDeApagarVersaoDaProposta()
+    } else {
+      AvisoDeNaoPodeAlterarTipoDaProposta('Documento externo')      
+    }
+  }
+
+  const onCreate = () => {
+    if (proposta.versoesDaProposta.length === 0) {
+      if (proposta.propostaCriadaPor === 'Documento externo') {
+        toggle('1')
+        AvisoDeApagarArquivoExterno()
+      }
+    } else {
+      AvisoDeNaoPodeAlterarTipoDaProposta('Linha a linha')      
     }
   }
 
@@ -297,6 +403,10 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     )
   }
 
+  console.log("proposta=", proposta)
+  console.log("versaoDaProposta=", versaoDaProposta)
+  console.log("tabelaDeItens=", tabelaDeItens)
+
   return (
     <Fragment>
       <Nav className='justify-content-end' pills>
@@ -304,7 +414,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
           <NavLink
             active={active === '1'}
             onClick={() => {
-              toggle('1')
+              onCreate()
             }}
           >
             Descrever
@@ -324,7 +434,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
           <NavLink
             active={active === '3'}
             onClick={() => {
-              toggle('3')
+              onImport()
             }}
           >
             Carregar
