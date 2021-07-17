@@ -4,7 +4,7 @@ import { isObjEmpty } from '@utils'
 import { useForm } from 'react-hook-form'
 import { ArrowLeft } from 'react-feather'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { ALERTA_FOLLOWUP_CLIENTE, QTDADE_MIN_LETRAS_ALERTA, QTDADE_MAX_LETRAS_ALERTA, QTDADE_MAX_DIAS_PARA_ALERTA, DIAS_MAX_VALIDADE_DA_PROPOSTA } from '../../../../../configs/appProposta'
+import { ALERTA_FOLLOWUP_CLIENTE, QTDADE_MIN_LETRAS_ALERTA, QTDADE_MAX_LETRAS_ALERTA, QTDADE_MAX_DIAS_PARA_ALERTA, DIAS_MAX_VALIDADE_DA_PROPOSTA, QTDADE_MAX_CARACTERES_COMENTARIOS_DA_PROPOSTA } from '../../../../../configs/appProposta'
 import { Form, Label, Input, FormGroup, Row, Col, Button, FormFeedback, InputGroup, InputGroupAddon, InputGroupText, CustomInput, CardText  } from 'reactstrap'
 import moment from 'moment'
 import { useHistory } from "react-router-dom"
@@ -40,7 +40,8 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
   const SignupSchema = yup.object().shape({
     msgDoAlerta: yup.string().min(QTDADE_MIN_LETRAS_ALERTA).max(QTDADE_MAX_LETRAS_ALERTA),
     diasParaAlerta: yup.number().positive().integer().max(QTDADE_MAX_DIAS_PARA_ALERTA),
-    diasDeValidadeDaProposta: yup.number().positive().integer().max(DIAS_MAX_VALIDADE_DA_PROPOSTA)
+    diasDeValidadeDaProposta: yup.number().positive().integer().max(DIAS_MAX_VALIDADE_DA_PROPOSTA),
+    comentarioDaProposta: yup.string().max(QTDADE_MAX_CARACTERES_COMENTARIOS_DA_PROPOSTA)
   })
 
   const { register, errors, handleSubmit, trigger } = useForm({ 
@@ -262,7 +263,7 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
       {proposta && proposta.statusDaProposta !== 'rascunho-temporario' && <Fragment>
         <Form onSubmit={handleSubmit(onSubmit)}>
           <Row>
-          
+
             <FormGroup tag={Col} md='9'>
               <Label className='form-label' for='dataDaProposta'>
                 Data de emissão da proposta
@@ -412,6 +413,25 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
                 {errors && errors.diasParaAlerta && <FormFeedback>Deve ser um número maior que zero e menor que {QTDADE_MAX_DIAS_PARA_ALERTA}</FormFeedback>}
               </InputGroup>
             </FormGroup>}
+
+            <FormGroup tag={Col} md='12'>
+              <Label className='form-label' for='comentarioDaProposta'>
+                Comentários (não aparecem na proposta)
+              </Label>
+              <InputGroup className='input-group-merge'>
+                <Input 
+                  name='comentarioDaProposta'
+                  id='comentarioDaProposta'
+                  defaultValue={proposta.comentarioDaProposta}
+                  innerRef={register({ required: true })}
+                  invalid={errors.comentarioDaProposta && true}
+                  onChange={handleChange}
+                  type='textarea' 
+                  placeholder='Comentários sobre a proposta'
+                />
+                {errors && errors.comentarioDaProposta && <FormFeedback>Máximo de {QTDADE_MAX_CARACTERES_COMENTARIOS_DA_PROPOSTA} caracteres</FormFeedback>}
+              </InputGroup>
+            </FormGroup>
 
           </Row>
           <div className='d-flex justify-content-between'>

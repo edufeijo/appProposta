@@ -173,6 +173,13 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     }
   }
 
+  const VALORES_INICIAIS_DA_PROPOSTA_EXTERNA = { 
+    precoDoItem: null, 
+    erroNoFormulario: {
+      valorDaProposta: true
+    }
+  }
+
   const [active, setActive] = useState('1')
   const toggle = tab => {
     setActive(tab)
@@ -202,7 +209,8 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
         }))
         stepper.next()
       } else {
-        toggle('1')
+        if (proposta.propostaCriadaPor === 'Linha a linha') toggle('1')
+        else if (proposta.propostaCriadaPor === 'Documento externo') toggle('3')
       }
     })
   }
@@ -227,7 +235,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
           propostaCriadaPor: 'Documento externo'
         }))
         setCount(1)
-        setTabelaDeItens([Object.assign({}, VALORES_INICIAIS_DO_ITEM)])
+        setTabelaDeItens([Object.assign({}, VALORES_INICIAIS_DA_PROPOSTA_EXTERNA)])
       } else {
         toggle('1')
       }
@@ -291,6 +299,11 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
   }
 
   useEffect(() => {
+    if (proposta.propostaCriadaPor === 'Linha a linha') toggle('1')
+    else if (proposta.propostaCriadaPor === 'Documento externo') toggle('3')
+  }, [proposta.propostaCriadaPor]) 
+
+  useEffect(() => {
     setCount(tabelaDeItens.length)
   }, [tabelaDeItens.length]) 
 
@@ -319,8 +332,13 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
     if (!erroNoFormulario) {
       stepper.next()
     } else {
-      msgToast = 'Nome e preço do item são de preenchimento obrigatório'
-      notifyError()  
+      if (proposta.propostaCriadaPor === 'Documento externo') {
+        msgToast = 'Valor da proposta é de preenchimento obrigatório'
+        notifyError()  
+      } else {
+        msgToast = 'Nome e preço do item são de preenchimento obrigatório'
+        notifyError()  
+      }
     }
   }
 
@@ -330,8 +348,13 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
       toggle('2')
       AvisoDeSalvarProposta()
     } else {
-      msgToast = 'Nome e preço do item são de preenchimento obrigatório. Corrija os itens da proposta antes de salva-la'
-      notifyError()  
+      if (proposta.propostaCriadaPor === 'Documento externo') {
+        msgToast = 'Valor da proposta é de preenchimento obrigatório'
+        notifyError()  
+      } else {
+        msgToast = 'Nome e preço do item são de preenchimento obrigatório'
+        notifyError()  
+      }
     }
   }
 
@@ -514,7 +537,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
           </Col>
         </TabPane>
         <TabPane tabId='2'>
-          <CabecalhoDoLinhaALinha tabId={'2'} />
+          {proposta && proposta.propostaCriadaPor === 'Linha a linha' && <CabecalhoDoLinhaALinha tabId={'2'} />}
         </TabPane>
         <TabPane tabId='3'>
           <PropostaExterna

@@ -5,7 +5,7 @@ import { useForm  } from 'react-hook-form'
 import { ArrowLeft, ArrowRight } from 'react-feather'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Form, Label, Input, FormGroup, Row, Col, Button, FormFeedback, InputGroup } from 'reactstrap'
-import { QTDADE_MIN_LETRAS_NOME_DO_USUARIO, QTDADE_MAX_LETRAS_NOME_DO_USUARIO, QTDADE_MAX_CARACTERES_ID_DA_PROPOSTA, QTDADE_MIN_LETRAS_QUEM_PEDIU, QTDADE_MAX_LETRAS_QUEM_PEDIU, QTDADE_MAX_CARACTERES_COMENTARIOS_DA_PROPOSTA } from '../../../../../configs/appProposta'
+import { QTDADE_MIN_LETRAS_NOME_DO_USUARIO, QTDADE_MAX_LETRAS_NOME_DO_USUARIO, QTDADE_MAX_CARACTERES_ID_DA_PROPOSTA, QTDADE_MIN_LETRAS_QUEM_PEDIU, QTDADE_MAX_LETRAS_QUEM_PEDIU } from '../../../../../configs/appProposta'
 import config from '../../../../../configs/comoPediuOptions'
 import Select from 'react-select'
 import { toast } from 'react-toastify'
@@ -64,8 +64,7 @@ const Identificacao = ({ userData, empresa, proposta, setProposta, versaoDaPropo
 
   const SignupSchema = yup.object().shape({
     idDaProposta: yup.string().max(QTDADE_MAX_CARACTERES_ID_DA_PROPOSTA),
-    quemPediu: yup.string().max(QTDADE_MAX_LETRAS_QUEM_PEDIU),
-    comentarioDaProposta: yup.string().max(QTDADE_MAX_CARACTERES_COMENTARIOS_DA_PROPOSTA)
+    quemPediu: yup.string().max(QTDADE_MAX_LETRAS_QUEM_PEDIU)
   })
 
   const { register, errors, handleSubmit, trigger } = useForm({ 
@@ -217,25 +216,6 @@ const Identificacao = ({ userData, empresa, proposta, setProposta, versaoDaPropo
             />
             {errors && errors.quemPediu && <FormFeedback>Use entre {QTDADE_MIN_LETRAS_QUEM_PEDIU} e {QTDADE_MAX_LETRAS_QUEM_PEDIU} caracteres</FormFeedback>}
           </FormGroup>}
-
-          <FormGroup tag={Col} md='12'>
-            <Label className='form-label' for='comentarioDaProposta'>
-              Comentários (não aparecem na proposta)
-            </Label>
-            <InputGroup className='input-group-merge'>
-              <Input 
-                name='comentarioDaProposta'
-                id='comentarioDaProposta'
-                defaultValue={proposta.comentarioDaProposta}
-                innerRef={register({ required: true })}
-                invalid={errors.comentarioDaProposta && true}
-                onChange={handleChange}
-                type='textarea' 
-                placeholder='Comentários sobre a proposta'
-              />
-              {errors && errors.comentarioDaProposta && <FormFeedback>Máximo de {QTDADE_MAX_CARACTERES_COMENTARIOS_DA_PROPOSTA} caracteres</FormFeedback>}
-            </InputGroup>
-          </FormGroup>
 
         </Row>
         <div className='d-flex justify-content-between'>
