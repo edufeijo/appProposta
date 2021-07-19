@@ -9,7 +9,7 @@ import { columns } from './columns'
 import ReactPaginate from 'react-paginate'
 import { ChevronDown } from 'react-feather'
 import DataTable from 'react-data-table-component'
-import { Button, Label, Input, CustomInput, Row, Col, Card, CardHeader, CardTitle, CardBody, Media } from 'reactstrap'
+import { Button, Label, Input, CustomInput, Row, Col, Card, CardHeader, CardTitle, CardBody, Badge } from 'reactstrap'
 
 // ** Styles
 import '@styles/react/apps/app-invoice.scss'
@@ -96,7 +96,7 @@ const InvoiceList = () => {
 
   const propostasEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/propostas'))
   const history = useHistory()
-
+ 
   const MySwal = withReactContent(Swal)
   const AvisoDePropostaEmLocalStorage = () => {
     return MySwal.fire({
@@ -244,19 +244,36 @@ const InvoiceList = () => {
     )
   }
 
-  const formataVersoesDaProposta = (pos) => {
+  const msgHaQuantoTempo = date => {
+    const diferenca = moment(date).fromNow()
+    console.log("diferenca=", diferenca)
+    return diferenca
+//    if (diferenca < 1) return `há ${minutos}` + minuto === 1 ? ' minuto' : ' minutos'
+  }  
+
+  const formataVersoesDaProposta = (data) => {
     console.log("data=", data)
-    console.log("pos=", pos)
-    const versoesDaProposta = data[pos].versoesDaProposta.map((versao, index, array) => {
-      versao.title = versao.dataDaVersaoDaProposta
+    const versoesDaProposta = data.versoesDaProposta.reverse().map((versao, index, array) => {
+      const content = `${moment(versao.dataDaVersaoDaProposta).format("DD.MM.YYYY [às] HH:mm")} por ${versao.nomeDoUsuario} com status = ${versao.statusDaVersaoDaProposta} e vencimento em ${moment(versao.venceEm).format("DD.MM.YYYY [às] HH:mm")}`
+      const precoTotal =  versao.itensDaVersaoDaProposta ? versao.itensDaVersaoDaProposta.reduce((total, item) => total + item.precoDoItem, 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: 0}) : 0
+      const quantidadeDeItens = versao.itensDaVersaoDaProposta && versao.itensDaVersaoDaProposta.length
+      const itens = quantidadeDeItens === 1 ? '1 item' : `${quantidadeDeItens} itens`
+
+      console.log("precoTotal=", precoTotal)
+
+      versao.color = 'info'
+      versao.title = `Valor da proposta: ${precoTotal} (${itens})`
+
+      if (index + 1 === data.versoesDaProposta.length) versao.content = `Criada em ${content}`
+      else versao.content = `Atualizada em ${content}`
+
+      versao.meta = `${msgHaQuantoTempo(versao.dataDaVersaoDaProposta)}`
+      
       return versao
     })   
 
 /*     
-Criada em: dataDaVersaoDaProposta
-Valor total: precoDoItem (TOTAL) e quantidade de itens
 
-Criada por: <Avatar> nomeDoUsuario
 Criada como: statusDaVersaoDaProposta
 Anexo: se tem arquivoDaProposta mostra ícone
 
@@ -270,19 +287,22 @@ Botão com opções:
 
   const ExpandableTable = ({ data }) => {
     return (
-      <Card>
-      <CardHeader>
-        <CardTitle tag='h4'>Versões da proposta {data.idDaProposta}</CardTitle>
-      </CardHeader>
-      <CardBody>
-        <Col lg='6'>
-          <Timeline data={formataVersoesDaProposta(0)} />
-        </Col>
-      </CardBody>
-        <div className='divider'>
-          <div className='divider-text'></div>
-        </div>
-    </Card>
+      <div className='expandable-content p-2'>
+        <Card>
+          <CardHeader>
+            <CardTitle tag='h4'>Histórico da proposta 
+              <Badge color='light-secondary'>
+                <span>{`${data.idDaProposta}`}</span>
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardBody>
+            <Col lg='12'>
+              <Timeline data={formataVersoesDaProposta(data)} />
+            </Col>
+          </CardBody>
+        </Card>
+      </div>
     )
   }
 
@@ -307,7 +327,8 @@ Botão com opções:
             sortServer
             expandableRows
             expandOnRowClicked
-            expandableRowsComponent={<ExpandableTable />}
+            expandableRowsHideExpander
+            expandableRowsComponent={<ExpandableTable keyField='_id' />}
             subHeaderComponent={
               <CustomHeader
                 value={value}

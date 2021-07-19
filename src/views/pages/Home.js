@@ -2,8 +2,12 @@
 //
 //
 // No List View de propostas
-// - Fazer versões da proposta
 // - Gerar PDF
+// - Em versões da proposta incluir todos os campos da proposta:
+//   - No ícone X versões fazer botão clicável para expandir linha
+//   - Criar flag "Expandir" em cada linha da tabela. Permitir apenas 1 linha expandida de cada vez
+//   - Fazer função para calcular 'Há 1 dia' 
+//   - Quem indicou, se tem comentearios, se tem arquivo externo, etc
 // - Se não tem proposta em 7 dias, então aumentar para 30 dias, senão aumentar...
 // - Se pesquisar por nome, deixar periodo = TUDO
 // - Se não tem proposta, não mostrar a tabela com msg em ingles
@@ -78,6 +82,9 @@ import QuantidadeDePropostas from '../components/Estatísticas/QuantidadeDePropo
 import QuantidadeDeUsuarios from '../components/Estatísticas/QuantidadeDeUsuarios'
 import QuantidadeDeClientes from '../components/Estatísticas/QuantidadeDeClientes'
 import Erro from '../components/Erro'
+import moment from 'moment'
+
+moment.locale('pt-br')
 
 const Home = () => {
   const [erro, setErro] = useState(null)

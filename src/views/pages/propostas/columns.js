@@ -112,7 +112,7 @@ export const columns = [
     sortable: true,
     minWidth: '180px',
     center: true,
-    cell: row => row.ultimaAtualizacao && <span>{moment(row.ultimaAtualizacao).format("DD.MM.YYYY HH:mm")}</span>
+    cell: row => row.ultimaAtualizacao && <span>{moment(row.ultimaAtualizacao).format("DD.MM.YYYY [às] HH:mm")}</span>
   },
   {
     name: 'Informações',
@@ -123,10 +123,10 @@ export const columns = [
       <div className='column-action d-flex align-items-center'>
         <Calendar size={17} id={`send-tooltip-${row._id}`} />
         <UncontrolledTooltip placement='top' target={`send-tooltip-${row._id}`}>
-          Proposta emitida por {row.versoesDaProposta[row.versoesDaProposta.length - 1].nomeDoUsuario} e válida até {moment(row.versoesDaProposta[row.versoesDaProposta.length - 1].venceEm).format("DD.MM.YYYY HH:mm")}.
+          Proposta emitida por {row.versoesDaProposta[row.versoesDaProposta.length - 1].nomeDoUsuario} e válida até {moment(row.versoesDaProposta[row.versoesDaProposta.length - 1].venceEm).format("DD.MM.YYYY [às] HH:mm")}.
         </UncontrolledTooltip>
 
-        <Link to={`#`} id={`pw-tooltip-${row._id}`}>
+        <Link to='#' id={`pw-tooltip-${row._id}`}>
           <Layers size={17} className='mx-1' />
         </Link>
         <UncontrolledTooltip placement='top' target={`pw-tooltip-${row._id}`}>
@@ -135,7 +135,7 @@ export const columns = [
 
         <AlertTriangle size={17} id={`alert-tooltip-${row._id}`} /> 
         <UncontrolledTooltip placement='top' target={`alert-tooltip-${row._id}`}>
-          <div>{row.alertaEm === null ? 'Esta proposta não tem alerta programado.' : `Um alerta está programado para ${moment(row.alertaEm).format("DD.MM.YYYY HH:mm")} com a mensagem "${row.msgDoAlerta}".`}</div>
+          <div>{row.alertaEm === null ? 'Esta proposta não tem alerta programado.' : `Um alerta está programado para ${moment(row.alertaEm).format("DD.MM.YYYY [às] HH:mm")} com a mensagem "${row.msgDoAlerta}".`}</div>
           <div>{row.versoesDaProposta[row.versoesDaProposta.length - 1].comentarioDaProposta === null ? '' : `Visualize a proposta para ler seus comentários.`}</div>
         </UncontrolledTooltip> 
       </div>
