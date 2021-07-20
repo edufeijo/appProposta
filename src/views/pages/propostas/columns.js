@@ -21,10 +21,10 @@ import {
   MoreVertical,
   Download,
   Edit,
-  Trash,
   Copy,
   AlertTriangle,
-  Calendar
+  Calendar,
+  Eye
 } from 'react-feather'
 
 import config from '../../../configs/statusDePropostas'
@@ -153,30 +153,22 @@ export const columns = [
             <MoreVertical size={17} className='cursor-pointer' />
           </DropdownToggle>
           <DropdownMenu right>
-{/*             <DropdownItem tag='a' href='/' className='w-100' onClick={e => e.preventDefault()}>
-              <Download size={14} className='mr-50' />
-              <span className='align-middle'>Download</span>
-            </DropdownItem> */}
+            <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
+              <Eye size={14} className='mr-50' />
+              <span className='align-middle'>Visualizar</span>
+            </DropdownItem>
             <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
               <Edit size={14} className='mr-50' />
               <span className='align-middle'>Editar</span>
-            </DropdownItem>
-{/*             <DropdownItem
-              tag='a'
-              href='/'
-              className='w-100'
-              onClick={e => {
-                e.preventDefault()
-                store.dispatch(deleteInvoice(row.id))
-              }}
-            >
-              <Trash size={14} className='mr-50' />
-              <span className='align-middle'>Delete</span>
-            </DropdownItem> */}
-{/*             <DropdownItem tag='a' href='/' className='w-100' onClick={e => e.preventDefault()}>
+            </DropdownItem>            
+            <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
               <Copy size={14} className='mr-50' />
-              <span className='align-middle'>Duplicate</span>
-            </DropdownItem> */}
+              <span className='align-middle'>Duplicar</span>
+            </DropdownItem>
+            <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
+              <Download size={14} className='mr-50' />
+              <span className='align-middle'>Gerar PDF</span>
+            </DropdownItem>
           </DropdownMenu>
         </UncontrolledDropdown>
       </div>

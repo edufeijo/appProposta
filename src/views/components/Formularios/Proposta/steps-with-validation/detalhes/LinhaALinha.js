@@ -17,7 +17,6 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import { useHistory } from "react-router-dom"
 
-
 const NomeDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens }) => {
   const SignupSchema = yup.object().shape({
     [`nomeDoItem${index}`]: yup.string().min(QTDADE_MIN_LETRAS_NOME_DO_ITEM).max(QTDADE_MAX_LETRAS_NOME_DO_ITEM).required()

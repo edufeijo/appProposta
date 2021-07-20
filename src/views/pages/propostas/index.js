@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Fragment } from 'react'
 import { Link, useHistory } from 'react-router-dom'
 
 // ** Table Columns
@@ -25,6 +25,27 @@ import { NomeDoClientePesquisado } from '../../components/AutoComplete/NomeDoCli
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import Timeline from '@components/timeline'
+
+moment.updateLocale('en', {
+  relativeTime : {
+      future: "em %s",
+      past:   "há %s",
+      s  : 'poucos segundos',
+      ss : '%d segundos',
+      m:  "um minuto",
+      mm: "%d minutos",
+      h:  "uma hora",
+      hh: "%d horas",
+      d:  "um dia",
+      dd: "%d dias",
+      w:  "uma semana",
+      ww: "%d semanas",
+      M:  "um mês",
+      MM: "%d meses",
+      y:  "um ano",
+      yy: "%d anos"
+  }
+})
 
 const CustomHeader = ({ value, setValue, handleStatusValue, statusValue, handlePeriodo}) => {
   return (
@@ -165,6 +186,10 @@ const InvoiceList = () => {
         } 
         db.getGenerico(query, false) 
         .then((data) => { 
+          data.map((proposta, index, array) => {
+            proposta.versoesDaProposta = proposta.versoesDaProposta.reverse()
+            proposta.expandableRowExpanded = false
+          })
           setData(data) 
         })
         .catch((err) => {
@@ -244,44 +269,32 @@ const InvoiceList = () => {
     )
   }
 
-  const msgHaQuantoTempo = date => {
-    const diferenca = moment(date).fromNow()
-    console.log("diferenca=", diferenca)
-    return diferenca
-//    if (diferenca < 1) return `há ${minutos}` + minuto === 1 ? ' minuto' : ' minutos'
-  }  
-
   const formataVersoesDaProposta = (data) => {
-    console.log("data=", data)
-    const versoesDaProposta = data.versoesDaProposta.reverse().map((versao, index, array) => {
-      const content = `${moment(versao.dataDaVersaoDaProposta).format("DD.MM.YYYY [às] HH:mm")} por ${versao.nomeDoUsuario} com status = ${versao.statusDaVersaoDaProposta} e vencimento em ${moment(versao.venceEm).format("DD.MM.YYYY [às] HH:mm")}`
+    const versoesDaProposta = data.versoesDaProposta.map((versao, index, array) => {
+      const content = `${moment(versao.dataDaVersaoDaProposta).format("DD.MM.YYYY [às] HH:mm")} por ${versao.nomeDoUsuario} com status "${versao.statusDaVersaoDaProposta}" e vencimento em ${moment(versao.venceEm).format("DD.MM.YYYY [às] HH:mm")}`
       const precoTotal =  versao.itensDaVersaoDaProposta ? versao.itensDaVersaoDaProposta.reduce((total, item) => total + item.precoDoItem, 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: 0}) : 0
       const quantidadeDeItens = versao.itensDaVersaoDaProposta && versao.itensDaVersaoDaProposta.length
       const itens = quantidadeDeItens === 1 ? '1 item' : `${quantidadeDeItens} itens`
 
-      console.log("precoTotal=", precoTotal)
-
-      versao.color = 'info'
-      versao.title = `Valor da proposta: ${precoTotal} (${itens})`
+      versao.color = 'primary'
+      versao.title = `Valor da proposta (${itens}): ${precoTotal}`
 
       if (index + 1 === data.versoesDaProposta.length) versao.content = `Criada em ${content}`
       else versao.content = `Atualizada em ${content}`
 
-      versao.meta = `${msgHaQuantoTempo(versao.dataDaVersaoDaProposta)}`
-      
+      versao.meta = `${moment(versao.dataDaVersaoDaProposta).fromNow()}`
+
+      versao.customContent = (
+        <Fragment>
+          <div className='demo-inline-spacing'>
+            <Button.Ripple color='primary' outline>Visualizar</Button.Ripple>
+            <Button.Ripple color='primary' outline>Editar</Button.Ripple>
+            {versao.arquivoDaProposta !== null &&  <Button.Ripple color='primary' outline>Baixar arquivo</Button.Ripple>}
+          </div>
+        </Fragment>
+      )
       return versao
     })   
-
-/*     
-
-Criada como: statusDaVersaoDaProposta
-Anexo: se tem arquivoDaProposta mostra ícone
-
-Botão com opções:
-- Visualizar
-- Editar
- */
-
     return versoesDaProposta
   }
 
@@ -306,6 +319,15 @@ Botão com opções:
     )
   }
 
+  const onRowExpandToggled = (toggleState, row) => {
+    const dataCopy = Array.from(data)
+    dataCopy.map((proposta, index, array) => {
+      proposta.expandableRowExpanded = false
+    })
+    dataCopy[dataCopy.findIndex(element => element._id === row._id)].expandableRowExpanded = toggleState
+    setData(dataCopy)
+  }
+
   return (
     <div className='invoice-list-wrapper'>
       <BreadCrumbsPage breadCrumbTitle='Propostas' breadCrumbParent={`Visualizar ${quantidadeDePropostas} proposta${(quantidadeDePropostas !== 1) ? 's' : ''}`}/>
@@ -326,8 +348,10 @@ Botão com opções:
             onSort={handleSort}
             sortServer
             expandableRows
-            expandOnRowClicked
             expandableRowsHideExpander
+            expandOnRowClicked
+            onRowExpandToggled={onRowExpandToggled}
+            expandableRowExpanded={row => row.expandableRowExpanded}
             expandableRowsComponent={<ExpandableTable keyField='_id' />}
             subHeaderComponent={
               <CustomHeader
