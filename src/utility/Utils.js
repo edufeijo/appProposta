@@ -202,8 +202,8 @@ export function geraPDF (proposta, template, logo) {
     }
   }
 
-  // pdfMake.createPdf(dd).open()
-  pdfMake.createPdf(dd).download()
+  pdfMake.createPdf(dd).open()
+  // pdfMake.createPdf(dd).download()
 
 }
 
