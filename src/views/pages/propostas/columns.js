@@ -1,6 +1,7 @@
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import moment from 'moment'
-import { corDeComoPediu } from '@utils'
+import db from '../../../db'
+import { corDeComoPediu, geraPDF } from '@utils'
 
 import { Link } from 'react-router-dom'
 
@@ -28,6 +29,24 @@ import {
 } from 'react-feather'
 
 import config from '../../../configs/statusDePropostas'
+
+const tratarPDF = (proposta, versao) => {
+  const query = {
+    bd: "templates",
+    operador: "get",
+    cardinalidade: "one",
+    pesquisa: { 
+      idDaEmpresa: proposta.idDaEmpresa
+    }
+  } 
+  db.getGenerico(query, false) 
+  .then((templates) => { 
+    const template = templates.versoesDoTemplate[proposta.versoesDaProposta[versao].versaoDoTemplate]
+    geraPDF(proposta, template)
+  })
+  .catch((err) => {
+  }) 
+}
 
 // ** renders client column
 const renderClient = row => {
@@ -123,7 +142,7 @@ export const columns = [
       <div className='column-action d-flex align-items-center'>
         <Calendar size={17} id={`send-tooltip-${row._id}`} />
         <UncontrolledTooltip placement='top' target={`send-tooltip-${row._id}`}>
-          Proposta emitida por {row.versoesDaProposta[row.versoesDaProposta.length - 1].nomeDoUsuario} e válida até {moment(row.versoesDaProposta[row.versoesDaProposta.length - 1].venceEm).format("DD.MM.YYYY [às] HH:mm")}.
+          Proposta emitida por {row.versoesDaProposta[0].nomeDoUsuario} e válida até {moment(row.versoesDaProposta[0].venceEm).format("DD.MM.YYYY [às] HH:mm")}.
         </UncontrolledTooltip>
 
         <Link to='#' id={`pw-tooltip-${row._id}`}>
@@ -136,7 +155,7 @@ export const columns = [
         <AlertTriangle size={17} id={`alert-tooltip-${row._id}`} /> 
         <UncontrolledTooltip placement='top' target={`alert-tooltip-${row._id}`}>
           <div>{row.alertaEm === null ? 'Esta proposta não tem alerta programado.' : `Um alerta está programado para ${moment(row.alertaEm).format("DD.MM.YYYY [às] HH:mm")} com a mensagem "${row.msgDoAlerta}".`}</div>
-          <div>{row.versoesDaProposta[row.versoesDaProposta.length - 1].comentarioDaProposta === null ? '' : `Visualize a proposta para ler seus comentários.`}</div>
+          <div>{row.comentarioDaProposta === null ? '' : `Visualize a proposta para ler seus comentários.`}</div>
         </UncontrolledTooltip> 
       </div>
     )
@@ -146,32 +165,34 @@ export const columns = [
     minWidth: '10px',
     selector: '',
     center: true,
-    cell: row => (
-      <div className='column-action d-flex align-items-center'>
-        <UncontrolledDropdown>
-          <DropdownToggle tag='span'>
-            <MoreVertical size={17} className='cursor-pointer' />
-          </DropdownToggle>
-          <DropdownMenu right>
-            <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
-              <Eye size={14} className='mr-50' />
-              <span className='align-middle'>Visualizar</span>
-            </DropdownItem>
-            <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
-              <Edit size={14} className='mr-50' />
-              <span className='align-middle'>Editar</span>
-            </DropdownItem>            
-            <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
-              <Copy size={14} className='mr-50' />
-              <span className='align-middle'>Duplicar</span>
-            </DropdownItem>
-            <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
-              <Download size={14} className='mr-50' />
-              <span className='align-middle'>Gerar PDF</span>
-            </DropdownItem>
-          </DropdownMenu>
-        </UncontrolledDropdown>
-      </div>
-    )
+    cell: row => {
+      return (
+        <div className='column-action d-flex align-items-center'>
+          <UncontrolledDropdown>
+            <DropdownToggle tag='span'>
+              <MoreVertical size={17} className='cursor-pointer' />
+            </DropdownToggle>
+            <DropdownMenu right>
+              <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
+                <Eye size={14} className='mr-50' />
+                <span className='align-middle'>Visualizar</span>
+              </DropdownItem>
+              <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Editar</span>
+              </DropdownItem>            
+              <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
+                <Copy size={14} className='mr-50' />
+                <span className='align-middle'>Duplicar</span>
+              </DropdownItem>
+              <DropdownItem className='w-100' onClick={() => tratarPDF(row, 0)}>
+                <Download size={14} className='mr-50' />
+                <span className='align-middle'>Gerar PDF</span>
+              </DropdownItem>
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </div>
+      )
+    }
   }
 ]
