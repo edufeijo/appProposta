@@ -42,7 +42,8 @@ const tratarPDF = (proposta, versao) => {
   db.getGenerico(query, false) 
   .then((templates) => { 
     const template = templates.versoesDoTemplate[proposta.versoesDaProposta[versao].versaoDoTemplate]
-    geraPDF(proposta, template)
+    const logo = templates.logo
+    geraPDF(proposta, template, logo)
   })
   .catch((err) => {
   }) 

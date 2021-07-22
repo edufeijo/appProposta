@@ -130,7 +130,8 @@ const EditaProposta = () => {
           setEmpresa(resposta) 
           setProposta(registroAnterior => ({
             ...registroAnterior, 
-            idDaEmpresa: userData.idDaEmpresa
+            idDaEmpresa: userData.idDaEmpresa,
+            nomeDaEmpresa: userData.nomeDaEmpresa
           })) 
           setVersaoDaProposta(registroAnterior => ({
             ...registroAnterior, 
