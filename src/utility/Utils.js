@@ -105,105 +105,135 @@ export function geraPDF (proposta, template, logo) {
   const dd = {
     pageSize: `${template.pageSize}`,
     pageOrientation: `${template.pageOrientation}`,
-    pageMargins: [0, 60, 0, 60],
+    pageMargins: [0, 0, 0, 20],
 
     info: {
-      title: `Proposta comercial para - ${proposta.nomeDoCliente}`,
+      title: `${template.labelDaProposta} para ${proposta.nomeDoCliente}`,
       author: `Emitida por ${proposta.nomeDaEmpresa}`
     },
 
-    footer (currentPage, pageCount) { return `${currentPage.toString()} of ${pageCount}` },
-    header (currentPage, pageCount, pageSize) {
-      // you can apply any logic and return any valid pdfmake element
-  
-      return [
-        { text: 'simple text', alignment: (currentPage % 2) ? 'left' : 'right' },
-        { canvas: [{ type: 'rect', x: 170, y: 32, w: pageSize.width - 170, h: 40 }]}
-      ]
+    footer (currentPage, pageCount) { 
+      return [{ text: `${currentPage.toString()} de ${pageCount}`, style: 'footer', alignment: 'right', margin: [0, 0, 20, 0] }]
     },
 
     content: [
-      {text: `Proposta comercial para ${proposta.nomeDoCliente}`, style: 'header'},
-      {text: `Emitida por ${proposta.nomeDaEmpresa}`, margin: [40, 40, 0, 0], pageBreak: 'after'},
       {
         columns: [
-          { text: `${proposta.nomeDoCliente}`, style: 'titulo', margin: 0 },
           {
             image: logo,
             fit: [150, 150],
             width: 'auto',
-            margin: [0, 60, 40, 60]
+            margin: [20, 10, 0, 0]
+          },
+          {
+            width: '*', // star-sized columns fill the remaining space
+            text: [
+              { text: `${template.labelDaProposta} `, style: 'proposta' }, { text: `${proposta.idDaProposta}\n\n`, bold: true, style: 'proposta' },
+              { text: 'Cliente ', style: 'normal', color: "#888888" }, { text: `${proposta.nomeDoCliente}`, style: 'normal', bold: true }
+            ], 
+            alignment: 'right',
+            margin: [0, 20, 20, 60]
           }
         ]
       },
+
       {
-        pageBreak: 'after',
-        columns: [
-          {
-            // auto-sized columns have their widths based on their content
-            width: 'auto',
-            text: 'First column'
-          },
-          {
-            // star-sized columns fill the remaining space
-            // if there's more than one star-column, available width is divided equally
-            width: '*',
-            text: 'Second column', 
-            style: 'header'
-          },
-          {
-            // % width
-            width: '20%',
-            text: 'Fourth column'
-          }
-        ],
-        // optional space between columns
-        columnGap: 10
-      },
-      {
-        layout: 'noBorders', 
+        layout: 'lightHorizontalLines', 
         table: {
           headerRows: 1,
           widths: ['100%'],
-          body: [[{ text: 'Itens da proposta', bold: true, fillColor: "#DDDDDD", margin: [20, 3, 0, 3] }]]
+          body: [[{ text: `${template.labelDaProposta} Opção 1`, style: 'normal', bold: true, margin: [20, 6, 0, 6], fillColor: "#ffffff", alignment: 'left' }]]
         }
       },
       {
-        layout: 'lightHorizontalLines', // optional
+        layout: 'linhasBemSuaves', 
         table: {
-          // headers are automatically repeated if the table spans over multiple pages
-          // you can declare how many rows should be treated as headers
           headerRows: 1,
-          widths: ['*', 'auto', 100, '*'],
-  
+          widths: ['auto', '*', 'auto'],
+
           body: [
-            ['First', 'Second', 'Third', 'The last one'],
-            ['Value 1', 'Value 2', 'Value 3', 'Value 4'],
-            [{ text: 'Bold value Bold value Bold value Bold value Bold value Bold value Bold value Bold value Bold value Bold value Bold value ', bold: true, fillColor: "#ff5500" }, 'Val 2', 'Val 3', 'Val 4']
+            [{ text: '#', style: 'pequeno', bold: true, margin: [20, 6, 0, 6], fillColor: "#f4f4f4" }, { text: 'ITEM', style: 'pequeno', bold: true, margin: [0, 6, 0, 6], fillColor: "#f4f4f4" }, { text: 'PREÇO', style: 'pequeno', bold: true, margin: [0, 6, 20, 6], fillColor: "#f4f4f4", alignment: 'right' }],
+            [{ text: '1', style: 'normal', margin: [20, 10, 0, 10] }, [{ text: 'Fotografia de casamento', style: 'normal', margin: [0, 10, 0, 5] }, { text: `${proposta.versoesDaProposta[0].itensDaVersaoDaProposta[0].descricaoDoItem}`, style: 'normal', color: "#888888", margin: [0, 0, 0, 10] }], { text: 'R$ 10.000', style: 'normal', margin: [0, 10, 20, 10], alignment: 'right' }],
+            [{ text: '2', style: 'normal', margin: [20, 10, 0, 10] }, [{ text: 'Álbum de casamento', style: 'normal', margin: [0, 10, 0, 10] }, { text: `${proposta.versoesDaProposta[0].itensDaVersaoDaProposta[0].descricaoDoItem}`, style: 'normal', color: "#888888", margin: [0, 0, 0, 10] }], { text: 'R$ 10.000', style: 'normal', margin: [0, 10, 20, 10], alignment: 'right' }],
+            [{ text: '3', style: 'normal', margin: [20, 10, 0, 10] }, [{ text: 'Vídeo de casamento', style: 'normal', margin: [0, 10, 0, 10] }, { text: `${proposta.versoesDaProposta[0].itensDaVersaoDaProposta[0].descricaoDoItem}`, style: 'normal', color: "#888888", margin: [0, 0, 0, 10] }], { text: 'R$ 10.000', style: 'normal', margin: [0, 10, 20, 10], alignment: 'right' }]
           ]
         }
+      },
+      {
+        layout: 'noBorders', 
+        margin: [0, 0, 0, 30],
+        table: {
+          headerRows: 1,
+          widths: ['100%'],
+          body: [[{ text: 'Total R$ 18.700', style: 'normal', bold: true, margin: [0, 6, 20, 6], fillColor: "#ffffff", alignment: 'right' }]]
+        }
+      },
+
+      {
+        columns: [
+          {
+            width: '*', // star-sized columns fill the remaining space
+            text: [
+              { text: 'Criado em ', style: 'pequeno', color: "#888888" }, { text: `${moment(proposta.ultimaAtualizacao).format("DD.MM.YYYY [às] HH:mm")}\n`, style: 'pequeno', bold: true },
+              { text: 'Válido até ', style: 'pequeno', color: "#888888" }, { text: `${moment(proposta.versoesDaProposta[0].venceEm).format("DD.MM.YYYY [às] HH:mm")}\n`, style: 'pequeno', bold: true },
+              { text: 'Emitido por ', style: 'pequeno', color: "#888888" }, { text: `${proposta.versoesDaProposta[0].nomeDoUsuario}`, style: 'pequeno', bold: true }
+            ], 
+            alignment: 'right',
+            lineHeight: 1.4,
+            margin: [0, 20, 20, 20]
+          }
+        ]
       }
     ],
     styles: {
       titulo: {
         fontSize: 30,
-        bold: true
-      },
-      header: {
-        fontSize: 18,
         bold: true,
-        color: 'blue',
-        background: "#ff5500"
+        color: "#666666"
+      },
+      proposta: {
+        fontSize: 14,
+        color: "#666666"
       },
       normal: {
         fontSize: 12,
-        color: '#888888'
+        color: "#666666"
+      },
+      pequeno: {
+        fontSize: 10,
+        color: "#666666"
+      },
+      footer: {
+        fontSize: 8,
+        color: "#666666"
+      }
+    }
+  }
+
+  pdfMake.tableLayouts = {
+    linhasBemSuaves: {
+      hLineWidth(i, node) {
+        if (i === 0 || i === node.table.body.length) {
+          return 0
+        }
+        return (i === node.table.headerRows) ? 2 : 1
+      },
+      vLineWidth(i) {
+        return 0
+      },
+      hLineColor(i) {
+        return i === 1 ? '#f4f4f4' : '#eeeeee'
+      },
+      paddingLeft(i) {
+        return i === 0 ? 0 : 8
+      },
+      paddingRight(i, node) {
+        return (i === node.table.widths.length - 1) ? 0 : 8
       }
     }
   }
 
   pdfMake.createPdf(dd).open()
   // pdfMake.createPdf(dd).download()
-
 }
 
