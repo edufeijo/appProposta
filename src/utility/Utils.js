@@ -102,6 +102,19 @@ export function geraPDF (proposta, template, logo) {
   console.log("proposta=", proposta)
   console.log("template=", template)
 
+  // Header da tabela
+  const matriz = [[{ text: '#', style: 'pequeno', bold: true, margin: [20, 6, 0, 6], fillColor: "#f4f4f4" }, { text: 'ITEM', style: 'pequeno', bold: true, margin: [0, 6, 0, 6], fillColor: "#f4f4f4" }, { text: 'PREÇO', style: 'pequeno', bold: true, margin: [0, 6, 20, 6], fillColor: "#f4f4f4", alignment: 'right' }]]
+
+  // Linhas da tabela
+  proposta.versoesDaProposta[0].itensDaVersaoDaProposta.map((item, index, array) => {
+    const linha = [
+      { text: `${index + 1}`, style: 'normal', margin: [20, 10, 0, 10] }, 
+      [{ text: `${item.nomeDoItem}`, style: 'normal', margin: [0, 10, 0, 5] }, { text: `${item.descricaoDoItem}`, style: 'normal', color: "#888888", margin: [0, 0, 0, 10] }], 
+      { text: `${item.precoDoItem.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: 0})}`, style: 'normal', margin: [0, 10, 20, 10], alignment: 'right' }
+    ]
+    matriz.push(linha)
+  })  
+
   const dd = {
     pageSize: `${template.pageSize}`,
     pageOrientation: `${template.pageOrientation}`,
@@ -150,13 +163,7 @@ export function geraPDF (proposta, template, logo) {
         table: {
           headerRows: 1,
           widths: ['auto', '*', 'auto'],
-
-          body: [
-            [{ text: '#', style: 'pequeno', bold: true, margin: [20, 6, 0, 6], fillColor: "#f4f4f4" }, { text: 'ITEM', style: 'pequeno', bold: true, margin: [0, 6, 0, 6], fillColor: "#f4f4f4" }, { text: 'PREÇO', style: 'pequeno', bold: true, margin: [0, 6, 20, 6], fillColor: "#f4f4f4", alignment: 'right' }],
-            [{ text: '1', style: 'normal', margin: [20, 10, 0, 10] }, [{ text: 'Fotografia de casamento', style: 'normal', margin: [0, 10, 0, 5] }, { text: `${proposta.versoesDaProposta[0].itensDaVersaoDaProposta[0].descricaoDoItem}`, style: 'normal', color: "#888888", margin: [0, 0, 0, 10] }], { text: 'R$ 10.000', style: 'normal', margin: [0, 10, 20, 10], alignment: 'right' }],
-            [{ text: '2', style: 'normal', margin: [20, 10, 0, 10] }, [{ text: 'Álbum de casamento', style: 'normal', margin: [0, 10, 0, 10] }, { text: `${proposta.versoesDaProposta[0].itensDaVersaoDaProposta[0].descricaoDoItem}`, style: 'normal', color: "#888888", margin: [0, 0, 0, 10] }], { text: 'R$ 10.000', style: 'normal', margin: [0, 10, 20, 10], alignment: 'right' }],
-            [{ text: '3', style: 'normal', margin: [20, 10, 0, 10] }, [{ text: 'Vídeo de casamento', style: 'normal', margin: [0, 10, 0, 10] }, { text: `${proposta.versoesDaProposta[0].itensDaVersaoDaProposta[0].descricaoDoItem}`, style: 'normal', color: "#888888", margin: [0, 0, 0, 10] }], { text: 'R$ 10.000', style: 'normal', margin: [0, 10, 20, 10], alignment: 'right' }]
-          ]
+          body: matriz
         }
       },
       {
@@ -165,7 +172,7 @@ export function geraPDF (proposta, template, logo) {
         table: {
           headerRows: 1,
           widths: ['100%'],
-          body: [[{ text: 'Total R$ 18.700', style: 'normal', bold: true, margin: [0, 6, 20, 6], fillColor: "#ffffff", alignment: 'right' }]]
+          body: [[{ text: `Total ${proposta.valorDaProposta.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: 0})}`, style: 'normal', bold: true, margin: [0, 6, 20, 6], fillColor: "#ffffff", alignment: 'right' }]]
         }
       },
 
@@ -185,6 +192,7 @@ export function geraPDF (proposta, template, logo) {
         ]
       }
     ],
+    
     styles: {
       titulo: {
         fontSize: 30,
