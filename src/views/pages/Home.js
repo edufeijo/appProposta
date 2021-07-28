@@ -1,8 +1,15 @@
 // PENDÊNCIAS DA VERSÃO 0.1
 //
 //
+// Tabela de preços
+// - se não tem preço definido: mostrar quickstart
+// - mostrar Botão 'Quickstart' (com opção 'não mostrar novamente'). Se não tem Quickstart e não tem tabela de preços, então botão 'Criar tabela de preços'
+// 
+//
 // Gerar PDF
-// -
+// - Fazer Criador de templates, com vários modelos
+// - Ter uma solução para hospedar Logo e Imagens em URLs externas
+// - No Edita Proposta permitir que o usuário customize o template desta proposta
 //
 //
 // No List View de propostas
@@ -27,11 +34,6 @@
 // - Pesquisar quanto tempo para expirar accessToken e RefreshToken
 //
 //
-// - fazer Criar tabela de preços
-// - se não tem preço definido: mostrar quickstart
-// - mostrar Botão 'Quickstart' (com opção 'não mostrar novamente'). Se não tem Quickstart e não tem tabela de preços, então botão 'Criar tabela de preços'
-// 
-//
 // Especificar:
 // - Desenhar fluxo de vida da Empresa (status). Depois de quanto tempo fica inativa?
 //
@@ -43,6 +45,7 @@
 //
 //
 // No Registro:
+// - Criar template da proposta com valores default
 // - Testar checkbox e fazer link para políticas
 // - Padronizar Iniciais em maiúscula: nomeDoUsuario.toLowerCase
 // - criar regra para definição da senha pelo usuário (8 caracteres, pelo menos 1 letra?)

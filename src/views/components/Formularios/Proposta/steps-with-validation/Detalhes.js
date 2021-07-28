@@ -2,7 +2,7 @@ import { Fragment } from 'react'
 import PropostaExterna from './detalhes/PropostaExterna'
 import LinhaALinha from './detalhes/LinhaALinha'
 
-const Detalhes = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, operacao, stepper, type }) => {
+const Detalhes = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, template, operacao, stepper, type }) => {
   return (
     <Fragment>
       <LinhaALinha 

@@ -18,7 +18,7 @@ import Flatpickr from 'react-flatpickr'
 import '@styles/react/libs/flatpickr/flatpickr.scss'
 import { Portuguese } from 'flatpickr/dist/l10n/pt.js'
 
-const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, operacao, stepper, type }) => {
+const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, template, operacao, stepper, type }) => {
   const [erro, setErro] = useState(null)
   const history = useHistory()
   const [block, setBlock] = useState(false)
@@ -68,6 +68,8 @@ const Alerta = ({ userData, empresa, proposta, setProposta, versaoDaProposta, se
     else novaVersaoDaProposta.venceEm = moment(novaVersaoDaProposta.dataDaProposta).add(parseInt(versaoDaProposta.diasDeValidadeDaProposta), 'days').format() 
     delete novaVersaoDaProposta.diasDeValidadeDaProposta
     novaVersaoDaProposta.itensDaVersaoDaProposta = Array.from(copiaDaTabelaDeItens)
+    if (template) novaVersaoDaProposta.versaoDoTemplate = template.versoesDoTemplate.length - 1
+    else novaVersaoDaProposta.versaoDoTemplate = null
 
     const propostaAtualizada = proposta 
     if (proposta.isAlertaLigado) {

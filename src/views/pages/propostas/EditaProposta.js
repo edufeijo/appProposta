@@ -5,6 +5,7 @@ import FormularioDeProposta from '../../components/Formularios/Proposta/Formular
 import { isUserLoggedIn } from '@utils'
 import db from '../../../db'
 import { ALERTA_FOLLOWUP_CLIENTE, VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA, VALORES_INICIAIS_DA_PROPOSTA } from '../../../configs/appProposta'
+import VALORES_INICIAIS_DO_TEMPLATE from '../../../configs/configTemplate'
 import Erro from '../../components/Erro'
 import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../components/Toasts/ToastTypes'
@@ -35,6 +36,7 @@ const EditaProposta = () => {
   const [versaoDaProposta, setVersaoDaProposta] = useState(Object.assign({}, VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA))
   const [tabelaDeItens, setTabelaDeItens] = useState([Object.assign({}, VALORES_INICIAIS_DO_ITEM)])
   const [operacao, setOperacao] = useState('Criar')
+  const [template, setTemplate] = useState(null)
 
   useEffect(() => {
     if (isUserLoggedIn() !== null) {
@@ -117,7 +119,7 @@ const EditaProposta = () => {
           }
         }
 
-        const query = { // Carrega es informações da empresa
+        const queryEmpresa = { // Carrega es informações da empresa
           bd: "empresas",
           operador: "get",
           cardinalidade: "one",
@@ -125,7 +127,7 @@ const EditaProposta = () => {
             ['_id']: userData.idDaEmpresa 
           }
         } 
-        db.getGenerico(query, false) 
+        db.getGenerico(queryEmpresa, false) 
         .then((resposta) => { 
           setEmpresa(resposta) 
           setProposta(registroAnterior => ({
@@ -138,6 +140,24 @@ const EditaProposta = () => {
             idDoUsuario: userData._id,
             nomeDoUsuario: userData.nomeDoUsuario
           }))
+        })
+        .catch((err) => {
+/*           msgToast = 'Você está sem conexão com o servidor. Tente novamente mais tarde'
+          notifyError() */
+          history.push('/proposta/list')
+        }) 
+
+        const queryTemplate = { // Carrega o template das propostas
+          bd: "templates",
+          operador: "get",
+          cardinalidade: "one",
+          pesquisa: { 
+            ['idDaEmpresa']: userData.idDaEmpresa 
+          }
+        } 
+        db.getGenerico(queryTemplate, false) 
+        .then((resposta) => { 
+          setTemplate(resposta) 
         })
         .catch((err) => {
 /*           msgToast = 'Você está sem conexão com o servidor. Tente novamente mais tarde'
@@ -161,6 +181,7 @@ const EditaProposta = () => {
             setVersaoDaProposta={setVersaoDaProposta}
             tabelaDeItens={tabelaDeItens}
             setTabelaDeItens={setTabelaDeItens}
+            template={template}
             operacao={operacao}
           />
         </Col>

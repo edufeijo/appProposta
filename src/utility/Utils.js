@@ -1,4 +1,5 @@
 import config from '../configs/comoPediuOptions'
+import configTemplate from '../configs/configTemplate'
 import moment from 'moment'
 import pdfMake from "pdfmake/build/pdfmake"
 import pdfFonts from "pdfmake/build/vfs_fonts"
@@ -98,19 +99,40 @@ export function corDeComoPediu(comoPediu) {
 export function geraPDF (proposta, template, logo) {
   pdfMake.vfs = pdfFonts.pdfMake.vfs
 
-  console.log("================ No geraPDF")
-  console.log("proposta=", proposta)
-  console.log("template=", template)
+  if (template === null) template = configTemplate.VALORES_INICIAIS_DO_TEMPLATE
 
   // Header da tabela
-  const matriz = [[{ text: '#', style: 'pequeno', bold: true, margin: [20, 6, 0, 6], fillColor: "#f4f4f4" }, { text: 'ITEM', style: 'pequeno', bold: true, margin: [0, 6, 0, 6], fillColor: "#f4f4f4" }, { text: 'PREÇO', style: 'pequeno', bold: true, margin: [0, 6, 20, 6], fillColor: "#f4f4f4", alignment: 'right' }]]
+  const matriz = [
+    [
+      { 
+        text: '#', style: 'pequeno', bold: true, margin: [20, 6, 0, 6], fillColor: "#f4f4f4" 
+      }, 
+      { 
+        text: 'ITEM', style: 'pequeno', bold: true, margin: [0, 6, 0, 6], fillColor: "#f4f4f4" 
+      }, 
+      { 
+        text: 'PREÇO', style: 'pequeno', bold: true, margin: [0, 6, 20, 6], fillColor: "#f4f4f4", alignment: 'right' 
+      }
+    ]
+  ]
 
   // Linhas da tabela
   proposta.versoesDaProposta[0].itensDaVersaoDaProposta.map((item, index, array) => {
     const linha = [
-      { text: `${index + 1}`, style: 'normal', margin: [20, 10, 0, 10] }, 
-      [{ text: `${item.nomeDoItem}`, style: 'normal', margin: [0, 10, 0, 5] }, { text: `${item.descricaoDoItem}`, style: 'normal', color: "#888888", margin: [0, 0, 0, 10] }], 
-      { text: `${item.precoDoItem.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: 0})}`, style: 'normal', margin: [0, 10, 20, 10], alignment: 'right' }
+      { 
+        text: `${index + 1}`, style: 'normal', margin: [20, 10, 0, 10] 
+      }, 
+      [
+        { 
+          text: `${item.nomeDoItem}`, style: 'normal', margin: [0, 10, 0, 5] 
+        }, 
+        { 
+          text: `${item.descricaoDoItem}`, style: 'normal', color: "#888888", margin: [0, 0, 0, 10] 
+        }
+      ], 
+      { 
+        text: `${item.precoDoItem.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: 0})}`, style: 'normal', margin: [0, 10, 20, 10], alignment: 'right' 
+      }
     ]
     matriz.push(linha)
   })  
@@ -126,13 +148,17 @@ export function geraPDF (proposta, template, logo) {
     },
 
     footer (currentPage, pageCount) { 
-      return [{ text: `${currentPage.toString()} de ${pageCount}`, style: 'footer', alignment: 'right', margin: [0, 0, 20, 0] }]
+      return [
+        { 
+          text: `${currentPage.toString()} de ${pageCount}`, style: 'footer', alignment: 'right', margin: [0, 0, 20, 0] 
+        }
+      ]
     },
 
     content: [
       {
         columns: [
-          {
+          logo && {
             image: logo,
             fit: [150, 150],
             width: 'auto',
@@ -141,8 +167,18 @@ export function geraPDF (proposta, template, logo) {
           {
             width: '*', // star-sized columns fill the remaining space
             text: [
-              { text: `${template.labelDaProposta} `, style: 'proposta' }, { text: `${proposta.idDaProposta}\n\n`, bold: true, style: 'proposta' },
-              { text: 'Cliente ', style: 'normal', color: "#888888" }, { text: `${proposta.nomeDoCliente}`, style: 'normal', bold: true }
+              { 
+                text: `${template.labelDaProposta} `, style: 'proposta' 
+              }, 
+              { 
+                text: `${proposta.idDaProposta}\n\n`, bold: true, style: 'proposta' 
+              },
+              { 
+                text: 'Cliente ', style: 'normal', color: "#888888" 
+              }, 
+              { 
+                text: `${proposta.nomeDoCliente}`, style: 'normal', bold: true 
+              }
             ], 
             alignment: 'right',
             margin: [0, 20, 20, 60]
@@ -155,7 +191,13 @@ export function geraPDF (proposta, template, logo) {
         table: {
           headerRows: 1,
           widths: ['100%'],
-          body: [[{ text: `${template.labelDaProposta} Opção 1`, style: 'normal', bold: true, margin: [20, 6, 0, 6], fillColor: "#ffffff", alignment: 'left' }]]
+          body: [
+            [
+              { 
+                text: `${template.labelDaProposta} Opção 1`, style: 'normal', bold: true, margin: [20, 6, 0, 6], fillColor: "#ffffff", alignment: 'left' 
+              }
+            ]
+          ]
         }
       },
       {
@@ -172,7 +214,13 @@ export function geraPDF (proposta, template, logo) {
         table: {
           headerRows: 1,
           widths: ['100%'],
-          body: [[{ text: `Total ${proposta.valorDaProposta.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: 0})}`, style: 'normal', bold: true, margin: [0, 6, 20, 6], fillColor: "#ffffff", alignment: 'right' }]]
+          body: [
+            [
+              { 
+                text: `Total ${proposta.valorDaProposta.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: 0})}`, style: 'normal', bold: true, margin: [0, 6, 20, 6], fillColor: "#ffffff", alignment: 'right' 
+              }
+            ]
+          ]
         }
       },
 

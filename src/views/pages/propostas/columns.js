@@ -41,8 +41,12 @@ const tratarPDF = (proposta, versao) => {
   } 
   db.getGenerico(query, false) 
   .then((templates) => { 
-    const template = templates.versoesDoTemplate[proposta.versoesDaProposta[versao].versaoDoTemplate]
-    const logo = templates.logo
+    let template = null
+    let logo = null
+    if (templates) {
+      if (proposta.versoesDaProposta[versao].hasOwnProperty('versaoDoTemplate')) template = templates.versoesDoTemplate[proposta.versoesDaProposta[versao].versaoDoTemplate]
+      logo = templates.logo
+    }
     geraPDF(proposta, template, logo)
   })
   .catch((err) => {
@@ -174,22 +178,26 @@ export const columns = [
               <MoreVertical size={17} className='cursor-pointer' />
             </DropdownToggle>
             <DropdownMenu right>
-              <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
+              {row.propostaCriadaPor !==  "Documento externo" && <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
                 <Eye size={14} className='mr-50' />
                 <span className='align-middle'>Visualizar</span>
-              </DropdownItem>
+              </DropdownItem>}
               <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
                 <Edit size={14} className='mr-50' />
                 <span className='align-middle'>Editar</span>
               </DropdownItem>            
-              <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
+              {row.propostaCriadaPor !==  "Documento externo" && <DropdownItem tag={Link} to={`/proposta/edit/${row._id}`} className='w-100'>
                 <Copy size={14} className='mr-50' />
                 <span className='align-middle'>Duplicar</span>
-              </DropdownItem>
-              <DropdownItem className='w-100' onClick={() => tratarPDF(row, 0)}>
+              </DropdownItem>}
+              {row.propostaCriadaPor !==  "Documento externo" && <DropdownItem className='w-100' onClick={() => tratarPDF(row, 0)}>
                 <Download size={14} className='mr-50' />
                 <span className='align-middle'>Gerar PDF</span>
-              </DropdownItem>
+              </DropdownItem>}
+              {row.propostaCriadaPor ===  "Documento externo" && <DropdownItem className='w-100' onClick={() => console.log("Baixar documento")}>
+                <Download size={14} className='mr-50' />
+                <span className='align-middle'>Baixar documento</span>
+              </DropdownItem>}
             </DropdownMenu>
           </UncontrolledDropdown>
         </div>
