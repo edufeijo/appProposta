@@ -47,7 +47,28 @@ moment.updateLocale('en', {
   }
 })
 
-const CustomHeader = ({ value, setValue, handleStatusValue, statusValue, handlePeriodo}) => {
+const BotaoCriarProposta = () => {
+  return (
+    <Button.Ripple tag={Link} to='/proposta/new' color='primary'>
+      Criar proposta
+    </Button.Ripple>
+  )
+}
+
+const CardSemPropostas = () => {
+  return (
+    <Card>
+      <CardBody>
+        <div align="center">
+          <h4>Crie sua 1ª proposta!</h4>
+          <BotaoCriarProposta/>
+        </div>
+      </CardBody>
+    </Card>
+  )
+}
+
+const CustomHeader = ({ tabelaVazia, value, setValue, handleStatusValue, statusValue, handlePeriodo}) => {
   return (
     <div className='invoice-list-table-header w-100 py-2'>
       <Row>
@@ -58,6 +79,7 @@ const CustomHeader = ({ value, setValue, handleStatusValue, statusValue, handleP
               className='form-control ml-50 pr-3'
               type='select'
               id='periodo'
+              value={tabelaVazia}
               onChange={handlePeriodo}
             >
               <option value='7'>últimos 7 dias</option>
@@ -66,9 +88,7 @@ const CustomHeader = ({ value, setValue, handleStatusValue, statusValue, handleP
             </CustomInput>
           </div>
 
-          <Button.Ripple tag={Link} to='/proposta/new' color='primary'>
-            Criar proposta
-          </Button.Ripple>
+          <BotaoCriarProposta/>
         </Col>
 
         <Col
@@ -104,7 +124,7 @@ const InvoiceList = () => {
 
   const [userData, setUserData] = useState(null)
   const [userDataCarregado, setUserDataCarregado] = useState(false)
-  const [data, setData] = useState()
+  const [data, setData] = useState([])
   const [quantidadeDePropostas, setQuantidadeDePropostas] = useState()
 
   const [value, setValue] = useState({ nomeDoCliente: '', idDoCliente: null})
@@ -113,6 +133,7 @@ const InvoiceList = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10)
   const [sortCriteria, setSortCriteria] = useState({ ultimaAtualizacao: -1 }) // ordenado em ordem decrescente de atualização da proposta
   const [periodo, setPeriodo] = useState({ $gt: moment().local().subtract(7, 'days').format() })
+  const [tabelaVazia, setTabelaVazia] = useState('7')
   const [recarregaPagina, setRecarregaPagina] = useState(false)
 
   const propostasEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/propostas'))
@@ -137,6 +158,24 @@ const InvoiceList = () => {
         history.push('/proposta/review/1')
       }
     })
+  }
+
+  const handleTabelaVazia = () => {
+    let periodoAumentado = periodo
+    if (tabelaVazia === 'all') {
+      return
+    }
+    if (tabelaVazia === '7') {
+      periodoAumentado = { $gt: moment().local().subtract(30, 'days').format() } 
+      setTabelaVazia('30')
+    } else 
+    if (tabelaVazia === '30') {
+      periodoAumentado = {}
+      setTabelaVazia('all')
+    }
+    setPeriodo(periodoAumentado)
+    setCurrentPage(1)
+    setRecarregaPagina(!recarregaPagina)
   }
 
   useEffect(() => {
@@ -175,27 +214,30 @@ const InvoiceList = () => {
       db.getGenerico(query, false) 
       .then((resposta) => { 
         setQuantidadeDePropostas(resposta) 
-        const query = {
-          bd: "propostas",
-          operador: "sort",
-          cardinalidade: rowsPerPage,
-          skip: skipPages,
-          pesquisa: objetoDePesquisa,
-          ordenadoPor: sortCriteria, 
-          sortStringAsNumber: sortAsNumber
-        } 
-        db.getGenerico(query, false) 
-        .then((data) => { 
-          data.map((proposta, index, array) => {
-            proposta.versoesDaProposta = proposta.versoesDaProposta.reverse()
-            proposta.expandableRowExpanded = false
+        if (resposta === 0) handleTabelaVazia()
+        else {
+          const query = {
+            bd: "propostas",
+            operador: "sort",
+            cardinalidade: rowsPerPage,
+            skip: skipPages,
+            pesquisa: objetoDePesquisa,
+            ordenadoPor: sortCriteria, 
+            sortStringAsNumber: sortAsNumber
+          } 
+          db.getGenerico(query, false) 
+          .then((data) => { 
+            data.map((proposta, index, array) => {
+              proposta.versoesDaProposta = proposta.versoesDaProposta.reverse()
+              proposta.expandableRowExpanded = false
+            })
+            setData(data) 
           })
-          setData(data) 
-        })
-        .catch((err) => {
-          setErro(err)
-          setErro(null)
-        }) 
+          .catch((err) => {
+            setErro(err)
+            setErro(null)
+          }) 
+        }
       })
       .catch((err) => {
         setErro(err)
@@ -231,9 +273,14 @@ const InvoiceList = () => {
     const dias = e.target.value
 
     let periodo = {}
-    if (dias === '7') periodo = { $gt: moment().local().subtract(7, 'days').format() } 
-    else
-    if (dias === '30') periodo = { $gt: moment().local().subtract(30, 'days').format() } 
+    if (dias === '7') {
+      periodo = { $gt: moment().local().subtract(7, 'days').format() } 
+      setTabelaVazia('7')
+    } else
+    if (dias === '30') {
+      periodo = { $gt: moment().local().subtract(30, 'days').format() } 
+      setTabelaVazia('30')
+    } else setTabelaVazia('all')
 
     setPeriodo(periodo)
     setCurrentPage(1)
@@ -331,7 +378,8 @@ const InvoiceList = () => {
   return (
     <div className='invoice-list-wrapper'>
       <BreadCrumbsPage breadCrumbTitle='Propostas' breadCrumbParent={`Visualizar ${quantidadeDePropostas} proposta${(quantidadeDePropostas !== 1) ? 's' : ''}`}/>
-      <Card>
+      {!data.length && <CardSemPropostas />}
+      {data.length && <Card>
         <div className='invoice-list-dataTable'>
           <DataTable
             noHeader
@@ -355,6 +403,7 @@ const InvoiceList = () => {
             expandableRowsComponent={<ExpandableTable keyField='_id' />}
             subHeaderComponent={
               <CustomHeader
+                tabelaVazia={tabelaVazia}
                 value={value}
                 setValue={setValue}
                 statusValue={statusValue}
@@ -371,7 +420,7 @@ const InvoiceList = () => {
           setRecarregaPagina={setRecarregaPagina} 
           recarregaPagina={recarregaPagina} 
         />
-      </Card>
+      </Card>}
       <Erro erro={erro} />
     </div>
   )

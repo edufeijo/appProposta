@@ -65,16 +65,6 @@ const Arquivo = ({ setVersaoDaProposta }) => {
           </div>
         </CardBody>
       </Card>
-{/*       <div className='d-flex justify-content-between'>
-        <Button.Ripple color='primary' className='btn-prev' onClick={() => stepper.previous()}>
-          <ArrowLeft size={14} className='align-middle mr-sm-25 mr-0'></ArrowLeft>
-          <span className='align-middle d-sm-inline-block d-none'>Voltar</span>
-        </Button.Ripple>
-        <Button.Ripple color='primary' className='btn-next' onClick={() => stepper.next()}>
-          <span className='align-middle d-sm-inline-block d-none'>Avançar</span>
-          <ArrowRight size={14} className='align-middle ml-sm-25 ml-0'></ArrowRight>
-        </Button.Ripple>
-      </div> */}
     </Fragment>
   )
 }

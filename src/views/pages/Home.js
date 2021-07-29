@@ -17,9 +17,7 @@
 //   - Criar editar "qualquer versão da proposta"
 //   - Mostrar todos os campos da proposta: Quem indicou, se tem comentários, se tem arquivo externo, etc
 // - Trocar botão "Selecione status" por "Selecione pesquisa": cliente, idDaProposta, Quem indicou, etc
-// - Se não tem proposta em 7 dias, então aumentar para 30 dias, senão aumentar...
 // - Se pesquisar por nome, deixar periodo = TUDO
-// - Se não tem proposta, não mostrar a tabela com msg em ingles
 // - Página bonita para preview Proposta, Cliente e ações
 // 
 //
@@ -42,6 +40,7 @@
 // - Fazer ForgotPassword e ResetPassword
 // - Gravar BD Usuário e BD Empresa com último login realizado
 // - use localStorage or use cookies instead (pesquisar código fonte e procurar 'localStorage')
+// - Excluir msg de erro qdo envia para a tela de login
 //
 //
 // No Registro:
