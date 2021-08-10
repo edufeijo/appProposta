@@ -391,7 +391,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
   const CabecalhoDoLinhaALinha = ({ tabId })  => {
     return (
       <div>
-        <Row>
+{/*         <Row>
           <Col md={6}>
             <div key={count}>
               <Label className='form-label' for={`qtdadedeitens${tabId}`}>
@@ -420,14 +420,10 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
               </InputGroup>
             </div>
           </Col>
-        </Row>
+        </Row> */}
       </div>
     )
   }
-
-  console.log("proposta=", proposta)
-  console.log("versaoDaProposta=", versaoDaProposta)
-  console.log("tabelaDeItens=", tabelaDeItens)
 
   return (
     <Fragment>

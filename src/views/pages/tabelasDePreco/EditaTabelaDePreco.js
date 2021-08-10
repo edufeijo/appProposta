@@ -1,19 +1,22 @@
 import { Fragment, useState, useEffect } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import { Row, Col } from 'reactstrap'
-import FormularioDeProposta from '../../components/Formularios/Proposta/FormularioDeProposta'
+import FormularioDeTabelaDePrecos from '../../components/Formularios/TabelaDePrecos/FormularioDeTabelaDePrecos'
 import { isUserLoggedIn } from '@utils'
 import db from '../../../db'
-import { ALERTA_FOLLOWUP_CLIENTE, VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA, VALORES_INICIAIS_DA_PROPOSTA } from '../../../configs/appProposta'
+import { VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA, VALORES_INICIAIS_DA_PROPOSTA, VALORES_INICIAIS_DA_TABELA_DE_PRECOS, VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS } from '../../../configs/appProposta'
 import Erro from '../../components/Erro'
 import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../components/Toasts/ToastTypes'
 
-const EditaProposta = () => {
+const EditaTabelaDePreco = () => {
   const { id, rascunho } = useParams()
   const [erro, setErro] = useState(null)
   const history = useHistory()
-
+  
+  // ITENS ABAIXO DEVEM SER EXCLUIDOS
+  const [proposta, setProposta] = useState(Object.assign({}, VALORES_INICIAIS_DA_PROPOSTA))
+  const [versaoDaProposta, setVersaoDaProposta] = useState(Object.assign({}, VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA))
   const VALORES_INICIAIS_DO_ITEM = { 
     nomeDoItem: '', 
     precoDoItem: null, 
@@ -23,6 +26,18 @@ const EditaProposta = () => {
       precoDoItem: true
     }
   }
+  const [tabelaDeItens, setTabelaDeItens] = useState([Object.assign({}, VALORES_INICIAIS_DO_ITEM)])
+  const [template, setTemplate] = useState(null)
+
+  const VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS = { 
+    nomeDoItem: ''/* , 
+    precoDoItem: null, 
+    descricaoDoItem: '',
+    erroNoFormulario: {
+      nomeDoItem: true, 
+      precoDoItem: true
+    } */
+  }
 
   let msgToast = ''
   const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
@@ -31,11 +46,10 @@ const EditaProposta = () => {
   const [userDataCarregado, setUserDataCarregado] = useState(false)
 
   const [empresa, setEmpresa] = useState(null)
-  const [proposta, setProposta] = useState(Object.assign({}, VALORES_INICIAIS_DA_PROPOSTA))
-  const [versaoDaProposta, setVersaoDaProposta] = useState(Object.assign({}, VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA))
-  const [tabelaDeItens, setTabelaDeItens] = useState([Object.assign({}, VALORES_INICIAIS_DO_ITEM)])
+  const [tabelaDePrecos, setTabelaDePrecos] = useState(Object.assign({}, VALORES_INICIAIS_DA_TABELA_DE_PRECOS))
+  const [versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos] = useState(Object.assign({}, VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS))
+  const [itensDaTabelaDePrecos, setItensDaTabelaDePrecos] = useState([Object.assign({}, VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS)])
   const [operacao, setOperacao] = useState('Criar')
-  const [template, setTemplate] = useState(null)
 
   useEffect(() => {
     if (isUserLoggedIn() !== null) {
@@ -46,24 +60,24 @@ const EditaProposta = () => {
 
   useEffect(() => {
     if (userDataCarregado) {
-      if (rascunho === '1') { // Proposta rascunho está gravada em Local Storage
-        const propostasEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/propostas'))
-        if (propostasEmLocalStorage !==  null) {
-          setProposta(propostasEmLocalStorage.proposta)
-          setVersaoDaProposta(propostasEmLocalStorage.versaoDaProposta)
-          setTabelaDeItens(propostasEmLocalStorage.tabelaDeItens)
+      if (rascunho === '1') { // rascunho da Tabela de Preços está gravada em Local Storage
+        const tabelaDePrecosEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/tabeladeprecos'))
+        if (tabelaDePrecosEmLocalStorage !==  null) {
+          setTabelaDePrecos(tabelaDePrecosEmLocalStorage.tabelaDePrecos)
+          setVersaoDaTabelaDePrecos(tabelaDePrecosEmLocalStorage.versaoDaTabelaDePrecos)
+          setItensDaTabelaDePrecos(tabelaDePrecosEmLocalStorage.itensDaTabelaDePrecos)
           setEmpresa(propostasEmLocalStorage.empresa)
-          setOperacao(propostasEmLocalStorage.operacao) 
-          localStorage.removeItem('@appproposta/propostas')
-        } else history.push('/proposta/list')
+          setOperacao(propostasEmLocalStorage.operacao)  
+          localStorage.removeItem('@appproposta/tabeladeprecos')
+        } else history.push('/precos/list')
       } else {
-        if (id !== undefined) { // Carrega a proposta id
+        if (id !== undefined) { // Carrega a Tabela de Preços id
           if (id.length !== 24) {
-            msgToast = 'Proposta não encontrada. Preencha o formulário para criar uma nova proposta'
+            msgToast = 'Tabela de Preços não encontrada. Preencha o formulário para criar uma nova tabela'
             notifyError()
           } else {
             const query = {
-              bd: "propostas",
+              bd: "tabelasDePrecos",
               operador: "get",
               cardinalidade: "one",
               pesquisa: { 
@@ -74,7 +88,9 @@ const EditaProposta = () => {
             db.getGenerico(query, false) 
             .then((resposta) => { 
               if (resposta !== null) {
-                setProposta(resposta) 
+                // O TRECHO ABAIXO DEVERÁ SER ADAPTADO PARA TABELA DE PRECOS
+
+/*                 setProposta(resposta) 
                 setVersaoDaProposta(resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1])
                 setOperacao('Atualizar')
                 let alertaLigado = false
@@ -105,9 +121,9 @@ const EditaProposta = () => {
                   copiaDoItem.erroNoFormulario = {}
                   return copiaDoItem
                 })  
-                setTabelaDeItens(tabelaDeItensString)  
+                setTabelaDeItens(tabelaDeItensString)   */
               } else {
-                msgToast = 'Proposta não encontrada. Preencha o formulário para criar uma nova proposta'
+                msgToast = 'Tabela de Preços não encontrada. Preencha o formulário para criar uma nova tabela'
                 notifyError()
               }
             })
@@ -129,12 +145,12 @@ const EditaProposta = () => {
         db.getGenerico(queryEmpresa, false) 
         .then((resposta) => { 
           setEmpresa(resposta) 
-          setProposta(registroAnterior => ({
+          setTabelaDePrecos(registroAnterior => ({
             ...registroAnterior, 
             idDaEmpresa: userData.idDaEmpresa,
             nomeDaEmpresa: userData.nomeDaEmpresa
           })) 
-          setVersaoDaProposta(registroAnterior => ({
+          setVersaoDaTabelaDePrecos(registroAnterior => ({
             ...registroAnterior, 
             idDoUsuario: userData._id,
             nomeDoUsuario: userData.nomeDoUsuario
@@ -143,25 +159,7 @@ const EditaProposta = () => {
         .catch((err) => {
 /*           msgToast = 'Você está sem conexão com o servidor. Tente novamente mais tarde'
           notifyError() */
-          history.push('/proposta/list')
-        }) 
-
-        const queryTemplate = { // Carrega o template das propostas
-          bd: "templates",
-          operador: "get",
-          cardinalidade: "one",
-          pesquisa: { 
-            ['idDaEmpresa']: userData.idDaEmpresa 
-          }
-        } 
-        db.getGenerico(queryTemplate, false) 
-        .then((resposta) => { 
-          setTemplate(resposta) 
-        })
-        .catch((err) => {
-/*           msgToast = 'Você está sem conexão com o servidor. Tente novamente mais tarde'
-          notifyError() */
-          history.push('/proposta/list')
+          history.push('/precos/list')
         }) 
       }
     }
@@ -171,9 +169,18 @@ const EditaProposta = () => {
     <Fragment>
       <Row>
         <Col sm='12'>
-          <FormularioDeProposta 
+          <FormularioDeTabelaDePrecos 
             userData={userData} 
             empresa={empresa} 
+            operacao={operacao}
+            tabelaDePrecos={tabelaDePrecos}
+            setTabelaDePrecos={setTabelaDePrecos}
+            versaoDaTabelaDePrecos={versaoDaTabelaDePrecos}
+            setVersaoDaTabelaDePrecos={setVersaoDaTabelaDePrecos}
+            itensDaTabelaDePrecos={itensDaTabelaDePrecos}
+            setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
+
+            // as props abaixo devem ser excluídas
             proposta={proposta} 
             setProposta={setProposta} 
             versaoDaProposta={versaoDaProposta}
@@ -181,7 +188,6 @@ const EditaProposta = () => {
             tabelaDeItens={tabelaDeItens}
             setTabelaDeItens={setTabelaDeItens}
             template={template}
-            operacao={operacao}
           />
         </Col>
       </Row>
@@ -189,4 +195,4 @@ const EditaProposta = () => {
     </Fragment>
   )
 }
-export default EditaProposta
+export default EditaTabelaDePreco

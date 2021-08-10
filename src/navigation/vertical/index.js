@@ -49,13 +49,11 @@ export default [
   {
     id: 'precos',
     title: 'Preços',
-    icon: <DollarSign size={20} />,
+    icon: <DollarSign size={20} />, 
     action: 'manage',
     resource: 'empresa',
-    navLink: '#',
-    badge: 'light-danger',
-    badgeText: '2'
-  },
+    navLink: '/precos/list'
+  }, 
   {
     header: 'Posso Te Indicar!',
     action: 'manage',

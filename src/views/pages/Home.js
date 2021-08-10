@@ -12,6 +12,11 @@
 // - No Edita Proposta permitir que o usuário customize o template desta proposta
 //
 //
+// Limites do appProposta:
+// - Máximo de 3 tabelas de preço
+// - 1 troca de logotipo a cada 7 dias
+//
+//
 // No List View de propostas
 // - Em versões da proposta:
 //   - Criar editar "qualquer versão da proposta"
@@ -54,6 +59,7 @@
 //    }
 // - Calcular APELIDO (ou usar INSTAGRAM) --> talvez não precise
 // - Usar redes sociais? (Na tela de Login também)
+// - Validar email para garantir a autenticidade 
 // 
 //
 // Em algum momento após o registro:

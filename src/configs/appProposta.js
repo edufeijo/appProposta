@@ -61,6 +61,87 @@ const VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA = {
   arquivoDaProposta: null
 } 
 
+const VALORES_INICIAIS_DA_TABELA_DE_PRECOS = { 
+  idDaEmpresa: null, 
+  tabelaDePrecosExterna: false,
+
+  setor: null,
+  setorCustomizado: false,
+  segmento: null,
+  segmentoCustomizado: false,
+  servico: null,
+  servicoCustomizado: false,
+
+  versoesDaTabelaDePrecos: []
+} 
+
+const VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS = { 
+  idDoUsuario: null,
+  nomeDoUsuario: null,
+  dataDaVersaoDaTabelaDePrecos: null,
+  parametros: [],
+  dadosInformativos: [],
+  calculosComplementares: "esse campo é necessário???",
+  itensDaVersaoDaTabelaDePreco : []
+} 
+
+const SERVICOS_EM_EVENTOS = [
+  {
+    nomeDoServico : "fotografia"
+  }, 
+  {
+    nomeDoServico : "filmagem"
+  }
+]
+
+const SERVICOS_EM_EDUCACAO = [
+  {
+    nomeDoServico : "aulas regulares"
+  }, 
+  {
+    nomeDoServico : "aulas de reposição"
+  }
+]
+
+const SETOR_SEGMENTO_SERVICO = [
+  {
+    setor : "eventos",
+    dadosInformativosSugeridos : [ 
+        "Local do evento", 
+        "Data do evento"
+    ],
+    parametrosSugeridos : ["Quantidade de participantes"],
+    segmentos : [ 
+        {
+            nomeDoSegmento : "casamento",
+            servicos : SERVICOS_EM_EVENTOS
+        }, 
+        {
+            nomeDoSegmento : "15 anos",
+            servicos : SERVICOS_EM_EVENTOS
+        }
+    ]
+  },
+  {
+    setor : "educação",
+    dadosInformativosSugeridos : [ 
+        "Endereço da escola", 
+        "Nome do diretor"
+    ],
+    parametrosSugeridos : ["Quantidade de alunos"],
+    segmentos : [ 
+        {
+            nomeDoSegmento : "escola pública",
+            servicos : SERVICOS_EM_EDUCACAO
+        }, 
+        {
+            nomeDoSegmento : "escola particular",
+            servicos : SERVICOS_EM_EDUCACAO
+        }
+    ]
+  }
+]
+
 export {
     QTDADE_MIN_LETRAS_NOME_DO_USUARIO,
     QTDADE_MIN_LETRAS_QUEM_PEDIU,
@@ -86,5 +167,9 @@ export {
     QTDADE_MAX_LETRAS_NOME_DO_ITEM,
     QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM,
     VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA,
-    VALORES_INICIAIS_DA_PROPOSTA
+    VALORES_INICIAIS_DA_PROPOSTA,
+    VALORES_INICIAIS_DA_TABELA_DE_PRECOS,
+    VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS,
+    SETOR_SEGMENTO_SERVICO 
+
 }

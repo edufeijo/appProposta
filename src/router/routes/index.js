@@ -56,6 +56,48 @@ const Routes = [
       resource: 'empresa'
     }
   }, 
+
+  {
+    path: '/precos/list',
+    component: lazy(() => import('../../views/pages/tabelasDePreco')),
+    meta: {
+      action: 'manage',
+      resource: 'empresa'
+    }
+  }, 
+  {
+    path: '/precos/new',
+    component: lazy(() => import('../../views/pages/tabelasDePreco/EditaTabelaDePreco')),
+    meta: {
+      action: 'manage',
+      resource: 'empresa'
+    }
+  }, 
+  {
+    path: '/precos/edit/:id',
+    component: lazy(() => import('../../views/pages/tabelasDePreco/EditaTabelaDePreco')),
+    meta: {
+      action: 'manage',
+      resource: 'empresa'
+    }
+  }, 
+  {
+    path: '/precos/review/:rascunho',
+    component: lazy(() => import('../../views/pages/tabelasDePreco/EditaTabelaDePreco')),
+    meta: {
+      action: 'manage',
+      resource: 'empresa'
+    }
+  }, 
+  {
+    path: '/precos/preview/:id',
+    component: lazy(() => import('../../views/pages/tabelasDePreco/MostraTabelaDePreco')),
+    meta: {
+      action: 'manage',
+      resource: 'empresa'
+    }
+  }, 
+
   {
     path: '/clientes',
     component: lazy(() => import('../../views/pages/clientes')),
