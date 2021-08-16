@@ -2,7 +2,8 @@
 //
 //
 // Tabela de preços
-// - se não tem preço definido: mostrar quickstart
+// - Input de SSS customizados e armazenamento no banco de dados
+// - se não tem tabela de preço definida: mostrar quickstart
 // - mostrar Botão 'Quickstart' (com opção 'não mostrar novamente'). Se não tem Quickstart e não tem tabela de preços, então botão 'Criar tabela de preços'
 // 
 //

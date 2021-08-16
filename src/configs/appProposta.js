@@ -1,3 +1,4 @@
+import { Facebook, GitHub } from 'react-feather'
 import config from './comoPediuOptions'
 
 const QTDADE_MIN_LETRAS_NOME_DO_USUARIO = 3
@@ -87,56 +88,86 @@ const VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS = {
 
 const SERVICOS_EM_EVENTOS = [
   {
-    nomeDoServico : "fotografia"
+    name: "servico",
+    label: "Fotografia",
+    value: "Fotografia",
+    type: "opcao"
   }, 
-  {
-    nomeDoServico : "filmagem"
+  {    
+    name: "servico",
+    label: "Filmagem",
+    value: "Filmagem",
+    type: "opcao"
   }
 ]
 
 const SERVICOS_EM_EDUCACAO = [
   {
-    nomeDoServico : "aulas regulares"
+    name: "servico",
+    label: "Aula regular",
+    value: "Aula regular",
+    type: "opcao"
   }, 
-  {
-    nomeDoServico : "aulas de reposição"
+  {    
+    name: "servico",
+    label: "Aula de reposição",
+    value: "Aula de reposição",
+    type: "opcao"
   }
 ]
 
 const SETOR_SEGMENTO_SERVICO = [
   {
-    setor : "eventos",
+    name: "setor",
+    label: "Eventos",
+    value: "Eventos",
+    type: "opcao",
     dadosInformativosSugeridos : [ 
-        "Local do evento", 
-        "Data do evento"
+      "Local do evento", 
+      "Data do evento"
     ],
     parametrosSugeridos : ["Quantidade de participantes"],
     segmentos : [ 
         {
-            nomeDoSegmento : "casamento",
-            servicos : SERVICOS_EM_EVENTOS
+          name: "segmento",
+          label: "Casamento",
+          value: "Casamento",
+          type: "opcao",
+          servicos : SERVICOS_EM_EVENTOS
         }, 
         {
-            nomeDoSegmento : "15 anos",
-            servicos : SERVICOS_EM_EVENTOS
+          name: "segmento",
+          label: "15 anos",
+          value: "15 anos",
+          type: "opcao",
+          servicos : SERVICOS_EM_EVENTOS
         }
     ]
   },
   {
-    setor : "educação",
+    name: "setor",
+    label: "Educação",
+    value: "Educação",
+    type: "opcao",
     dadosInformativosSugeridos : [ 
-        "Endereço da escola", 
-        "Nome do diretor"
+      "Endereço da escola", 
+      "Nome do diretor"
     ],
     parametrosSugeridos : ["Quantidade de alunos"],
     segmentos : [ 
         {
-            nomeDoSegmento : "escola pública",
-            servicos : SERVICOS_EM_EDUCACAO
+          name: "segmento",
+          label: "Escola pública",
+          value: "Escola pública",
+          type: "opcao",
+          servicos : SERVICOS_EM_EDUCACAO
         }, 
         {
-            nomeDoSegmento : "escola particular",
-            servicos : SERVICOS_EM_EDUCACAO
+          name: "segmento",
+          label: "Escola particular",
+          value: "Escola particular",
+          type: "opcao",
+          servicos : SERVICOS_EM_EDUCACAO
         }
     ]
   }
