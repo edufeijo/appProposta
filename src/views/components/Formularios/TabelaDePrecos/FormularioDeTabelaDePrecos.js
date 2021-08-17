@@ -5,7 +5,7 @@ import DadosInformativos from '../TabelaDePrecos/steps-with-validation/DadosInfo
 import ItensDePreco from '../TabelaDePrecos/steps-with-validation/ItensDePreco' 
 import Segmentacao from '../TabelaDePrecos/steps-with-validation/Segmentacao'
 
-const FormularioDeTabelaDePrecos = ({ userData, empresa, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, template, operacao }) => {
+const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, template, operacao }) => {
   const [stepper, setStepper] = useState(null)
   const ref = useRef(null)
 
@@ -18,6 +18,7 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, tabelaDePrecos, setTabe
         userData={userData} 
         empresa={empresa} 
         operacao={operacao}
+        todasAsTabelaDePrecos={todasAsTabelaDePrecos}
         tabelaDePrecos={tabelaDePrecos}
         setTabelaDePrecos={setTabelaDePrecos}
         versaoDaTabelaDePrecos={versaoDaTabelaDePrecos}

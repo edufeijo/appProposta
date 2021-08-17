@@ -2,7 +2,9 @@
 //
 //
 // Tabela de preços
-// - Input de SSS customizados e armazenamento no banco de dados
+// - Finalizar o customizaArvoreSSS
+// - SSS customizados devem ser mostrados para novas tabelas
+// - Gravar tabela externa no BD
 // - se não tem tabela de preço definida: mostrar quickstart
 // - mostrar Botão 'Quickstart' (com opção 'não mostrar novamente'). Se não tem Quickstart e não tem tabela de preços, então botão 'Criar tabela de preços'
 // 

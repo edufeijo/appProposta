@@ -46,6 +46,7 @@ const EditaTabelaDePreco = () => {
   const [userDataCarregado, setUserDataCarregado] = useState(false)
 
   const [empresa, setEmpresa] = useState(null)
+  const [todasAsTabelaDePrecos, setTodasAsTabelaDePrecos] = useState([])
   const [tabelaDePrecos, setTabelaDePrecos] = useState(Object.assign({}, VALORES_INICIAIS_DA_TABELA_DE_PRECOS))
   const [versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos] = useState(Object.assign({}, VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS))
   const [itensDaTabelaDePrecos, setItensDaTabelaDePrecos] = useState([Object.assign({}, VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS)])
@@ -157,8 +158,22 @@ const EditaTabelaDePreco = () => {
           }))
         })
         .catch((err) => {
-/*           msgToast = 'Você está sem conexão com o servidor. Tente novamente mais tarde'
-          notifyError() */
+          history.push('/precos/list')
+        }) 
+
+        const queryTabelas = { 
+          bd: "tabelasDePrecos",
+          operador: "get",
+          cardinalidade: "all",
+          pesquisa: { 
+            idDaEmpresa: userData.idDaEmpresa 
+          }
+        } 
+        db.getGenerico(queryTabelas, false) 
+        .then((resposta) => { 
+          setTodasAsTabelaDePrecos(resposta)
+        })
+        .catch((err) => {
           history.push('/precos/list')
         }) 
       }
@@ -173,6 +188,7 @@ const EditaTabelaDePreco = () => {
             userData={userData} 
             empresa={empresa} 
             operacao={operacao}
+            todasAsTabelaDePrecos={todasAsTabelaDePrecos}
             tabelaDePrecos={tabelaDePrecos}
             setTabelaDePrecos={setTabelaDePrecos}
             versaoDaTabelaDePrecos={versaoDaTabelaDePrecos}

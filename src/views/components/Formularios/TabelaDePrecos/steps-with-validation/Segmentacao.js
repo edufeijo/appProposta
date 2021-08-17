@@ -11,47 +11,11 @@ import Select, { components } from 'react-select'
 import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../../Toasts/ToastTypes'
 import { NomeDoClientePesquisado } from '../../../AutoComplete/NomeDoClientePesquisado'
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+import { useHistory } from "react-router-dom"
 
-const NomeDoNovoCliente = ({ proposta, setProposta }) => {
-  const SignupSchema = yup.object().shape({
-    nomeDoCliente: yup.string().min(QTDADE_MIN_LETRAS_NOME_DO_USUARIO).max(QTDADE_MAX_LETRAS_NOME_DO_USUARIO).required()
-  })
-
-  const { register, errors, handleSubmit, trigger } = useForm({ 
-    mode: 'onChange', 
-    resolver: yupResolver(SignupSchema)
-  })
-
-  const handleChange = e => {
-    const { name, value } = e.target
-    const valueCapitalized = capitalizeFirst(value)
-    setProposta(registroAnterior => ({
-      ...registroAnterior, 
-      [name]: valueCapitalized
-    }))
-  }
-
-  return (
-    <div>
-      <Label className='form-label' for='nomeDoCliente'>
-        Nome do cliente
-      </Label>
-      <Input
-        name='nomeDoCliente'
-        id='nomeDoCliente'
-        placeholder='Nome do cliente'
-        defaultValue={proposta.nomeDoCliente}
-        autoComplete="off"
-        innerRef={register({ required: true })}
-        invalid={errors.nomeDoCliente && true}
-        onChange={handleChange}
-      />
-      {errors && errors.nomeDoCliente && <FormFeedback>Nome do cliente com no mínimo {QTDADE_MIN_LETRAS_NOME_DO_USUARIO} e no máximo {QTDADE_MAX_LETRAS_NOME_DO_USUARIO} caracteres</FormFeedback>}
-    </div>
-  ) 
-}
-
-const Segmentacao = ({ userData, empresa, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, template, operacao, stepper, type }) => {
+const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, template, operacao, stepper, type }) => {
   let msgToast = ''
   const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 2000 })
 
@@ -60,7 +24,7 @@ const Segmentacao = ({ userData, empresa, tabelaDePrecos, setTabelaDePrecos, ver
     setActive(tab)
   }
 
-  const preencheArrayToSelect = (arrayToSelect, tipo) => {
+  const preencheArrayToSelect = (arrayToSelect, tipo, opcaoUnica) => {
     const SELECIONE_OPCAO =   {
       name: `${tipo}`,
       label: `Selecione o ${tipo} do seu negócio`,
@@ -75,48 +39,93 @@ const Segmentacao = ({ userData, empresa, tabelaDePrecos, setTabelaDePrecos, ver
     }
     let arrayTemporary = []
 
-    arrayTemporary.push(SELECIONE_OPCAO)
-    arrayTemporary = arrayTemporary.concat(arrayToSelect)
-    arrayTemporary.push(CRIA_OPCAO)
+    if (opcaoUnica === 'selecionar') {
+      arrayTemporary.push(SELECIONE_OPCAO)
+    } else 
+    if (opcaoUnica === 'criar') {
+      arrayTemporary.push(CRIA_OPCAO)
+    } else {
+      arrayTemporary.push(SELECIONE_OPCAO)
+      arrayTemporary = arrayTemporary.concat(arrayToSelect)
+      arrayTemporary.push(CRIA_OPCAO)
+    }
+  
     return arrayTemporary
+  }
+
+  const customizaArvoreSSS = (arvoreOriginal, tabelaCustomizada) => { 
+    console.log("------------------------- No customizaArvoreSSS")
+    const arvoreCustomizada = arvoreOriginal
+    tabelaCustomizada.map((item, index, array) => {
+      let customizado = null
+      console.log("item=", item)
+      if (item.setorCustomizado) {
+        customizado = {
+          name: "setor",
+          label: item.setor,
+          value: item.setor,
+          type: "opcao"
+        }
+/*         dadosInformativosSugeridos : [ 
+          "Local do evento", 
+          "Data do evento"
+        ],
+        parametrosSugeridos : ["Quantidade de participantes"], */
+        console.log("customizado=", customizado)
+        arvoreCustomizada.push(customizado)
+        console.log("arvoreCustomizada=", arvoreCustomizada)
+      }
+    })  
+    return arvoreOriginal
   }
 
   const [arrayToSelectSetor, setArrayToSelectSetor] = useState([])
   const [arrayToSelectSegmento, setArrayToSelectSegmento] = useState([])
   const [arrayToSelectServico, setArrayToSelectServico] = useState([])
 
+  let arvoreSSSCustomizada = SETOR_SEGMENTO_SERVICO
+  useEffect(() => {
+    if (todasAsTabelaDePrecos.length > 0) {
+      arvoreSSSCustomizada = customizaArvoreSSS(SETOR_SEGMENTO_SERVICO, todasAsTabelaDePrecos)
+      const temporaryArraySetor = preencheArrayToSelect(arvoreSSSCustomizada, "setor")
+      setArrayToSelectSetor(temporaryArraySetor)
+    }
+  }, [todasAsTabelaDePrecos])
+
   useEffect(() => {
     if (arrayToSelectSetor.length === 0) {
-      const temporaryArray = preencheArrayToSelect(SETOR_SEGMENTO_SERVICO, "setor")
-      setArrayToSelectSetor(temporaryArray)
+      const temporaryArraySetor = preencheArrayToSelect(arvoreSSSCustomizada, "setor")
+      setArrayToSelectSetor(temporaryArraySetor)
+      const temporaryArraySegmento = preencheArrayToSelect([], "segmento", "selecionar")
+      setArrayToSelectSegmento(temporaryArraySegmento)
+      const temporaryArrayServico = preencheArrayToSelect([], "servico", "selecionar")
+      setArrayToSelectServico(temporaryArrayServico)
     }
   }, [])
 
-  const SignupSchema = yup.object().shape({
-    idDaProposta: yup.string().max(QTDADE_MAX_CARACTERES_ID_DA_PROPOSTA),
-    quemPediu: yup.string().max(QTDADE_MAX_LETRAS_QUEM_PEDIU)
-  })
-
-  const { register, errors, handleSubmit, trigger } = useForm({ 
-    mode: 'onChange', 
-    resolver: yupResolver(SignupSchema)
-  })
+  const erroNoForm = () => {
+    if (tabelaDePrecos.setor === null) {
+      msgToast = 'Escolha o Setor do seu negócio'
+      notifyError()
+      return true
+    } 
+    if (tabelaDePrecos.segmento === null) {
+      msgToast = 'Escolha o Segmento do seu negócio'
+      notifyError()
+      return true
+    } 
+    if (tabelaDePrecos.servico === null) {
+      msgToast = 'Escolha o Serviço do seu negócio'
+      notifyError()
+      return true
+    }
+    return false
+  }
 
   const onSubmit = () => {
-    trigger()    
-    if (isObjEmpty(errors)) {
-      if (proposta.isNewCliente) {
-        if (proposta.nomeDoCliente.length < QTDADE_MIN_LETRAS_NOME_DO_USUARIO || proposta.nomeDoCliente.length > QTDADE_MAX_LETRAS_NOME_DO_USUARIO) {
-          msgToast = 'Digite o nome do cliente'
-          notifyError()  
-        } else stepper.next()
-      } else {
-        if (proposta.idDoCliente === null) {
-          msgToast = 'Escolha o cliente cadastrado ou altere para Novo cliente'
-          notifyError()
-        } else stepper.next()
-      }
-    }
+    if (erroNoForm()) {
+      console.log("ERRO")
+    } else console.log("FORM OK")
   }
 
   const handleChangeSelect = e => {
@@ -130,11 +139,15 @@ const Segmentacao = ({ userData, empresa, tabelaDePrecos, setTabelaDePrecos, ver
         const index = arrayToSelectSetor.findIndex(element => element.label === label)
         const temporaryArray = preencheArrayToSelect(arrayToSelectSetor[index].segmentos, "segmento")
         setArrayToSelectSegmento(temporaryArray)
+        const temporaryArrayServico = preencheArrayToSelect([], "servico", "selecionar")
+        setArrayToSelectServico(temporaryArrayServico)
         setTabelaDePrecos(registroAnterior => ({
           ...registroAnterior, 
           segmento: null,
           servico: null,
-          setorCustomizado: false
+          setorCustomizado: false,
+          segmentoCustomizado: false,
+          servicoCustomizado: false
         }))
       } else 
       if (name === 'segmento') {
@@ -144,7 +157,8 @@ const Segmentacao = ({ userData, empresa, tabelaDePrecos, setTabelaDePrecos, ver
         setTabelaDePrecos(registroAnterior => ({
           ...registroAnterior, 
           servico: null,
-          segmentoCustomizado: false
+          segmentoCustomizado: false,
+          servicoCustomizado: false
         }))
       } else 
       if (name === 'servico') {
@@ -156,23 +170,44 @@ const Segmentacao = ({ userData, empresa, tabelaDePrecos, setTabelaDePrecos, ver
     } else {
       let customizado = false
       if (type === 'customizado') customizado = true
-      
+
       if (name === 'setor') {
         setTabelaDePrecos(registroAnterior => ({
           ...registroAnterior, 
           setor: null,
-          setorCustomizado: customizado,
           segmento: null,
-          servico: null
+          servico: null,
+          setorCustomizado: customizado,
+          segmentoCustomizado: customizado,
+          servicoCustomizado: customizado
         }))
+        if (customizado) {
+          const temporaryArraySegmento = preencheArrayToSelect([], "segmento", "criar")
+          setArrayToSelectSegmento(temporaryArraySegmento)
+          const temporaryArrayServico = preencheArrayToSelect([], "servico", "criar")
+          setArrayToSelectServico(temporaryArrayServico) 
+        } else {
+          const temporaryArraySegmento = preencheArrayToSelect([], "segmento", "selecionar")
+          setArrayToSelectSegmento(temporaryArraySegmento)
+          const temporaryArrayServico = preencheArrayToSelect([], "servico", "selecionar")
+          setArrayToSelectServico(temporaryArrayServico) 
+        }
       }  
       if (name === 'segmento') {
         setTabelaDePrecos(registroAnterior => ({
           ...registroAnterior, 
           segmento: null,
+          servico: null,
           segmentoCustomizado: customizado,
-          servico: null
+          servicoCustomizado: customizado
         }))
+        if (customizado) {
+          const temporaryArrayServico = preencheArrayToSelect([], "servico", "criar")
+          setArrayToSelectServico(temporaryArrayServico) 
+        } else {
+          const temporaryArrayServico = preencheArrayToSelect([], "servico", "selecionar")
+          setArrayToSelectServico(temporaryArrayServico)  
+        }
       }  
       if (name === 'servico') {
         setTabelaDePrecos(registroAnterior => ({
@@ -184,21 +219,60 @@ const Segmentacao = ({ userData, empresa, tabelaDePrecos, setTabelaDePrecos, ver
     }
   }
 
+  const handleChange = e => {
+    const { name, value } = e.target
+    const valueCapitalized = capitalizeFirst(value)
+    setTabelaDePrecos(registroAnterior => ({
+      ...registroAnterior, 
+      [name]: valueCapitalized
+    }))
+  }
+
+  const MySwal = withReactContent(Swal)
+  const AvisoDeUsarTabelaExterna = () => {
+    return MySwal.fire({
+      title: `Quer incluir a tabela de preços no appProposta?`,
+      text: `Clique em Quero incluir, retorne para a tela de segmentação e preencha os dados solicitados. Ou clique em Não para manter sua tabela externa`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Quero incluir',
+      cancelButtonText: 'Não',
+      customClass: {
+        confirmButton: 'btn btn-primary', 
+        cancelButton: 'btn btn-outline-danger ml-1'
+      },
+      buttonsStyling: false
+    }).then(function (result) {
+      if (result.value) {
+        setTabelaDePrecos(registroAnterior => ({
+          ...registroAnterior, 
+          tabelaDePrecosExterna: false
+        }))
+        toggle('1')
+      } else {
+        toggle('1')
+        setTabelaDePrecos(registroAnterior => ({
+          ...registroAnterior, 
+          tabelaDePrecosExterna: true
+        }))
+        // direcionar para a gravação da tabela de preço no BD
+      }
+    })
+  }
+  
+  const onTabelaExterna = () => {
+    if (!erroNoForm()) AvisoDeUsarTabelaExterna()
+  }
+
   const onFill = () => {
     toggle('1')
   }
 
-  const onTabelaExterna = () => {
-    toggle('2')
-  }
-
   console.log("==================== No Segmentacao")
+  console.log("todasAsTabelaDePrecos=", todasAsTabelaDePrecos)
   console.log("tabelaDePrecos=", tabelaDePrecos)
   console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos)
-  console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos) 
-  console.log("arrayToSelectSetor=", arrayToSelectSetor) 
-  console.log("arrayToSelectSegmento=", arrayToSelectSegmento) 
-  console.log("arrayToSelectServico=", arrayToSelectServico) 
+  console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos)  
 
   return (   
     <Fragment>
@@ -227,61 +301,109 @@ const Segmentacao = ({ userData, empresa, tabelaDePrecos, setTabelaDePrecos, ver
 
       <TabContent className='py-50' activeTab={active}>
         <TabPane tabId='1'>
-            <FormGroup tag={Col} md='6'>
-              <Label>Setor:</Label>
-              <Select
-                name='setor'
-                id='setor'
-                theme={selectThemeColors}
-                className='react-select'
-                classNamePrefix='select'
-                options={arrayToSelectSetor}
-                isClearable={false}
-                value={tabelaDePrecos.setorCustomizado ? arrayToSelectSetor[arrayToSelectSetor.length - 1] :  tabelaDePrecos.setor === null ? arrayToSelectSetor[0] : arrayToSelectSetor[arrayToSelectSetor.findIndex(element => element.label === tabelaDePrecos.setor)]}
-                innerRef={register({ required: true })}
-                invalid={errors.comoPediu && true}
-                onChange={handleChangeSelect}
-                autoComplete="off"
-              /> 
-            </FormGroup>
-            {tabelaDePrecos.setor && <FormGroup tag={Col} md='6'>
-              <div key={tabelaDePrecos.setor}>
-                <Label>Segmento:</Label>
+{/*             <Row>
+              <FormGroup tag={Col} md='12'>
+                <h4>Escolha Setor, Segmento e Serviço que melhor descrevem o seu negócio</h4>
+              </FormGroup>
+            </Row> */}
+            <Row>
+              <FormGroup tag={Col} md='6'>
+                <Label>Setor:</Label>
                 <Select
+                  name='escolheSetor'
+                  id='escolheSetor'
+                  theme={selectThemeColors}
+                  className='react-select'
+                  classNamePrefix='select'
+                  options={arrayToSelectSetor}
+                  isClearable={false}
+                  value={tabelaDePrecos.setorCustomizado ? arrayToSelectSetor[arrayToSelectSetor.length - 1] :  tabelaDePrecos.setor === null ? arrayToSelectSetor[0] : arrayToSelectSetor[arrayToSelectSetor.findIndex(element => element.label === tabelaDePrecos.setor)]}
+                  onChange={handleChangeSelect}
+                  autoComplete="off"
+                /> 
+              </FormGroup>
+
+              {tabelaDePrecos.setorCustomizado && <FormGroup tag={Col} md='6'>
+                <Label className='form-label' for='setor'>
+                  Setor do seu negócio
+                </Label>
+                <Input
+                  name='setor'
+                  id='setor'
+                  placeholder='Setor do seu negócio'
+                  defaultValue={tabelaDePrecos.setor}
+                  autoComplete="off"
+                  onChange={handleChange}
+                />
+              </FormGroup>}
+            </Row>
+
+            <Row>
+              {<FormGroup tag={Col} md='6'>
+                <div key={tabelaDePrecos.setor}>
+                  <Label>Segmento:</Label>
+                  <Select
+                    name='escolheSsegmento'
+                    id='escolheSsegmento'
+                    theme={selectThemeColors}
+                    className='react-select'
+                    classNamePrefix='select'
+                    options={arrayToSelectSegmento}
+                    isClearable={false}
+                    value={tabelaDePrecos.segmentoCustomizado ? arrayToSelectSegmento[arrayToSelectSegmento.length - 1] : tabelaDePrecos.segmento === null ? arrayToSelectSegmento[0] : arrayToSelectSegmento[arrayToSelectSegmento.findIndex(element => element.label === tabelaDePrecos.segmento)]}
+                    onChange={handleChangeSelect}
+                    autoComplete="off"
+                  /> 
+                </div>
+              </FormGroup>}
+              {tabelaDePrecos.segmentoCustomizado && <FormGroup tag={Col} md='6'>
+                <Label className='form-label' for='segmento'>
+                  Segmento do seu negócio
+                </Label>
+                <Input
                   name='segmento'
                   id='segmento'
-                  theme={selectThemeColors}
-                  className='react-select'
-                  classNamePrefix='select'
-                  options={arrayToSelectSegmento}
-                  isClearable={false}
-                  value={tabelaDePrecos.segmentoCustomizado ? arrayToSelectSegmento[arrayToSelectSegmento.length - 1] : tabelaDePrecos.segmento === null ? arrayToSelectSegmento[0] : arrayToSelectSegmento[arrayToSelectSegmento.findIndex(element => element.label === tabelaDePrecos.segmento)]}
-                  innerRef={register({ required: true })}
-                  invalid={errors.comoPediu && true}
-                  onChange={handleChangeSelect}
+                  placeholder='Segmento do seu negócio'
+                  defaultValue={tabelaDePrecos.segmento}
                   autoComplete="off"
-                /> 
-              </div>
-            </FormGroup>}
-            {tabelaDePrecos.setor && tabelaDePrecos.segmento && <FormGroup tag={Col} md='6'>
-              <div key={tabelaDePrecos.segmento}>            
-                <Label>Serviço:</Label>
-                <Select
+
+                  onChange={handleChange}
+                />
+              </FormGroup>}
+            </Row>
+
+            <Row>
+              {<FormGroup tag={Col} md='6'>
+                <div key={tabelaDePrecos.segmento}>            
+                  <Label>Serviço:</Label>
+                  <Select
+                    name='escolheServico'
+                    id='escolheServico'
+                    theme={selectThemeColors}
+                    className='react-select'
+                    classNamePrefix='select'
+                    options={arrayToSelectServico}
+                    isClearable={false}
+                    value={tabelaDePrecos.servicoCustomizado ? arrayToSelectServico[arrayToSelectServico.length - 1] : tabelaDePrecos.servico === null ? arrayToSelectServico[0] : arrayToSelectServico[arrayToSelectServico.findIndex(element => element.label === tabelaDePrecos.servico)]}
+                    onChange={handleChangeSelect}
+                    autoComplete="off"
+                  /> 
+                </div>
+              </FormGroup>}
+              {tabelaDePrecos.servicoCustomizado && <FormGroup tag={Col} md='6'>
+                <Label className='form-label' for='servico'>
+                  Serviço do seu negócio
+                </Label>
+                <Input
                   name='servico'
                   id='servico'
-                  theme={selectThemeColors}
-                  className='react-select'
-                  classNamePrefix='select'
-                  options={arrayToSelectServico}
-                  isClearable={false}
-                  value={tabelaDePrecos.servicoCustomizado ? arrayToSelectServico[arrayToSelectServico.length - 1] : tabelaDePrecos.servico === null ? arrayToSelectServico[0] : arrayToSelectServico[arrayToSelectServico.findIndex(element => element.label === tabelaDePrecos.servico)]}
-                  innerRef={register({ required: true })}
-                  invalid={errors.comoPediu && true}
-                  onChange={handleChangeSelect}
+                  placeholder='Serviço do seu negócio'
+                  defaultValue={tabelaDePrecos.servico}
                   autoComplete="off"
-                /> 
-              </div>
-            </FormGroup>}
+                  onChange={handleChange}
+                />
+              </FormGroup>}
+            </Row>
 
         </TabPane>
         <TabPane tabId='2'>
@@ -289,13 +411,13 @@ const Segmentacao = ({ userData, empresa, tabelaDePrecos, setTabelaDePrecos, ver
         </TabPane>
       </TabContent>
 
-      <Form onSubmit={handleSubmit(onSubmit)}>
+      <Form>
         <div className='d-flex justify-content-between'>
           <Button.Ripple color='secondary' className='btn-prev' outline disabled>
             <ArrowLeft size={14} className='align-middle mr-sm-25 mr-0'></ArrowLeft>
             <span className='align-middle d-sm-inline-block d-none'>Voltar</span>
           </Button.Ripple>
-          <Button.Ripple color='primary' className='btn-next' type='submit'>
+          <Button.Ripple color='primary' className='btn-next' onClick={() => onSubmit()}>
             <span className='align-middle d-sm-inline-block d-none'>Avançar</span>
             <ArrowRight size={14} className='align-middle ml-sm-25 ml-0'></ArrowRight>
           </Button.Ripple>
