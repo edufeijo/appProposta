@@ -81,7 +81,14 @@ const VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS = {
   nomeDoUsuario: null,
   dataDaVersaoDaTabelaDePrecos: null,
   parametros: [],
-  dadosInformativos: [],
+  dadosInformativos: [
+    { 
+    id: '1',
+    name: "Nome do cliente",
+    label: "Nome do cliente",
+    opcional: false
+    }
+  ],
   calculosComplementares: "esse campo é necessário???",
   itensDaVersaoDaTabelaDePreco : []
 } 
@@ -128,20 +135,20 @@ const SETOR_SEGMENTO_SERVICO = [
     ],
     parametrosSugeridos : ["Quantidade de participantes"],
     segmentos : [ 
-        {
-          name: "segmento",
-          label: "Casamento",
-          value: "Casamento",
-          type: "opcao",
-          servicos : SERVICOS_EM_EVENTOS
-        }, 
-        {
-          name: "segmento",
-          label: "15 anos",
-          value: "15 anos",
-          type: "opcao",
-          servicos : SERVICOS_EM_EVENTOS
-        }
+      {
+        name: "segmento",
+        label: "Casamento",
+        value: "Casamento",
+        type: "opcao",
+        servicos : SERVICOS_EM_EVENTOS
+      }, 
+      {
+        name: "segmento",
+        label: "15 anos",
+        value: "15 anos",
+        type: "opcao",
+        servicos : SERVICOS_EM_EVENTOS
+      }
     ]
   },
   {

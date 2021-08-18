@@ -27,17 +27,8 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, 
         setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
         stepper={stepper} 
         type='wizard-horizontal' 
-
-        // as props abaixo devem ser excluídas
-        proposta={proposta} 
-        setProposta={setProposta} 
-        versaoDaProposta={versaoDaProposta}
-        setVersaoDaProposta={setVersaoDaProposta}
-        tabelaDeItens={tabelaDeItens}
-        setTabelaDeItens={setTabelaDeItens}
-        template={template}
       />
-    }/* ,
+    },
     {
       id: 'dados-informativos',
       title: 'Dados informativos',
@@ -45,18 +36,18 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, 
       content: <DadosInformativos 
         userData={userData} 
         empresa={empresa} 
-        proposta={proposta} 
-        setProposta={setProposta} 
-        versaoDaProposta={versaoDaProposta}
-        setVersaoDaProposta={setVersaoDaProposta}
-        tabelaDeItens={tabelaDeItens}
-        setTabelaDeItens={setTabelaDeItens}
-        template={template}
         operacao={operacao}
+        todasAsTabelaDePrecos={todasAsTabelaDePrecos}
+        tabelaDePrecos={tabelaDePrecos}
+        setTabelaDePrecos={setTabelaDePrecos}
+        versaoDaTabelaDePrecos={versaoDaTabelaDePrecos}
+        setVersaoDaTabelaDePrecos={setVersaoDaTabelaDePrecos}
+        itensDaTabelaDePrecos={itensDaTabelaDePrecos}
+        setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
         stepper={stepper} 
         type='wizard-horizontal' 
       />
-    },
+    }/*,
     {
       id: 'itens-de-preco',
       title: 'Itens de Preço',

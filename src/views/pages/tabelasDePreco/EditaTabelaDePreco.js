@@ -195,15 +195,6 @@ const EditaTabelaDePreco = () => {
             setVersaoDaTabelaDePrecos={setVersaoDaTabelaDePrecos}
             itensDaTabelaDePrecos={itensDaTabelaDePrecos}
             setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
-
-            // as props abaixo devem ser excluídas
-            proposta={proposta} 
-            setProposta={setProposta} 
-            versaoDaProposta={versaoDaProposta}
-            setVersaoDaProposta={setVersaoDaProposta}
-            tabelaDeItens={tabelaDeItens}
-            setTabelaDeItens={setTabelaDeItens}
-            template={template}
           />
         </Col>
       </Row>

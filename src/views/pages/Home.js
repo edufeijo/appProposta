@@ -2,8 +2,7 @@
 //
 //
 // Tabela de preços
-// - Finalizar o customizaArvoreSSS
-// - SSS customizados devem ser mostrados para novas tabelas
+// - O customizaArvoreSSS em Segmentacao deve tratar dadosInformativosSugeridos e parametrosSugeridos
 // - Gravar tabela externa no BD
 // - se não tem tabela de preço definida: mostrar quickstart
 // - mostrar Botão 'Quickstart' (com opção 'não mostrar novamente'). Se não tem Quickstart e não tem tabela de preços, então botão 'Criar tabela de preços'
@@ -21,6 +20,8 @@
 //
 //
 // No List View de propostas
+// - ao criar proposta escolher SSS
+// - Se tabelaDePrecosExterna = true, não mostrar LinhaALinha
 // - Em versões da proposta:
 //   - Criar editar "qualquer versão da proposta"
 //   - Mostrar todos os campos da proposta: Quem indicou, se tem comentários, se tem arquivo externo, etc

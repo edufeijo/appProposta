@@ -1,23 +1,18 @@
 import * as yup from 'yup'
 import { Fragment, useState, useEffect } from 'react'
-import { isObjEmpty, selectThemeColors, capitalizeFirst } from '@utils'
-import { useForm  } from 'react-hook-form'
+import { selectThemeColors, capitalizeFirst } from '@utils'
 import { ArrowLeft, ArrowRight } from 'react-feather'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { Form, Label, Input, FormGroup, Row, Col, Button, FormFeedback, Nav, NavItem, NavLink, TabContent, TabPane, InputGroup } from 'reactstrap'
-import { QTDADE_MIN_LETRAS_NOME_DO_USUARIO, QTDADE_MAX_LETRAS_NOME_DO_USUARIO, QTDADE_MAX_CARACTERES_ID_DA_PROPOSTA, QTDADE_MIN_LETRAS_QUEM_PEDIU, QTDADE_MAX_LETRAS_QUEM_PEDIU, SETOR_SEGMENTO_SERVICO } from '../../../../../configs/appProposta'
-import config from '../../../../../configs/comoPediuOptions'
-import Select, { components } from 'react-select'
+import { Form, Label, Input, FormGroup, Row, Col, Button, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
+import { SETOR_SEGMENTO_SERVICO } from '../../../../../configs/appProposta'
+import Select from 'react-select'
 import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../../Toasts/ToastTypes'
-import { NomeDoClientePesquisado } from '../../../AutoComplete/NomeDoClientePesquisado'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import { useHistory } from "react-router-dom"
 
-const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, template, operacao, stepper, type }) => {
+const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, operacao, stepper, type }) => {
   let msgToast = ''
-  const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 2000 })
+  const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
 
   const [active, setActive] = useState('1')
   const toggle = tab => {
@@ -53,28 +48,53 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
     return arrayTemporary
   }
 
-  const customizaArvoreSSS = (arvoreOriginal, tabelaCustomizada) => { 
-    console.log("------------------------- No customizaArvoreSSS")
+  const customizaArvoreSSS = (arvoreOriginal, todasAsTabelaDePrecos) => { 
     const arvoreCustomizada = arvoreOriginal
-    tabelaCustomizada.map((item, index, array) => {
-      let customizado = null
-      console.log("item=", item)
+    todasAsTabelaDePrecos.map((item, index, array) => {
+      let setorCustomizado = null
       if (item.setorCustomizado) {
-        customizado = {
+        setorCustomizado = {
           name: "setor",
           label: item.setor,
           value: item.setor,
           type: "opcao"
         }
-/*         dadosInformativosSugeridos : [ 
-          "Local do evento", 
-          "Data do evento"
-        ],
-        parametrosSugeridos : ["Quantidade de participantes"], */
-        console.log("customizado=", customizado)
-        arvoreCustomizada.push(customizado)
-        console.log("arvoreCustomizada=", arvoreCustomizada)
+        /* Pendiencia: carregar dadosInformativosSugeridos e parametrosSugeridos */
+
+        const existe = arvoreCustomizada.findIndex(element => element.value === item.setor)
+        if (existe === -1) arvoreCustomizada.push(setorCustomizado) // se não existe então push
       }
+
+      let segmentoCustomizado = null
+      if (item.segmentoCustomizado) {
+        segmentoCustomizado = {
+          name: "segmento",
+          label: item.segmento,
+          value: item.segmento,
+          type: "opcao"
+        }
+        const indexSetorPai = arvoreCustomizada.findIndex(element => element.value === item.setor)
+        if (arvoreCustomizada[indexSetorPai].hasOwnProperty('segmentos')) {
+          const existe = arvoreCustomizada[indexSetorPai].segmentos.findIndex(element => element.value === item.segmento)
+          if (existe === -1) arvoreCustomizada[indexSetorPai].segmentos.push(segmentoCustomizado) // se não existe então push
+        } else arvoreCustomizada[indexSetorPai].segmentos = [segmentoCustomizado] 
+      } 
+
+      let servicoCustomizado = null
+      if (item.servicoCustomizado) {
+        servicoCustomizado = {
+          name: "servico",
+          label: item.servico,
+          value: item.servico,
+          type: "opcao"
+        }
+        const indexSetorPai = arvoreCustomizada.findIndex(element => element.value === item.setor)
+        const indexSegmentoPai = arvoreCustomizada[indexSetorPai].segmentos.findIndex(element => element.value === item.segmento)
+        if (arvoreCustomizada[indexSetorPai].segmentos[indexSegmentoPai].hasOwnProperty('servicos')) {
+          const existe = arvoreCustomizada[indexSetorPai].segmentos[indexSegmentoPai].servicos.findIndex(element => element.value === item.servico)
+          if (existe === -1) arvoreCustomizada[indexSetorPai].segmentos[indexSegmentoPai].servicos.push(servicoCustomizado) // se não existe então push
+        } else arvoreCustomizada[indexSetorPai].segmentos[indexSegmentoPai].servicos = [servicoCustomizado] 
+      } 
     })  
     return arvoreOriginal
   }
@@ -119,13 +139,24 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
       notifyError()
       return true
     }
-    return false
+
+    let erro = false
+    todasAsTabelaDePrecos.map((item, index, array) => {
+      if (item.setor === tabelaDePrecos.setor && item.segmento === tabelaDePrecos.segmento && item.servico === tabelaDePrecos.servico) {
+        msgToast = 'Já existe uma tabela de preços com os mesmos Setor/ Segmento/ Serviço'
+        notifyError()
+        erro = true
+      }
+    })
+    
+    if (erro) return true
+    else return false
   }
 
   const onSubmit = () => {
     if (erroNoForm()) {
-      console.log("ERRO")
-    } else console.log("FORM OK")
+//      console.log("ERRO")
+    } else stepper.next()
   }
 
   const handleChangeSelect = e => {
@@ -301,109 +332,106 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
 
       <TabContent className='py-50' activeTab={active}>
         <TabPane tabId='1'>
-{/*             <Row>
-              <FormGroup tag={Col} md='12'>
-                <h4>Escolha Setor, Segmento e Serviço que melhor descrevem o seu negócio</h4>
-              </FormGroup>
-            </Row> */}
-            <Row>
-              <FormGroup tag={Col} md='6'>
-                <Label>Setor:</Label>
+          <h4 tag='h4'>Segmentação</h4>
+          <p><code>Selecione</code> ou <code>crie</code> a segmentação mais adequada ao seu negócio.</p>
+          <Row>
+            <FormGroup tag={Col} md='6'>
+              <Label>Setor:</Label>
+              <Select
+                name='escolheSetor'
+                id='escolheSetor'
+                theme={selectThemeColors}
+                className='react-select'
+                classNamePrefix='select'
+                options={arrayToSelectSetor}
+                isClearable={false}
+                value={tabelaDePrecos.setorCustomizado ? arrayToSelectSetor[arrayToSelectSetor.length - 1] :  tabelaDePrecos.setor === null ? arrayToSelectSetor[0] : arrayToSelectSetor[arrayToSelectSetor.findIndex(element => element.label === tabelaDePrecos.setor)]}
+                onChange={handleChangeSelect}
+                autoComplete="off"
+              /> 
+            </FormGroup>
+
+            {tabelaDePrecos.setorCustomizado && <FormGroup tag={Col} md='6'>
+              <Label className='form-label' for='setor'>
+                Setor do seu negócio
+              </Label>
+              <Input
+                name='setor'
+                id='setor'
+                placeholder='Setor do seu negócio'
+                defaultValue={tabelaDePrecos.setor}
+                autoComplete="off"
+                onChange={handleChange}
+              />
+            </FormGroup>}
+          </Row>
+
+          <Row>
+            {<FormGroup tag={Col} md='6'>
+              <div key={tabelaDePrecos.setor}>
+                <Label>Segmento:</Label>
                 <Select
-                  name='escolheSetor'
-                  id='escolheSetor'
+                  name='escolheSsegmento'
+                  id='escolheSsegmento'
                   theme={selectThemeColors}
                   className='react-select'
                   classNamePrefix='select'
-                  options={arrayToSelectSetor}
+                  options={arrayToSelectSegmento}
                   isClearable={false}
-                  value={tabelaDePrecos.setorCustomizado ? arrayToSelectSetor[arrayToSelectSetor.length - 1] :  tabelaDePrecos.setor === null ? arrayToSelectSetor[0] : arrayToSelectSetor[arrayToSelectSetor.findIndex(element => element.label === tabelaDePrecos.setor)]}
+                  value={tabelaDePrecos.segmentoCustomizado ? arrayToSelectSegmento[arrayToSelectSegmento.length - 1] : tabelaDePrecos.segmento === null ? arrayToSelectSegmento[0] : arrayToSelectSegmento[arrayToSelectSegmento.findIndex(element => element.label === tabelaDePrecos.segmento)]}
                   onChange={handleChangeSelect}
                   autoComplete="off"
                 /> 
-              </FormGroup>
+              </div>
+            </FormGroup>}
+            {tabelaDePrecos.segmentoCustomizado && <FormGroup tag={Col} md='6'>
+              <Label className='form-label' for='segmento'>
+                Segmento do seu negócio
+              </Label>
+              <Input
+                name='segmento'
+                id='segmento'
+                placeholder='Segmento do seu negócio'
+                defaultValue={tabelaDePrecos.segmento}
+                autoComplete="off"
 
-              {tabelaDePrecos.setorCustomizado && <FormGroup tag={Col} md='6'>
-                <Label className='form-label' for='setor'>
-                  Setor do seu negócio
-                </Label>
-                <Input
-                  name='setor'
-                  id='setor'
-                  placeholder='Setor do seu negócio'
-                  defaultValue={tabelaDePrecos.setor}
+                onChange={handleChange}
+              />
+            </FormGroup>}
+          </Row>
+
+          <Row>
+            {<FormGroup tag={Col} md='6'>
+              <div key={tabelaDePrecos.segmento}>            
+                <Label>Serviço:</Label>
+                <Select
+                  name='escolheServico'
+                  id='escolheServico'
+                  theme={selectThemeColors}
+                  className='react-select'
+                  classNamePrefix='select'
+                  options={arrayToSelectServico}
+                  isClearable={false}
+                  value={tabelaDePrecos.servicoCustomizado ? arrayToSelectServico[arrayToSelectServico.length - 1] : tabelaDePrecos.servico === null ? arrayToSelectServico[0] : arrayToSelectServico[arrayToSelectServico.findIndex(element => element.label === tabelaDePrecos.servico)]}
+                  onChange={handleChangeSelect}
                   autoComplete="off"
-                  onChange={handleChange}
-                />
-              </FormGroup>}
-            </Row>
-
-            <Row>
-              {<FormGroup tag={Col} md='6'>
-                <div key={tabelaDePrecos.setor}>
-                  <Label>Segmento:</Label>
-                  <Select
-                    name='escolheSsegmento'
-                    id='escolheSsegmento'
-                    theme={selectThemeColors}
-                    className='react-select'
-                    classNamePrefix='select'
-                    options={arrayToSelectSegmento}
-                    isClearable={false}
-                    value={tabelaDePrecos.segmentoCustomizado ? arrayToSelectSegmento[arrayToSelectSegmento.length - 1] : tabelaDePrecos.segmento === null ? arrayToSelectSegmento[0] : arrayToSelectSegmento[arrayToSelectSegmento.findIndex(element => element.label === tabelaDePrecos.segmento)]}
-                    onChange={handleChangeSelect}
-                    autoComplete="off"
-                  /> 
-                </div>
-              </FormGroup>}
-              {tabelaDePrecos.segmentoCustomizado && <FormGroup tag={Col} md='6'>
-                <Label className='form-label' for='segmento'>
-                  Segmento do seu negócio
-                </Label>
-                <Input
-                  name='segmento'
-                  id='segmento'
-                  placeholder='Segmento do seu negócio'
-                  defaultValue={tabelaDePrecos.segmento}
-                  autoComplete="off"
-
-                  onChange={handleChange}
-                />
-              </FormGroup>}
-            </Row>
-
-            <Row>
-              {<FormGroup tag={Col} md='6'>
-                <div key={tabelaDePrecos.segmento}>            
-                  <Label>Serviço:</Label>
-                  <Select
-                    name='escolheServico'
-                    id='escolheServico'
-                    theme={selectThemeColors}
-                    className='react-select'
-                    classNamePrefix='select'
-                    options={arrayToSelectServico}
-                    isClearable={false}
-                    value={tabelaDePrecos.servicoCustomizado ? arrayToSelectServico[arrayToSelectServico.length - 1] : tabelaDePrecos.servico === null ? arrayToSelectServico[0] : arrayToSelectServico[arrayToSelectServico.findIndex(element => element.label === tabelaDePrecos.servico)]}
-                    onChange={handleChangeSelect}
-                    autoComplete="off"
-                  /> 
-                </div>
-              </FormGroup>}
-              {tabelaDePrecos.servicoCustomizado && <FormGroup tag={Col} md='6'>
-                <Label className='form-label' for='servico'>
-                  Serviço do seu negócio
-                </Label>
-                <Input
-                  name='servico'
-                  id='servico'
-                  placeholder='Serviço do seu negócio'
-                  defaultValue={tabelaDePrecos.servico}
-                  autoComplete="off"
-                  onChange={handleChange}
-                />
-              </FormGroup>}
-            </Row>
+                /> 
+              </div>
+            </FormGroup>}
+            {tabelaDePrecos.servicoCustomizado && <FormGroup tag={Col} md='6'>
+              <Label className='form-label' for='servico'>
+                Serviço do seu negócio
+              </Label>
+              <Input
+                name='servico'
+                id='servico'
+                placeholder='Serviço do seu negócio'
+                defaultValue={tabelaDePrecos.servico}
+                autoComplete="off"
+                onChange={handleChange}
+              />
+            </FormGroup>}
+          </Row>
 
         </TabPane>
         <TabPane tabId='2'>
