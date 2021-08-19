@@ -5,7 +5,7 @@ import DadosInformativos from '../TabelaDePrecos/steps-with-validation/DadosInfo
 import ItensDePreco from '../TabelaDePrecos/steps-with-validation/ItensDePreco' 
 import Segmentacao from '../TabelaDePrecos/steps-with-validation/Segmentacao'
 
-const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, template, operacao }) => {
+const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, proposta, setProposta, versaoDaProposta, setVersaoDaProposta, tabelaDeItens, setTabelaDeItens, template, operacao }) => {
   const [stepper, setStepper] = useState(null)
   const ref = useRef(null)
 
@@ -25,6 +25,10 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, 
         setVersaoDaTabelaDePrecos={setVersaoDaTabelaDePrecos}
         itensDaTabelaDePrecos={itensDaTabelaDePrecos}
         setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
+        dadosInformativosOpcionais={dadosInformativosOpcionais}
+        setDadosInformativosOpcionais={setDadosInformativosOpcionais}
+        dadosInformativosObrigatorios={dadosInformativosObrigatorios}
+        setDadosInformativosObrigatorios={setDadosInformativosObrigatorios}
         stepper={stepper} 
         type='wizard-horizontal' 
       />
@@ -44,6 +48,10 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, 
         setVersaoDaTabelaDePrecos={setVersaoDaTabelaDePrecos}
         itensDaTabelaDePrecos={itensDaTabelaDePrecos}
         setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
+        dadosInformativosOpcionais={dadosInformativosOpcionais}
+        setDadosInformativosOpcionais={setDadosInformativosOpcionais}
+        dadosInformativosObrigatorios={dadosInformativosObrigatorios}
+        setDadosInformativosObrigatorios={setDadosInformativosObrigatorios}
         stepper={stepper} 
         type='wizard-horizontal' 
       />

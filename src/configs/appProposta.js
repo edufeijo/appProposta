@@ -83,10 +83,8 @@ const VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS = {
   parametros: [],
   dadosInformativos: [
     { 
-    id: '1',
-    name: "Nome do cliente",
-    label: "Nome do cliente",
-    opcional: false
+      name: "Nome do cliente",
+      label: "Nome do cliente"
     }
   ],
   calculosComplementares: "esse campo é necessário???",
@@ -130,8 +128,18 @@ const SETOR_SEGMENTO_SERVICO = [
     value: "Eventos",
     type: "opcao",
     dadosInformativosSugeridos : [ 
-      "Local do evento", 
-      "Data do evento"
+      {
+        id: '1',
+        name: 'Local do evento',
+        label: 'Local do evento',
+        opcional: true
+      },
+      {
+        id: '2',
+        name: 'Data do evento',
+        label: 'Data do evento',
+        opcional: true
+      }
     ],
     parametrosSugeridos : ["Quantidade de participantes"],
     segmentos : [ 
@@ -157,8 +165,18 @@ const SETOR_SEGMENTO_SERVICO = [
     value: "Educação",
     type: "opcao",
     dadosInformativosSugeridos : [ 
-      "Endereço da escola", 
-      "Nome do diretor"
+      {
+        id: '1',
+        name: 'Endereço da escola',
+        label: 'Endereço da escola',
+        opcional: true
+      },
+      {
+        id: '2',
+        name: 'Nome do diretor',
+        label: 'Nome do diretor',
+        opcional: true
+      }
     ],
     parametrosSugeridos : ["Quantidade de alunos"],
     segmentos : [ 

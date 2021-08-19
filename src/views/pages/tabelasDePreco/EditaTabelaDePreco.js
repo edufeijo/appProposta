@@ -48,7 +48,9 @@ const EditaTabelaDePreco = () => {
   const [empresa, setEmpresa] = useState(null)
   const [todasAsTabelaDePrecos, setTodasAsTabelaDePrecos] = useState([])
   const [tabelaDePrecos, setTabelaDePrecos] = useState(Object.assign({}, VALORES_INICIAIS_DA_TABELA_DE_PRECOS))
-  const [versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos] = useState(Object.assign({}, VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS))
+  const [versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos] = useState(Object.assign({}, VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS))  
+  const [dadosInformativosOpcionais, setDadosInformativosOpcionais] = useState([])
+  const [dadosInformativosObrigatorios, setDadosInformativosObrigatorios] = useState([])
   const [itensDaTabelaDePrecos, setItensDaTabelaDePrecos] = useState([Object.assign({}, VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS)])
   const [operacao, setOperacao] = useState('Criar')
 
@@ -195,6 +197,10 @@ const EditaTabelaDePreco = () => {
             setVersaoDaTabelaDePrecos={setVersaoDaTabelaDePrecos}
             itensDaTabelaDePrecos={itensDaTabelaDePrecos}
             setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
+            dadosInformativosOpcionais={dadosInformativosOpcionais}
+            setDadosInformativosOpcionais={setDadosInformativosOpcionais}
+            dadosInformativosObrigatorios={dadosInformativosObrigatorios}
+            setDadosInformativosObrigatorios={setDadosInformativosObrigatorios}
           />
         </Col>
       </Row>

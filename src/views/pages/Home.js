@@ -2,7 +2,9 @@
 //
 //
 // Tabela de preços
+// - Não permitir mudar nome do cliente para Opcional!
 // - O customizaArvoreSSS em Segmentacao deve tratar dadosInformativosSugeridos e parametrosSugeridos
+// - Fazer botões Incluir dado informativo e Editar dado informativo
 // - Gravar tabela externa no BD
 // - se não tem tabela de preço definida: mostrar quickstart
 // - mostrar Botão 'Quickstart' (com opção 'não mostrar novamente'). Se não tem Quickstart e não tem tabela de preços, então botão 'Criar tabela de preços'

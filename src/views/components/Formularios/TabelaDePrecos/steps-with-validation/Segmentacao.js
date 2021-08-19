@@ -10,7 +10,7 @@ import { ErrorToast }  from '../../../Toasts/ToastTypes'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
-const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, operacao, stepper, type }) => {
+const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, operacao, stepper, type }) => {
   let msgToast = ''
   const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
 
@@ -57,7 +57,8 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
           name: "setor",
           label: item.setor,
           value: item.setor,
-          type: "opcao"
+          type: "opcao",
+          dadosInformativosSugeridos: []
         }
         /* Pendiencia: carregar dadosInformativosSugeridos e parametrosSugeridos */
 
@@ -172,6 +173,19 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
         setArrayToSelectSegmento(temporaryArray)
         const temporaryArrayServico = preencheArrayToSelect([], "servico", "selecionar")
         setArrayToSelectServico(temporaryArrayServico)
+
+        const dadosInformativosSugeridos = arrayToSelectSetor[index].dadosInformativosSugeridos
+        const dadosInformativosObrigatorios = [
+          {
+            id: '1000',
+            name: 'Nome do cliente (dado obrigatório)',
+            label: 'Nome do cliente',
+            opcional: false
+          }
+        ]
+        setDadosInformativosOpcionais(dadosInformativosSugeridos)
+        setDadosInformativosObrigatorios(dadosInformativosObrigatorios)
+        
         setTabelaDePrecos(registroAnterior => ({
           ...registroAnterior, 
           segmento: null,
@@ -217,6 +231,17 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
           setArrayToSelectSegmento(temporaryArraySegmento)
           const temporaryArrayServico = preencheArrayToSelect([], "servico", "criar")
           setArrayToSelectServico(temporaryArrayServico) 
+
+          const dadosInformativosObrigatorios = [
+            {
+              id: '1000',
+              name: 'Nome do cliente (dado obrigatório)',
+              label: 'Nome do cliente',
+              opcional: false
+            }
+          ]
+          setDadosInformativosOpcionais([])
+          setDadosInformativosObrigatorios(dadosInformativosObrigatorios)
         } else {
           const temporaryArraySegmento = preencheArrayToSelect([], "segmento", "selecionar")
           setArrayToSelectSegmento(temporaryArraySegmento)
@@ -299,11 +324,12 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
     toggle('1')
   }
 
-  console.log("==================== No Segmentacao")
+/*   console.log("==================== No Segmentacao")
   console.log("todasAsTabelaDePrecos=", todasAsTabelaDePrecos)
   console.log("tabelaDePrecos=", tabelaDePrecos)
   console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos)
   console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos)  
+  console.log("dadosInformativos=", dadosInformativos)   */
 
   return (   
     <Fragment>

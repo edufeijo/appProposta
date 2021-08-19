@@ -1,127 +1,66 @@
-import { Fragment, useState } from 'react'
-import { ArrowLeft, ArrowRight } from 'react-feather'
-import { Form, Label, Input, FormGroup, Row, Col, Button, Nav, NavItem, NavLink, TabContent, TabPane, ListGroupItem, Media } from 'reactstrap'
-import Erro from '../../../Erro'
+import { Fragment, useState, useEffect } from 'react'
+import { ArrowLeft, ArrowRight, Plus } from 'react-feather'
+import { Form, Label, Input, FormGroup, Row, Col, Button, Badge, Nav, NavItem, NavLink, TabContent, TabPane, ListGroupItem, Media } from 'reactstrap'
 import { ReactSortable } from 'react-sortablejs'
-import img1 from '@src/assets/images/portrait/small/avatar-s-12.jpg'
-import img2 from '@src/assets/images/portrait/small/avatar-s-1.jpg'
-import img3 from '@src/assets/images/portrait/small/avatar-s-2.jpg'
-import img4 from '@src/assets/images/portrait/small/avatar-s-3.jpg'
-import img5 from '@src/assets/images/portrait/small/avatar-s-4.jpg'
-import img6 from '@src/assets/images/portrait/small/avatar-s-5.jpg'
-import img7 from '@src/assets/images/portrait/small/avatar-s-6.jpg'
-import img8 from '@src/assets/images/portrait/small/avatar-s-7.jpg'
-import img9 from '@src/assets/images/portrait/small/avatar-s-8.jpg'
-import img10 from '@src/assets/images/portrait/small/avatar-s-9.jpg'
+import { SETOR_SEGMENTO_SERVICO } from '../../../../../configs/appProposta'
 
-const array = {
-  list1: [
-    {
-      id: '1',
-      img: img1,
-      name: 'Mary S. Navarre',
-      content: 'Chupa chups tiramisu apple pie biscuit sweet roll bonbon macaroon toffee icing.'
-    },
-    {
-      id: '2',
-      img: img2,
-      name: 'Samuel M. Ellis',
-      content: 'Toffee powder marzipan tiramisu. Cake cake dessert danish.'
-    },
-    {
-      id: '3',
-      img: img3,
-      name: 'Sandra C. Toney',
-      content: 'Sugar plum fruitcake gummies marzipan liquorice tiramisu. Pastry liquorice chupa.'
-    },
-    {
-      id: '4',
-      img: img4,
-      name: 'Cleveland C. Goins',
-      content: 'Toffee powder marzipan tiramisu. Cake cake dessert danish.'
-    },
-    {
-      id: '5',
-      img: img5,
-      name: 'Linda M. English',
-      content: 'Chupa chups tiramisu apple pie biscuit sweet roll bonbon macaroon toffee icing.'
-    }
-  ],
-  list2: [
-    {
-      id: '6',
-      img: img6,
-      name: 'Alexandria I. Smelser',
-      content: 'Toffee powder marzipan tiramisu. Cake cake dessert danish.'
-    },
-    {
-      id: '7',
-      img: img7,
-      name: 'Oscar N. Pool',
-      content: 'Sugar plum fruitcake gummies marzipan liquorice tiramisu. Pastry liquorice chupsake.'
-    },
-    {
-      id: '8',
-      img: img8,
-      name: 'Kathy A. Alvarado',
-      content: 'Chupa chups tiramisu apple pie biscuit sweet roll bonbon macaroon toffee icing.'
-    },
-    {
-      id: '9',
-      img: img9,
-      name: 'James E. White',
-      content: 'Toffee powder marzipan tiramisu. Cake cake dessert danish.'
-    },
-    {
-      id: '10',
-      img: img10,
-      name: 'Roberta R. Babin',
-      content: 'Chupa chups tiramisu apple pie biscuit sweet roll bonbon macaroon toffee icing.'
-    }
-  ]
-}
+const DadosInformativos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, operacao, stepper, type }) => {
 
-const DadosInformativos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, operacao, stepper, type }) => {
-  const [erro, setErro] = useState(null)
+  useEffect(() => {
+    const index = dadosInformativosOpcionais.findIndex(element => !element.opcional)
+    console.log("---------------- PASSOU AQUI")
+    console.log("index=", index)
 
-  const [listArr1, setListArr1] = useState(array.list1)
-  const [listArr2, setListArr2] = useState(array.list2)
+    if (index > -1) {
+      console.log("---------------- FAZ O TRATAMENTO")
+      const dadoInformativoObrigatorio = {
+        id: '1000',
+        name: 'Nome do cliente (dado obrigatório)',
+        label: 'Nome do cliente',
+        opcional: false
+      }
+      const temp = dadosInformativosObrigatorios
+      temp.push(dadoInformativoObrigatorio)
+      console.log("temp=", temp)
+      setDadosInformativosObrigatorios(temp)
 
-  console.log("listArr1=", listArr1)
+      const removedItem = dadosInformativosOpcionais.splice(index, 1)
+      console.log("removedItem=", removedItem)
+      setDadosInformativosOpcionais(removedItem) 
+    }  
+  }, [dadosInformativosOpcionais.length])
+
+  console.log("--------------------- No dadosInformativos")
+  console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais)
+  console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios)
+
   return (
     <Fragment>    
       <h4 tag='h4'>Dados informativos</h4>
-      <p><code>Dados informativos</code> são os que você já usa para identificar uma proposta. Esses dados são obrigatórios e não afetam o preço.</p>
+      <p><code>Dados informativos</code> são usados para identificar uma proposta. Esses dados não afetam o preço. Arraste e edite os que são adequados ao seu negócio.</p>
       <Row>
         <Col md='6' sm='12'>
-          <h4 className='my-1'>Dados sugeridos</h4>
+          <div className='d-flex justify-content-between'>
+            <h4 className='my-1'>Dados sugeridos para {tabelaDePrecos.setor}</h4>
+            <Button.Ripple color='primary' outline size='sm' className='btn-prev'>
+              <Plus size={14} className='align-middle mr-sm-25 mr-0'/>
+              <span className='align-middle d-sm-inline-block d-none'>Novo dado</span>
+            </Button.Ripple>
+          </div>
           <ReactSortable
             tag='ul'
             className='list-group list-group-flush sortable'
             group='shared-group'
-            list={listArr1}
-            setList={setListArr1}
+            list={dadosInformativosOpcionais}
+            setList={setDadosInformativosOpcionais}
           >
-            {listArr1.map(item => {
+            {dadosInformativosOpcionais.map(item => {
               return (
                 <ListGroupItem className='draggable' key={item.id}>
-                  <h5 className='mt-0'>{item.name}</h5>
-{/*                   <Media>
-                    <Media left tag='div'>
-                      <Media
-                        object
-                        src={item.img}
-                        className='rounded-circle mr-2'
-                        alt='Generic placeholder image'
-                        height='50'
-                        width='50'
-                      />
-                    </Media>
-                    <Media body>
-                      <h5 className='mt-0'>{item.name}</h5>
-                      {item.content}
-                    </Media>
-                  </Media> */}
+                  <Badge color='light-secondary' pill>
+                    {item.label}
+                  </Badge>
+                  <p className='mt-0'>Original: {item.name}</p>
                 </ListGroupItem>
               )
             })}
@@ -133,29 +72,16 @@ const DadosInformativos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDeP
             tag='ul'
             className='list-group list-group-flush sortable'
             group='shared-group'
-            list={listArr2}
-            setList={setListArr2}
+            list={dadosInformativosObrigatorios}
+            setList={setDadosInformativosObrigatorios}
           >
-            {listArr2.map(item => {
+            {dadosInformativosObrigatorios.map(item => {
               return (
                 <ListGroupItem className='draggable' key={item.id}>
-                  <h5 className='mt-0'>{item.name}</h5>
-{/*                   <Media>
-                    <Media left tag='div'>
-                      <Media
-                        object
-                        src={item.img}
-                        className='rounded-circle mr-2'
-                        alt='Generic placeholder image'
-                        height='50'
-                        width='50'
-                      />
-                    </Media>
-                    <Media body>
-                      <h5 className='mt-0'>{item.name}</h5>
-                      {item.content}
-                    </Media>
-                  </Media> */}
+                  <Badge color='primary' pill>
+                    {item.label}
+                  </Badge>
+                  <p className='mt-0'>Original: {item.name}</p>
                 </ListGroupItem>
               )
             })}
@@ -172,7 +98,6 @@ const DadosInformativos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDeP
           <ArrowRight size={14} className='align-middle ml-sm-25 ml-0'></ArrowRight>
         </Button.Ripple>
       </div>
-      <Erro erro={erro} />
     </Fragment>
   )
 }
