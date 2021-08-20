@@ -66,6 +66,8 @@ const VALORES_INICIAIS_DA_TABELA_DE_PRECOS = {
   idDaEmpresa: null, 
   tabelaDePrecosExterna: false,
 
+  statusDaVersaoDatabelaDePrecos: "ativa",
+
   setor: null,
   setorCustomizado: false,
   segmento: null,
@@ -79,16 +81,10 @@ const VALORES_INICIAIS_DA_TABELA_DE_PRECOS = {
 const VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS = { 
   idDoUsuario: null,
   nomeDoUsuario: null,
-  dataDaVersaoDaTabelaDePrecos: null,
-  parametros: [],
-  dadosInformativos: [
-    { 
-      name: "Nome do cliente",
-      label: "Nome do cliente"
-    }
-  ],
-  calculosComplementares: "esse campo é necessário???",
-  itensDaVersaoDaTabelaDePreco : []
+  dataDaVersaoDaTabelaDePrecos: null
+//  parametros: [],
+//  calculosComplementares: "esse campo é necessário???",
+//  itensDaVersaoDaTabelaDePreco : []
 } 
 
 const SERVICOS_EM_EVENTOS = [
@@ -131,14 +127,12 @@ const SETOR_SEGMENTO_SERVICO = [
       {
         id: '1',
         name: 'Local do evento',
-        label: 'Local do evento',
-        opcional: true
+        label: 'Local do evento'
       },
       {
         id: '2',
         name: 'Data do evento',
-        label: 'Data do evento',
-        opcional: true
+        label: 'Data do evento'
       }
     ],
     parametrosSugeridos : ["Quantidade de participantes"],
@@ -168,14 +162,12 @@ const SETOR_SEGMENTO_SERVICO = [
       {
         id: '1',
         name: 'Endereço da escola',
-        label: 'Endereço da escola',
-        opcional: true
+        label: 'Endereço da escola'
       },
       {
         id: '2',
         name: 'Nome do diretor',
-        label: 'Nome do diretor',
-        opcional: true
+        label: 'Nome do diretor'
       }
     ],
     parametrosSugeridos : ["Quantidade de alunos"],
@@ -197,6 +189,13 @@ const SETOR_SEGMENTO_SERVICO = [
     ]
   }
 ]
+
+const DADO_INFORMATIVO_OBRIGATORIO = {
+  id: '1000',
+  name: 'Nome do cliente',
+  label: 'Nome do cliente',
+  filtered: true
+}
 
 export {
     QTDADE_MIN_LETRAS_NOME_DO_USUARIO,
@@ -226,6 +225,6 @@ export {
     VALORES_INICIAIS_DA_PROPOSTA,
     VALORES_INICIAIS_DA_TABELA_DE_PRECOS,
     VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS,
-    SETOR_SEGMENTO_SERVICO 
-
+    SETOR_SEGMENTO_SERVICO,
+    DADO_INFORMATIVO_OBRIGATORIO
 }

@@ -1,39 +1,9 @@
-import { Fragment, useState, useEffect } from 'react'
+import { Fragment } from 'react'
 import { ArrowLeft, ArrowRight, Plus } from 'react-feather'
-import { Form, Label, Input, FormGroup, Row, Col, Button, Badge, Nav, NavItem, NavLink, TabContent, TabPane, ListGroupItem, Media } from 'reactstrap'
+import { Row, Col, Button, Badge, ListGroupItem } from 'reactstrap'
 import { ReactSortable } from 'react-sortablejs'
-import { SETOR_SEGMENTO_SERVICO } from '../../../../../configs/appProposta'
 
 const DadosInformativos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, operacao, stepper, type }) => {
-
-  useEffect(() => {
-    const index = dadosInformativosOpcionais.findIndex(element => !element.opcional)
-    console.log("---------------- PASSOU AQUI")
-    console.log("index=", index)
-
-    if (index > -1) {
-      console.log("---------------- FAZ O TRATAMENTO")
-      const dadoInformativoObrigatorio = {
-        id: '1000',
-        name: 'Nome do cliente (dado obrigatório)',
-        label: 'Nome do cliente',
-        opcional: false
-      }
-      const temp = dadosInformativosObrigatorios
-      temp.push(dadoInformativoObrigatorio)
-      console.log("temp=", temp)
-      setDadosInformativosObrigatorios(temp)
-
-      const removedItem = dadosInformativosOpcionais.splice(index, 1)
-      console.log("removedItem=", removedItem)
-      setDadosInformativosOpcionais(removedItem) 
-    }  
-  }, [dadosInformativosOpcionais.length])
-
-  console.log("--------------------- No dadosInformativos")
-  console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais)
-  console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios)
-
   return (
     <Fragment>    
       <h4 tag='h4'>Dados informativos</h4>
@@ -74,6 +44,7 @@ const DadosInformativos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDeP
             group='shared-group'
             list={dadosInformativosObrigatorios}
             setList={setDadosInformativosObrigatorios}
+            filter='.filtered'
           >
             {dadosInformativosObrigatorios.map(item => {
               return (
@@ -93,7 +64,7 @@ const DadosInformativos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDeP
           <ArrowLeft size={14} className='align-middle mr-sm-25 mr-0'></ArrowLeft>
           <span className='align-middle d-sm-inline-block d-none'>Voltar</span>
         </Button.Ripple>
-        <Button.Ripple color='primary' className='btn-next'>
+        <Button.Ripple color='primary' className='btn-next' onClick={() => stepper.next()}>
           <span className='align-middle d-sm-inline-block d-none'>Avançar</span>
           <ArrowRight size={14} className='align-middle ml-sm-25 ml-0'></ArrowRight>
         </Button.Ripple>

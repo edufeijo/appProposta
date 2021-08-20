@@ -3,7 +3,7 @@ import { Fragment, useState, useEffect } from 'react'
 import { selectThemeColors, capitalizeFirst } from '@utils'
 import { ArrowLeft, ArrowRight } from 'react-feather'
 import { Form, Label, Input, FormGroup, Row, Col, Button, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
-import { SETOR_SEGMENTO_SERVICO } from '../../../../../configs/appProposta'
+import { SETOR_SEGMENTO_SERVICO, DADO_INFORMATIVO_OBRIGATORIO } from '../../../../../configs/appProposta'
 import Select from 'react-select'
 import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../../Toasts/ToastTypes'
@@ -175,14 +175,7 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
         setArrayToSelectServico(temporaryArrayServico)
 
         const dadosInformativosSugeridos = arrayToSelectSetor[index].dadosInformativosSugeridos
-        const dadosInformativosObrigatorios = [
-          {
-            id: '1000',
-            name: 'Nome do cliente (dado obrigatório)',
-            label: 'Nome do cliente',
-            opcional: false
-          }
-        ]
+        const dadosInformativosObrigatorios = [DADO_INFORMATIVO_OBRIGATORIO]
         setDadosInformativosOpcionais(dadosInformativosSugeridos)
         setDadosInformativosObrigatorios(dadosInformativosObrigatorios)
         
@@ -232,14 +225,7 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
           const temporaryArrayServico = preencheArrayToSelect([], "servico", "criar")
           setArrayToSelectServico(temporaryArrayServico) 
 
-          const dadosInformativosObrigatorios = [
-            {
-              id: '1000',
-              name: 'Nome do cliente (dado obrigatório)',
-              label: 'Nome do cliente',
-              opcional: false
-            }
-          ]
+          const dadosInformativosObrigatorios = [DADO_INFORMATIVO_OBRIGATORIO]
           setDadosInformativosOpcionais([])
           setDadosInformativosObrigatorios(dadosInformativosObrigatorios)
         } else {
@@ -324,12 +310,13 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
     toggle('1')
   }
 
-/*   console.log("==================== No Segmentacao")
+  console.log("==================== No Segmentacao")
   console.log("todasAsTabelaDePrecos=", todasAsTabelaDePrecos)
   console.log("tabelaDePrecos=", tabelaDePrecos)
   console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos)
   console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos)  
-  console.log("dadosInformativos=", dadosInformativos)   */
+  console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais) 
+  console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios) 
 
   return (   
     <Fragment>

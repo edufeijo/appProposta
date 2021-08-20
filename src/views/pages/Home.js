@@ -2,7 +2,8 @@
 //
 //
 // Tabela de preços
-// - Não permitir mudar nome do cliente para Opcional!
+// - Testar a gravação da tabela em BD. Está com erro: tabelaDePrecosAtualizada.versoesDaTabelaDePrecos.push(novaVersaoDaTabelaDePrecos)
+// - Fazer List view Tabela de Preços
 // - O customizaArvoreSSS em Segmentacao deve tratar dadosInformativosSugeridos e parametrosSugeridos
 // - Fazer botões Incluir dado informativo e Editar dado informativo
 // - Gravar tabela externa no BD

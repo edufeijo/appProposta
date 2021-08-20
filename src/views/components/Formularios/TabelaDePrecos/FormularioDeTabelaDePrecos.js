@@ -55,7 +55,7 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, 
         stepper={stepper} 
         type='wizard-horizontal' 
       />
-    }/*,
+    }, /*
     {
       id: 'itens-de-preco',
       title: 'Itens de Preço',
@@ -74,7 +74,7 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, 
         stepper={stepper} 
         type='wizard-horizontal' 
       />
-    },
+    }*/
     {
       id: 'config',
       title: 'Configuração',
@@ -82,18 +82,22 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, 
       content: <ConfiguraTabelaDePrecos 
         userData={userData} 
         empresa={empresa} 
-        proposta={proposta} 
-        setProposta={setProposta} 
-        versaoDaProposta={versaoDaProposta}
-        setVersaoDaProposta={setVersaoDaProposta}
-        tabelaDeItens={tabelaDeItens}
-        setTabelaDeItens={setTabelaDeItens}
-        template={template}
         operacao={operacao}
+        todasAsTabelaDePrecos={todasAsTabelaDePrecos}
+        tabelaDePrecos={tabelaDePrecos}
+        setTabelaDePrecos={setTabelaDePrecos}
+        versaoDaTabelaDePrecos={versaoDaTabelaDePrecos}
+        setVersaoDaTabelaDePrecos={setVersaoDaTabelaDePrecos}
+        itensDaTabelaDePrecos={itensDaTabelaDePrecos}
+        setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
+        dadosInformativosOpcionais={dadosInformativosOpcionais}
+        setDadosInformativosOpcionais={setDadosInformativosOpcionais}
+        dadosInformativosObrigatorios={dadosInformativosObrigatorios}
+        setDadosInformativosObrigatorios={setDadosInformativosObrigatorios}
         stepper={stepper} 
         type='wizard-horizontal' 
       />
-    } */
+    } 
   ]
 
   return (
