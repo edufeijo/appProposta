@@ -55,13 +55,13 @@ const BotaoCriarTabelaDePrecos = () => {
   )
 }
 
-const CardSemPropostas = () => {
+const CardSemTabelasDePrecos = () => {
   return (
     <Card>
       <CardBody>
         <div align="center">
-          <h4>Crie sua 1ª proposta!</h4>
-          <BotaoCriarProposta/>
+          <h4>Crie sua 1ª tabela de preços!</h4>
+          <BotaoCriarTabelaDePrecos/>
         </div>
       </CardBody>
     </Card>
@@ -72,23 +72,8 @@ const CustomHeader = ({ tabelaVazia, value, setValue, handleStatusValue, statusV
   return (
     <div className='invoice-list-table-header w-100 py-2'>
       <Row>
-        <Col lg='6' className='d-flex align-items-center px-0 px-lg-1'>
-          <div className='d-flex align-items-center mr-2'>
-            <Label for='rows-per-page'>Período</Label>
-            <CustomInput
-              className='form-control ml-50 pr-3'
-              type='select'
-              id='periodo'
-              value={tabelaVazia}
-              onChange={handlePeriodo}
-            >
-              <option value='7'>últimos 7 dias</option>
-              <option value='30'>últimos 30 dias</option>
-              <option value='all'>Tudo</option>
-            </CustomInput>
-          </div>
-
-          <BotaoCriarProposta/>
+        <Col lg='6' className='d-flex align-items-center px-0 px-lg-1'> 
+          <BotaoCriarTabelaDePrecos/>
         </Col>
 
         <Col
@@ -98,52 +83,40 @@ const CustomHeader = ({ tabelaVazia, value, setValue, handleStatusValue, statusV
           <Input className='w-auto ' type='select' value={statusValue} onChange={handleStatusValue}>
             <option value=''>Selecione status</option>
             <option value='ativa'>ativa</option>
-            <option value='aprovada'>aprovada</option>
-            <option value='contratada'>contratada</option>
-            <option value='vencida'>vencida</option>
-            <option value='rejeitada'>rejeitada</option>
+            <option value='cancelada'>cancelada</option>
             <option value='rascunho'>rascunho</option>
           </Input>
-
-          <div className='w-auto ' >
-            <NomeDoClientePesquisado 
-              proposta={value} 
-              setProposta={setValue} 
-              label=''
-              placeHolder='Cliente a ser pesquisado'
-            />
-          </div>
         </Col>
       </Row>
     </div>
   )
 }
 
-const InvoiceList = () => {
+const PriceTableList = () => {
   const [erro, setErro] = useState(null)
 
   const [userData, setUserData] = useState(null)
   const [userDataCarregado, setUserDataCarregado] = useState(false)
   const [data, setData] = useState([])
-  const [quantidadeDePropostas, setQuantidadeDePropostas] = useState()
+  const [quantidadeDeTabelasDePreco, setQuantidadeDeTabelasDePreco] = useState()
 
   const [value, setValue] = useState({ nomeDoCliente: '', idDoCliente: null})
   const [currentPage, setCurrentPage] = useState(1)
   const [statusValue, setStatusValue] = useState('')
   const [rowsPerPage, setRowsPerPage] = useState(10)
-  const [sortCriteria, setSortCriteria] = useState({ ultimaAtualizacao: -1 }) // ordenado em ordem decrescente de atualização da proposta
-  const [periodo, setPeriodo] = useState({ $gt: moment().local().subtract(7, 'days').format() })
+  const [sortCriteria, setSortCriteria] = useState({ ultimaAtualizacao: -1 }) 
+  const [periodo, setPeriodo] = useState({})
   const [tabelaVazia, setTabelaVazia] = useState('7')
   const [recarregaPagina, setRecarregaPagina] = useState(false)
 
-  const propostasEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/propostas'))
+  const tabelasDePrecoEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/tabelasDePreco'))
   const history = useHistory()
  
   const MySwal = withReactContent(Swal)
-  const AvisoDePropostaEmLocalStorage = () => {
+  const AvisoDeTabelaDePrecosEmLocalStorage = () => {
     return MySwal.fire({
-      title: `Há uma proposta pendente!`,
-      text: `Quer abrir a proposta agora ou em outro momento?`,
+      title: `Há uma tabela de preços pendente!`,
+      text: `Quer abrir a tabela de preços agora ou em outro momento?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Abrir',
@@ -155,13 +128,13 @@ const InvoiceList = () => {
       buttonsStyling: false
     }).then(function (result) {
       if (result.value) {
-        history.push('/proposta/review/1')
+        history.push('/precos/review/1')
       }
     })
   }
 
   const handleTabelaVazia = () => {
-    let periodoAumentado = periodo
+/*     let periodoAumentado = periodo
     if (tabelaVazia === 'all') {
       return
     }
@@ -175,7 +148,7 @@ const InvoiceList = () => {
     }
     setPeriodo(periodoAumentado)
     setCurrentPage(1)
-    setRecarregaPagina(!recarregaPagina)
+    setRecarregaPagina(!recarregaPagina) */
   }
 
   useEffect(() => {
@@ -187,9 +160,9 @@ const InvoiceList = () => {
 
   useEffect(() => {
     if (userDataCarregado) {
-      if (propostasEmLocalStorage !== null) {
-        if (propostasEmLocalStorage.empresa._id === userData.idDaEmpresa) {
-          AvisoDePropostaEmLocalStorage()
+      if (tabelasDePrecoEmLocalStorage !== null) {
+        if (tabelasDePrecoEmLocalStorage.empresa._id === userData.idDaEmpresa) {
+          AvisoDeTabelaDePrecosEmLocalStorage()
         }
       }
     } 
@@ -199,25 +172,24 @@ const InvoiceList = () => {
     if (userDataCarregado) {
       const objetoDePesquisa = { idDaEmpresa: userData.idDaEmpresa } 
       const skipPages = rowsPerPage * (currentPage - 1)
-      let sortAsNumber = false
-      if (sortCriteria.hasOwnProperty('idDaProposta')) sortAsNumber = true
+      const sortAsNumber = false
       if (periodo.hasOwnProperty('$gt')) objetoDePesquisa.ultimaAtualizacao = periodo 
-      if (statusValue.length > 0) objetoDePesquisa.statusDaProposta = statusValue
+      if (statusValue.length > 0) objetoDePesquisa.statusDaTabelaDePrecos = statusValue
       if (value.idDoCliente !== null) objetoDePesquisa.nomeDoCliente = value.nomeDoCliente
 
       const query = {
-        bd: "propostas",
+        bd: "tabelasDePrecos",
         operador: "count",
         cardinalidade: "all",
         pesquisa: objetoDePesquisa
       } 
       db.getGenerico(query, false) 
       .then((resposta) => { 
-        setQuantidadeDePropostas(resposta) 
+        setQuantidadeDeTabelasDePreco(resposta) 
         if (resposta === 0) handleTabelaVazia()
         else {
           const query = {
-            bd: "propostas",
+            bd: "tabelasDePrecos",
             operador: "sort",
             cardinalidade: rowsPerPage,
             skip: skipPages,
@@ -227,9 +199,9 @@ const InvoiceList = () => {
           } 
           db.getGenerico(query, false) 
           .then((data) => { 
-            data.map((proposta, index, array) => {
-              proposta.versoesDaProposta = proposta.versoesDaProposta.reverse()
-              proposta.expandableRowExpanded = false
+            data.map((item, index, array) => {
+              item.versoesDaTabelaDePrecos = item.versoesDaTabelaDePrecos.reverse()
+              item.expandableRowExpanded = false
             })
             setData(data) 
           })
@@ -247,16 +219,16 @@ const InvoiceList = () => {
   }, [userDataCarregado, recarregaPagina]) 
 
   useEffect(() => {
-    if (value.idDoCliente !== null || value.nomeDoCliente.length === 0) {
+/*     if (value.idDoCliente !== null || value.nomeDoCliente.length === 0) {
       setCurrentPage(1)
       setRecarregaPagina(!recarregaPagina)
-    } 
+    }  */
   }, [value]) 
 
   const handleStatusValue = e => {
     setStatusValue(e.target.value)
     setCurrentPage(1)
-    setRecarregaPagina(!recarregaPagina)
+    setRecarregaPagina(!recarregaPagina) 
   }
 
   const handleSort = (column, sortDirection) => {
@@ -270,7 +242,7 @@ const InvoiceList = () => {
   }
 
   const handlePeriodo = e => {
-    const dias = e.target.value
+/*     const dias = e.target.value
 
     let periodo = {}
     if (dias === '7') {
@@ -284,7 +256,7 @@ const InvoiceList = () => {
 
     setPeriodo(periodo)
     setCurrentPage(1)
-    setRecarregaPagina(!recarregaPagina)
+    setRecarregaPagina(!recarregaPagina) */
   }
 
   const handlePagination = page => {
@@ -293,7 +265,7 @@ const InvoiceList = () => {
   }
 
   const CustomPagination = () => {
-    const count = Math.ceil(quantidadeDePropostas / rowsPerPage) // arredonda para cima e devolve inteiro
+    const count = Math.ceil(quantidadeDeTabelasDePreco / rowsPerPage) // arredonda para cima e devolve inteiro
     return (
       <ReactPaginate
         pageCount={count || 1}
@@ -316,33 +288,31 @@ const InvoiceList = () => {
     )
   }
 
-  const formataVersoesDaProposta = (data) => {
-    const versoesDaProposta = data.versoesDaProposta.map((versao, index, array) => {
-      const content = `${moment(versao.dataDaVersaoDaProposta).format("DD.MM.YYYY [às] HH:mm")} por ${versao.nomeDoUsuario} com status "${versao.statusDaVersaoDaProposta}" e vencimento em ${moment(versao.venceEm).format("DD.MM.YYYY [às] HH:mm")}`
-      const precoTotal =  versao.itensDaVersaoDaProposta ? versao.itensDaVersaoDaProposta.reduce((total, item) => total + item.precoDoItem, 0).toLocaleString('pt-BR', {style: 'currency', currency: 'BRL', minimumFractionDigits: 0}) : 0
-      const quantidadeDeItens = versao.itensDaVersaoDaProposta && versao.itensDaVersaoDaProposta.length
-      const itens = quantidadeDeItens === 1 ? '1 item' : `${quantidadeDeItens} itens`
+  const formataVersoesDaTabelaDePrecos = (data) => {
+    const versoesDaTabelaDePrecos = data.versoesDaTabelaDePrecos.map((versao, index, array) => {
+      const content = `${moment(versao.dataDaVersaoDaTabelaDePrecos).format("DD.MM.YYYY [às] HH:mm")} por ${versao.nomeDoUsuario} com status "${versao.statusDaVersaoDatabelaDePrecos}"`
+/*       const quantidadeDeItens = versao.itensDaVersaoDaProposta && versao.itensDaVersaoDaProposta.length
+      const itens = quantidadeDeItens === 1 ? '1 item' : `${quantidadeDeItens} itens` */
 
       versao.color = 'primary'
-      versao.title = `Valor da proposta (${itens}): ${precoTotal}`
+      versao.title = `Título a definir`
 
-      if (index + 1 === data.versoesDaProposta.length) versao.content = `Criada em ${content}`
+      if (index + 1 === data.versoesDaTabelaDePrecos.length) versao.content = `Criada em ${content}`
       else versao.content = `Atualizada em ${content}`
 
-      versao.meta = `${moment(versao.dataDaVersaoDaProposta).fromNow()}`
+      versao.meta = `${moment(versao.dataDaVersaoDaTabelaDePrecos).fromNow()}`
 
       versao.customContent = (
         <Fragment>
           <div className='demo-inline-spacing'>
             <Button.Ripple color='primary' outline>Visualizar</Button.Ripple>
             <Button.Ripple color='primary' outline>Editar</Button.Ripple>
-            {versao.arquivoDaProposta !== null &&  <Button.Ripple color='primary' outline>Baixar arquivo</Button.Ripple>}
           </div>
         </Fragment>
       )
       return versao
     })   
-    return versoesDaProposta
+    return versoesDaTabelaDePrecos
   }
 
   const ExpandableTable = ({ data }) => {
@@ -350,15 +320,15 @@ const InvoiceList = () => {
       <div className='expandable-content p-2'>
         <Card>
           <CardHeader>
-            <CardTitle tag='h4'>Histórico da proposta 
+            <CardTitle tag='h4'>Histórico da tabela de preços 
               <Badge color='light-secondary'>
-                <span>{`${data.idDaProposta}`}</span>
+                <span>{`${data.setor}/ ${data.segmento}/ ${data.servico}`}</span>
               </Badge>
             </CardTitle>
           </CardHeader>
           <CardBody>
             <Col lg='12'>
-              <Timeline data={formataVersoesDaProposta(data)} />
+              <Timeline data={formataVersoesDaTabelaDePrecos(data)} />
             </Col>
           </CardBody>
         </Card>
@@ -368,8 +338,8 @@ const InvoiceList = () => {
 
   const onRowExpandToggled = (toggleState, row) => {
     const dataCopy = Array.from(data)
-    dataCopy.map((proposta, index, array) => {
-      proposta.expandableRowExpanded = false
+    dataCopy.map((item, index, array) => {
+      item.expandableRowExpanded = false
     })
     dataCopy[dataCopy.findIndex(element => element._id === row._id)].expandableRowExpanded = toggleState
     setData(dataCopy)
@@ -377,10 +347,8 @@ const InvoiceList = () => {
 
   return (
     <div className='invoice-list-wrapper'>
-      <BotaoCriarTabelaDePrecos />
-{/* 
-      <BreadCrumbsPage breadCrumbTitle='Propostas' breadCrumbParent={`Visualizar ${quantidadeDePropostas} proposta${(quantidadeDePropostas !== 1) ? 's' : ''}`}/>
-      {!data.length && <CardSemPropostas />}
+      <BreadCrumbsPage breadCrumbTitle='Tabelas de Preço' breadCrumbParent={`Visualizar ${quantidadeDeTabelasDePreco} tabela${(quantidadeDeTabelasDePreco !== 1) ? 's' : ''} de preço`}/>
+      {!data.length && <CardSemTabelasDePrecos />}
       {data.length && <Card>
         <div className='invoice-list-dataTable'>
           <DataTable
@@ -423,10 +391,9 @@ const InvoiceList = () => {
           recarregaPagina={recarregaPagina} 
         />
       </Card>}
-       */}
       <Erro erro={erro} />
     </div>
   )
 }
 
-export default InvoiceList
+export default PriceTableList

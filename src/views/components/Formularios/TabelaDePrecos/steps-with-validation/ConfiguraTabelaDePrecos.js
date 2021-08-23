@@ -76,11 +76,14 @@ const ConfiguraTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tab
     else tabelaDePrecosAtualizada.statusDaTabelaDePrecos = 'ativa'
 
     novaVersaoDaTabelaDePrecos.statusDaVersaoDatabelaDePrecos = tabelaDePrecosAtualizada.statusDaTabelaDePrecos
-    tabelaDePrecosAtualizada.versoesDaTabelaDePrecos.push(novaVersaoDaTabelaDePrecos)
+    if (tabelaDePrecosAtualizada.versoesDaTabelaDePrecos) tabelaDePrecosAtualizada.versoesDaTabelaDePrecos.push(novaVersaoDaTabelaDePrecos)
+    else tabelaDePrecosAtualizada.versoesDaTabelaDePrecos = [novaVersaoDaTabelaDePrecos]
     tabelaDePrecosAtualizada.ultimaAtualizacao = novaVersaoDaTabelaDePrecos.dataDaVersaoDaTabelaDePrecos
     
+    console.log("------------------------ Em criarVersaoDatabelaDePrecos")
+    console.log("tabelaDePrecosAtualizada=", tabelaDePrecosAtualizada)
     console.log("novaVersaoDaTabelaDePrecos=", novaVersaoDaTabelaDePrecos)
-    console.log("tabelaDePrecosAtualizada.ultimaAtualizacao=", tabelaDePrecosAtualizada.ultimaAtualizacao)
+    console.log("operacao=", operacao)
 
     if (operacao === 'Criar') {
       const novatabelaDePrecos = { // Inclui a nova tabelaDePrecos
@@ -88,6 +91,8 @@ const ConfiguraTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tab
         operador: "post",
         objeto: tabelaDePrecosAtualizada
       } 
+
+      console.log("novatabelaDePrecos=", novatabelaDePrecos)
 
       db.getGenerico(novatabelaDePrecos, false) 
       .then(async (tabelaDePrecos) => { 
@@ -134,7 +139,7 @@ const ConfiguraTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tab
     if (isObjEmpty(errors)) {
       setBlock(true)
       salvaRascunhoPorErroDeConexao()
-      criarVersaoDatabelaDePrecos(tabelaDePrecos.idDoCliente) 
+      criarVersaoDatabelaDePrecos() 
     }
   }
 

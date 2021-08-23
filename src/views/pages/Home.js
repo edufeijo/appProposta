@@ -2,11 +2,12 @@
 //
 //
 // Tabela de preços
-// - Testar a gravação da tabela em BD. Está com erro: tabelaDePrecosAtualizada.versoesDaTabelaDePrecos.push(novaVersaoDaTabelaDePrecos)
-// - Fazer List view Tabela de Preços
+// - Fazer Edit tabela de preços e testar rascunho local storage
+// - Definir ciclo de vida das tabelas de preço (status)
 // - O customizaArvoreSSS em Segmentacao deve tratar dadosInformativosSugeridos e parametrosSugeridos
 // - Fazer botões Incluir dado informativo e Editar dado informativo
 // - Gravar tabela externa no BD
+// - Revisar todos os links na List view
 // - se não tem tabela de preço definida: mostrar quickstart
 // - mostrar Botão 'Quickstart' (com opção 'não mostrar novamente'). Se não tem Quickstart e não tem tabela de preços, então botão 'Criar tabela de preços'
 // 

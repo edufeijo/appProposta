@@ -4,7 +4,7 @@ import { Row, Col } from 'reactstrap'
 import FormularioDeTabelaDePrecos from '../../components/Formularios/TabelaDePrecos/FormularioDeTabelaDePrecos'
 import { isUserLoggedIn } from '@utils'
 import db from '../../../db'
-import { VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA, VALORES_INICIAIS_DA_PROPOSTA, VALORES_INICIAIS_DA_TABELA_DE_PRECOS, VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS } from '../../../configs/appProposta'
+import { VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA, VALORES_INICIAIS_DA_PROPOSTA } from '../../../configs/appProposta'
 import Erro from '../../components/Erro'
 import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../components/Toasts/ToastTypes'
@@ -47,11 +47,11 @@ const EditaTabelaDePreco = () => {
 
   const [empresa, setEmpresa] = useState(null)
   const [todasAsTabelaDePrecos, setTodasAsTabelaDePrecos] = useState([])
-  const [tabelaDePrecos, setTabelaDePrecos] = useState(Object.assign({}, VALORES_INICIAIS_DA_TABELA_DE_PRECOS))
-  const [versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos] = useState(Object.assign({}, VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS))  
+  const [tabelaDePrecos, setTabelaDePrecos] = useState({})
+  const [versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos] = useState({})  
   const [dadosInformativosOpcionais, setDadosInformativosOpcionais] = useState([])
   const [dadosInformativosObrigatorios, setDadosInformativosObrigatorios] = useState([])
-  const [itensDaTabelaDePrecos, setItensDaTabelaDePrecos] = useState([Object.assign({}, VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS)])
+  const [itensDaTabelaDePrecos, setItensDaTabelaDePrecos] = useState([])
   const [operacao, setOperacao] = useState('Criar')
 
   useEffect(() => {

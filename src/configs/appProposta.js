@@ -62,31 +62,6 @@ const VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA = {
   arquivoDaProposta: null
 } 
 
-const VALORES_INICIAIS_DA_TABELA_DE_PRECOS = { 
-  idDaEmpresa: null, 
-  tabelaDePrecosExterna: false,
-
-  statusDaVersaoDatabelaDePrecos: "ativa",
-
-  setor: null,
-  setorCustomizado: false,
-  segmento: null,
-  segmentoCustomizado: false,
-  servico: null,
-  servicoCustomizado: false,
-
-  versoesDaTabelaDePrecos: []
-} 
-
-const VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS = { 
-  idDoUsuario: null,
-  nomeDoUsuario: null,
-  dataDaVersaoDaTabelaDePrecos: null
-//  parametros: [],
-//  calculosComplementares: "esse campo é necessário???",
-//  itensDaVersaoDaTabelaDePreco : []
-} 
-
 const SERVICOS_EM_EVENTOS = [
   {
     name: "servico",
@@ -223,8 +198,6 @@ export {
     QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM,
     VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA,
     VALORES_INICIAIS_DA_PROPOSTA,
-    VALORES_INICIAIS_DA_TABELA_DE_PRECOS,
-    VALORES_INICIAIS_DA_VERSAO_DA_TABELA_DE_PRECOS,
     SETOR_SEGMENTO_SERVICO,
     DADO_INFORMATIVO_OBRIGATORIO
 }

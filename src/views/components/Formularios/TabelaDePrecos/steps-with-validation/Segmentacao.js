@@ -313,6 +313,7 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
   console.log("==================== No Segmentacao")
   console.log("todasAsTabelaDePrecos=", todasAsTabelaDePrecos)
   console.log("tabelaDePrecos=", tabelaDePrecos)
+  console.log("tabelaDePrecos.versoesDaTabelaDePrecos=", tabelaDePrecos.versoesDaTabelaDePrecos)
   console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos)
   console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos)  
   console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais) 
