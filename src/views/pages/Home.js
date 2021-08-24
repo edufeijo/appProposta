@@ -3,6 +3,15 @@
 //
 // Tabela de preços
 // - Fazer Edit tabela de preços e testar rascunho local storage
+// - Validar SSS customizado com no mínimo X caracteres
+// - Ao criar Dado Informativo, rejeitar se já existe
+// - No List view de tabelas:
+//   - Editar tabela (ou versão da tabela)
+//   - Mudar de tabela externa para interna
+//   - Permitir duplicar tabela (estrutura e valores)
+//   - Transformar tabela externa em tabela interna
+//   - Cancelar tabela de preços
+//   - Permitir duplicar partes da tabela (checar o que é possível duplicar)
 // - Definir ciclo de vida das tabelas de preço (status)
 // - O customizaArvoreSSS em Segmentacao deve tratar dadosInformativosSugeridos e parametrosSugeridos
 // - Fazer botões Incluir dado informativo e Editar dado informativo

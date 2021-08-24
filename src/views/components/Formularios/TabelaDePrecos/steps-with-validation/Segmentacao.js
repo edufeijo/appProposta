@@ -315,14 +315,19 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
   console.log("tabelaDePrecos=", tabelaDePrecos)
   console.log("tabelaDePrecos.versoesDaTabelaDePrecos=", tabelaDePrecos.versoesDaTabelaDePrecos)
   console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos)
-  console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos)  
   console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais) 
   console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios) 
+  console.log("---------------------") 
+  console.log("arrayToSelectSetor=", arrayToSelectSetor) 
+  console.log("arrayToSelectSegmento=", arrayToSelectSegmento) 
+  console.log("arrayToSelectServico=", arrayToSelectServico) 
+  console.log("arrayToSelectSetor[arrayToSelectSetor.findIndex(element => element.label === tabelaDePrecos.setor)]=", arrayToSelectSetor[arrayToSelectSetor.findIndex(element => element.label === tabelaDePrecos.setor)]) 
+  console.log("arrayToSelectSegmento[arrayToSelectSegmento.findIndex(element => element.label === tabelaDePrecos.segmento)]=", arrayToSelectSegmento[arrayToSelectSegmento.findIndex(element => element.label === tabelaDePrecos.segmento)]) 
 
   return (   
     <Fragment>
       <Nav className='justify-content-end' pills>
-        <NavItem>
+        {(operacao === 'Criar') && <NavItem>
           <NavLink
             active={active === '1'}
             onClick={() => {
@@ -331,8 +336,8 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
           >
             Segmentar
           </NavLink>
-        </NavItem>
-        <NavItem>
+        </NavItem>}
+        {(operacao === 'Criar') && <NavItem>
           <NavLink
             active={active === '2'}
             onClick={() => {
@@ -341,15 +346,15 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
           >
             Usar tabela externa
           </NavLink>
-        </NavItem>
+        </NavItem>}
       </Nav>
 
       <TabContent className='py-50' activeTab={active}>
         <TabPane tabId='1'>
           <h4 tag='h4'>Segmentação</h4>
-          <p><code>Selecione</code> ou <code>crie</code> a segmentação mais adequada ao seu negócio.</p>
+          {(operacao === 'Criar') && <p><code>Selecione</code> ou <code>crie</code> a segmentação mais adequada ao seu negócio.</p>}
           <Row>
-            <FormGroup tag={Col} md='6'>
+            {(operacao === 'Criar') && <FormGroup tag={Col} md='6'>
               <Label>Setor:</Label>
               <Select
                 name='escolheSetor'
@@ -363,11 +368,26 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
                 onChange={handleChangeSelect}
                 autoComplete="off"
               /> 
-            </FormGroup>
+            </FormGroup>}
+            {(operacao === 'Atualizar') && <FormGroup tag={Col} md='6'>
+              <Label className='form-label'>
+                Setor:
+              </Label>
+              <Input
+                name='setor'
+                id='setor'
+                placeholder='Setor do seu negócio'
+                defaultValue={tabelaDePrecos.setor}
+                autoComplete="off"
+                onChange={handleChange}
+                value={tabelaDePrecos.setor}
+                disabled={!tabelaDePrecos.setorCustomizado }
+              />
+            </FormGroup>}
 
-            {tabelaDePrecos.setorCustomizado && <FormGroup tag={Col} md='6'>
+            {(operacao === 'Criar') && tabelaDePrecos.setorCustomizado && <FormGroup tag={Col} md='6'>
               <Label className='form-label' for='setor'>
-                Setor do seu negócio
+                Setor do seu negócio:
               </Label>
               <Input
                 name='setor'
@@ -381,7 +401,7 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
           </Row>
 
           <Row>
-            {<FormGroup tag={Col} md='6'>
+          {(operacao === 'Criar') && <FormGroup tag={Col} md='6'>
               <div key={tabelaDePrecos.setor}>
                 <Label>Segmento:</Label>
                 <Select
@@ -398,9 +418,24 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
                 /> 
               </div>
             </FormGroup>}
-            {tabelaDePrecos.segmentoCustomizado && <FormGroup tag={Col} md='6'>
+            {(operacao === 'Atualizar') && <FormGroup tag={Col} md='6'>
+              <Label className='form-label'>
+              Segmento:
+              </Label>
+              <Input
+                name='segmento'
+                id='segmento'
+                defaultValue={tabelaDePrecos.segmento}
+                autoComplete="off"
+                onChange={handleChange}
+                value={tabelaDePrecos.segmento}
+                disabled={!tabelaDePrecos.segmentoCustomizado}
+              />
+            </FormGroup>}
+
+            {(operacao === 'Criar') && tabelaDePrecos.segmentoCustomizado && <FormGroup tag={Col} md='6'>
               <Label className='form-label' for='segmento'>
-                Segmento do seu negócio
+                Segmento do seu negócio:
               </Label>
               <Input
                 name='segmento'
@@ -408,14 +443,13 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
                 placeholder='Segmento do seu negócio'
                 defaultValue={tabelaDePrecos.segmento}
                 autoComplete="off"
-
                 onChange={handleChange}
               />
             </FormGroup>}
           </Row>
 
           <Row>
-            {<FormGroup tag={Col} md='6'>
+            {(operacao === 'Criar') && <FormGroup tag={Col} md='6'>
               <div key={tabelaDePrecos.segmento}>            
                 <Label>Serviço:</Label>
                 <Select
@@ -432,9 +466,24 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
                 /> 
               </div>
             </FormGroup>}
-            {tabelaDePrecos.servicoCustomizado && <FormGroup tag={Col} md='6'>
+            {(operacao === 'Atualizar') && <FormGroup tag={Col} md='6'>
+              <Label className='form-label'>
+                Serviço:
+              </Label>
+              <Input
+                name='servico'
+                id='servico'
+                defaultValue={tabelaDePrecos.servico}
+                autoComplete="off"
+                onChange={handleChange}
+                value={tabelaDePrecos.servico}
+                disabled={!tabelaDePrecos.servicoCustomizado}
+              />
+            </FormGroup>}
+
+            {(operacao === 'Criar') && tabelaDePrecos.servicoCustomizado && <FormGroup tag={Col} md='6'>
               <Label className='form-label' for='servico'>
-                Serviço do seu negócio
+                Serviço do seu negócio:
               </Label>
               <Input
                 name='servico'

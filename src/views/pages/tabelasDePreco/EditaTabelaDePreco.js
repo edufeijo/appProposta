@@ -91,31 +91,11 @@ const EditaTabelaDePreco = () => {
             db.getGenerico(query, false) 
             .then((resposta) => { 
               if (resposta !== null) {
-                // O TRECHO ABAIXO DEVERÁ SER ADAPTADO PARA TABELA DE PRECOS
-
-/*                 setProposta(resposta) 
-                setVersaoDaProposta(resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1])
+                setTabelaDePrecos(resposta) 
+                setVersaoDaTabelaDePrecos(resposta.versoesDaTabelaDePrecos[resposta.versoesDaTabelaDePrecos.length - 1])
                 setOperacao('Atualizar')
-                let alertaLigado = false
-                let msg = ALERTA_FOLLOWUP_CLIENTE
-                if (resposta.alertaEm !== null) {
-                  alertaLigado = true
-                  msg = resposta.msgDoAlerta
-                }
-                setProposta(registroAnterior => ({
-                  ...registroAnterior, 
-                  isAlertaLigado: alertaLigado,
-                  msgDoAlerta: msg,
-                  diasParaAlerta: null,
-                  isNewCliente: false
-                }))              
-                setVersaoDaProposta(registroAnterior => ({
-                  ...registroAnterior, 
-                  diasDeValidadeDaProposta: null,
-                  dataDaProposta: null
-                }))   
 
-                const copiaDaTabelaDeItens = Array.from(resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1].itensDaVersaoDaProposta)
+/*                 const copiaDaTabelaDeItens = Array.from(resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1].itensDaVersaoDaProposta)
                 const tabelaDeItensString = copiaDaTabelaDeItens.map((item, index, array) => {
                   const copiaDoItem = {}
                   copiaDoItem.nomeDoItem = item.nomeDoItem
