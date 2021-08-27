@@ -2,8 +2,8 @@ import * as yup from 'yup'
 import { Fragment, useState, useEffect } from 'react'
 import { selectThemeColors, capitalizeFirst } from '@utils'
 import { ArrowLeft, ArrowRight } from 'react-feather'
-import { Form, Label, Input, FormGroup, Row, Col, Button, Nav, NavItem, NavLink, TabContent, TabPane } from 'reactstrap'
-import { SETOR_SEGMENTO_SERVICO, DADO_INFORMATIVO_OBRIGATORIO } from '../../../../../configs/appProposta'
+import { Form, Label, Input, FormGroup, Row, Col, Button, Nav, NavItem, NavLink, TabContent, TabPane, Alert } from 'reactstrap'
+import { SETOR_SEGMENTO_SERVICO, DADO_INFORMATIVO_OBRIGATORIO, QTDADE_MIN_LETRAS_SSS, QTDADE_MAX_LETRAS_SSS } from '../../../../../configs/appProposta'
 import Select from 'react-select'
 import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../../Toasts/ToastTypes'
@@ -110,6 +110,20 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
       arvoreSSSCustomizada = customizaArvoreSSS(SETOR_SEGMENTO_SERVICO, todasAsTabelaDePrecos)
       const temporaryArraySetor = preencheArrayToSelect(arvoreSSSCustomizada, "setor")
       setArrayToSelectSetor(temporaryArraySetor)
+      let temporaryArraySegmento = null
+      let temporaryArrayServico = null
+      if (operacao === 'Criar') {
+        if (tabelaDePrecos.hasOwnProperty('segmento') && tabelaDePrecos.segmento !== null) {
+          const index = temporaryArraySetor.findIndex(element => element.label === tabelaDePrecos.setor)
+          temporaryArraySegmento = preencheArrayToSelect(temporaryArraySetor[index].segmentos, "segmento")
+          setArrayToSelectSegmento(temporaryArraySegmento)  
+          if (tabelaDePrecos.servico !== null) {
+            const index = temporaryArraySegmento.findIndex(element => element.label === tabelaDePrecos.segmento)
+            temporaryArrayServico = preencheArrayToSelect(temporaryArraySegmento[index].servicos, "servico")
+            setArrayToSelectServico(temporaryArrayServico) 
+          }
+        }
+      }
     }
   }, [todasAsTabelaDePrecos])
 
@@ -124,18 +138,29 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
     }
   }, [])
 
+  const erroQuantidadeDeCaracteres = (campo, min, max) => {
+    /*  retorna:
+        0 se campo está correto
+        1 se campo é null e não precisa mostrar msg de erro
+        2 se campo não está preenchido corretamente  
+    */
+    if (campo === null) return 1
+    else if (campo.length < min || campo.length > max) return 2
+    else return 0
+  }
+
   const erroNoForm = () => {
-    if (tabelaDePrecos.setor === null) {
+    if (erroQuantidadeDeCaracteres(tabelaDePrecos.setor, QTDADE_MIN_LETRAS_SSS, QTDADE_MAX_LETRAS_SSS) > 0) {
       msgToast = 'Escolha o Setor do seu negócio'
       notifyError()
       return true
     } 
-    if (tabelaDePrecos.segmento === null) {
+    if (erroQuantidadeDeCaracteres(tabelaDePrecos.segmento, QTDADE_MIN_LETRAS_SSS, QTDADE_MAX_LETRAS_SSS) > 0) {
       msgToast = 'Escolha o Segmento do seu negócio'
       notifyError()
       return true
     } 
-    if (tabelaDePrecos.servico === null) {
+    if (erroQuantidadeDeCaracteres(tabelaDePrecos.servico, QTDADE_MIN_LETRAS_SSS, QTDADE_MAX_LETRAS_SSS) > 0) {
       msgToast = 'Escolha o Serviço do seu negócio'
       notifyError()
       return true
@@ -143,10 +168,12 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
 
     let erro = false
     todasAsTabelaDePrecos.map((item, index, array) => {
-      if (item.setor === tabelaDePrecos.setor && item.segmento === tabelaDePrecos.segmento && item.servico === tabelaDePrecos.servico) {
-        msgToast = 'Já existe uma tabela de preços com os mesmos Setor/ Segmento/ Serviço'
-        notifyError()
-        erro = true
+      if (operacao === 'Criar') {
+        if (item.setor === tabelaDePrecos.setor && item.segmento === tabelaDePrecos.segmento && item.servico === tabelaDePrecos.servico) {
+          msgToast = 'Já existe uma tabela de preços com os mesmos Setor/ Segmento/ Serviço'
+          notifyError()
+          erro = true
+        }
       }
     })
     
@@ -156,7 +183,7 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
 
   const onSubmit = () => {
     if (erroNoForm()) {
-//      console.log("ERRO")
+      // Não permite avançar no formulário
     } else stepper.next()
   }
 
@@ -312,8 +339,8 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
 
   console.log("==================== No Segmentacao")
   console.log("todasAsTabelaDePrecos=", todasAsTabelaDePrecos)
+  console.log("operacao=", operacao)
   console.log("tabelaDePrecos=", tabelaDePrecos)
-  console.log("tabelaDePrecos.versoesDaTabelaDePrecos=", tabelaDePrecos.versoesDaTabelaDePrecos)
   console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos)
   console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais) 
   console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios) 
@@ -377,12 +404,12 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
                 name='setor'
                 id='setor'
                 placeholder='Setor do seu negócio'
-                defaultValue={tabelaDePrecos.setor}
                 autoComplete="off"
                 onChange={handleChange}
                 value={tabelaDePrecos.setor}
                 disabled={!tabelaDePrecos.setorCustomizado }
               />
+              {erroQuantidadeDeCaracteres(tabelaDePrecos.setor, QTDADE_MIN_LETRAS_SSS, QTDADE_MAX_LETRAS_SSS) === 2 && <Alert color='danger'>Use entre {QTDADE_MIN_LETRAS_SSS} e {QTDADE_MAX_LETRAS_SSS} caracteres</Alert>}
             </FormGroup>}
 
             {(operacao === 'Criar') && tabelaDePrecos.setorCustomizado && <FormGroup tag={Col} md='6'>
@@ -396,12 +423,13 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
                 defaultValue={tabelaDePrecos.setor}
                 autoComplete="off"
                 onChange={handleChange}
-              />
+              /> 
+              {erroQuantidadeDeCaracteres(tabelaDePrecos.setor, QTDADE_MIN_LETRAS_SSS, QTDADE_MAX_LETRAS_SSS) === 2 && <Alert color='danger'>Use entre {QTDADE_MIN_LETRAS_SSS} e {QTDADE_MAX_LETRAS_SSS} caracteres</Alert>}
             </FormGroup>}
           </Row>
 
           <Row>
-          {(operacao === 'Criar') && <FormGroup tag={Col} md='6'>
+            {(operacao === 'Criar') && <FormGroup tag={Col} md='6'>
               <div key={tabelaDePrecos.setor}>
                 <Label>Segmento:</Label>
                 <Select
@@ -425,12 +453,12 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
               <Input
                 name='segmento'
                 id='segmento'
-                defaultValue={tabelaDePrecos.segmento}
                 autoComplete="off"
                 onChange={handleChange}
                 value={tabelaDePrecos.segmento}
                 disabled={!tabelaDePrecos.segmentoCustomizado}
               />
+              {erroQuantidadeDeCaracteres(tabelaDePrecos.segmento, QTDADE_MIN_LETRAS_SSS, QTDADE_MAX_LETRAS_SSS) === 2 && <Alert color='danger'>Use entre {QTDADE_MIN_LETRAS_SSS} e {QTDADE_MAX_LETRAS_SSS} caracteres</Alert>}
             </FormGroup>}
 
             {(operacao === 'Criar') && tabelaDePrecos.segmentoCustomizado && <FormGroup tag={Col} md='6'>
@@ -445,6 +473,7 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
                 autoComplete="off"
                 onChange={handleChange}
               />
+              {erroQuantidadeDeCaracteres(tabelaDePrecos.segmento, QTDADE_MIN_LETRAS_SSS, QTDADE_MAX_LETRAS_SSS) === 2 && <Alert color='danger'>Use entre {QTDADE_MIN_LETRAS_SSS} e {QTDADE_MAX_LETRAS_SSS} caracteres</Alert>}
             </FormGroup>}
           </Row>
 
@@ -473,12 +502,12 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
               <Input
                 name='servico'
                 id='servico'
-                defaultValue={tabelaDePrecos.servico}
                 autoComplete="off"
                 onChange={handleChange}
                 value={tabelaDePrecos.servico}
                 disabled={!tabelaDePrecos.servicoCustomizado}
               />
+              {erroQuantidadeDeCaracteres(tabelaDePrecos.servico, QTDADE_MIN_LETRAS_SSS, QTDADE_MAX_LETRAS_SSS) === 2 && <Alert color='danger'>Use entre {QTDADE_MIN_LETRAS_SSS} e {QTDADE_MAX_LETRAS_SSS} caracteres</Alert>}
             </FormGroup>}
 
             {(operacao === 'Criar') && tabelaDePrecos.servicoCustomizado && <FormGroup tag={Col} md='6'>
@@ -493,6 +522,7 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
                 autoComplete="off"
                 onChange={handleChange}
               />
+              {erroQuantidadeDeCaracteres(tabelaDePrecos.servico, QTDADE_MIN_LETRAS_SSS, QTDADE_MAX_LETRAS_SSS) === 2 && <Alert color='danger'>Use entre {QTDADE_MIN_LETRAS_SSS} e {QTDADE_MAX_LETRAS_SSS} caracteres</Alert>}
             </FormGroup>}
           </Row>
 

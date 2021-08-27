@@ -2,20 +2,16 @@
 //
 //
 // Tabela de preços
-// - Fazer Edit tabela de preços e testar rascunho local storage
-// - Validar SSS customizado com no mínimo X caracteres
-// - Ao criar Dado Informativo, rejeitar se já existe
+// - Fazer botões Incluir dado informativo e Editar dado informativo. Ao criar Dado Informativo, rejeitar se já existe
+// - Gravar tabela externa no BD
 // - No List view de tabelas:
-//   - Editar tabela (ou versão da tabela)
-//   - Mudar de tabela externa para interna
+//   - Editar versão da tabela
 //   - Permitir duplicar tabela (estrutura e valores)
 //   - Transformar tabela externa em tabela interna
 //   - Cancelar tabela de preços
 //   - Permitir duplicar partes da tabela (checar o que é possível duplicar)
 // - Definir ciclo de vida das tabelas de preço (status)
-// - O customizaArvoreSSS em Segmentacao deve tratar dadosInformativosSugeridos e parametrosSugeridos
-// - Fazer botões Incluir dado informativo e Editar dado informativo
-// - Gravar tabela externa no BD
+// - O customizaArvoreSSS em Segmentacao deve tratar parametrosSugeridos
 // - Revisar todos os links na List view
 // - se não tem tabela de preço definida: mostrar quickstart
 // - mostrar Botão 'Quickstart' (com opção 'não mostrar novamente'). Se não tem Quickstart e não tem tabela de preços, então botão 'Criar tabela de preços'

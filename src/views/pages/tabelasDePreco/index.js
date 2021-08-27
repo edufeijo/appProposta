@@ -109,7 +109,7 @@ const PriceTableList = () => {
   const [tabelaVazia, setTabelaVazia] = useState('7')
   const [recarregaPagina, setRecarregaPagina] = useState(false)
 
-  const tabelasDePrecoEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/tabelasDePreco'))
+  const tabelasDePrecoEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/tabeladeprecos'))
   const history = useHistory()
  
   const MySwal = withReactContent(Swal)
@@ -349,7 +349,7 @@ const PriceTableList = () => {
     <div className='invoice-list-wrapper'>
       <BreadCrumbsPage breadCrumbTitle='Tabelas de Preço' breadCrumbParent={`Visualizar ${quantidadeDeTabelasDePreco} tabela${(quantidadeDeTabelasDePreco !== 1) ? 's' : ''} de preço`}/>
       {!data.length && <CardSemTabelasDePrecos />}
-      {data.length && <Card>
+      {!data.length ? '' : <Card>
         <div className='invoice-list-dataTable'>
           <DataTable
             noHeader

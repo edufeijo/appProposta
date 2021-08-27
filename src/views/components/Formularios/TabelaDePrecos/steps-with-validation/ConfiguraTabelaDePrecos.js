@@ -54,6 +54,7 @@ const ConfiguraTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tab
         versaoDaTabelaDePrecos, 
         itensDaTabelaDePrecos, 
         dadosInformativosObrigatorios,
+        dadosInformativosOpcionais,
         empresa, 
         operacao 
       }))
@@ -69,6 +70,7 @@ const ConfiguraTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tab
     const novaVersaoDaTabelaDePrecos = versaoDaTabelaDePrecos
     novaVersaoDaTabelaDePrecos.dataDaVersaoDaTabelaDePrecos = moment().local().format()
     novaVersaoDaTabelaDePrecos.dadosInformativosObrigatorios = Array.from(dadosInformativosObrigatorios)
+    novaVersaoDaTabelaDePrecos.dadosInformativosOpcionais = Array.from(dadosInformativosOpcionais)
 //    novaVersaoDaTabelaDePrecos.itensDaTabelaDePrecos = Array.from(copiaDaTabelaDeItens) Chamar esta função se alguma conversão for necessária
 
     const tabelaDePrecosAtualizada = tabelaDePrecos 
@@ -80,11 +82,6 @@ const ConfiguraTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tab
     else tabelaDePrecosAtualizada.versoesDaTabelaDePrecos = [novaVersaoDaTabelaDePrecos]
     tabelaDePrecosAtualizada.ultimaAtualizacao = novaVersaoDaTabelaDePrecos.dataDaVersaoDaTabelaDePrecos
     
-    console.log("------------------------ Em criarVersaoDatabelaDePrecos")
-    console.log("tabelaDePrecosAtualizada=", tabelaDePrecosAtualizada)
-    console.log("novaVersaoDaTabelaDePrecos=", novaVersaoDaTabelaDePrecos)
-    console.log("operacao=", operacao)
-
     if (operacao === 'Criar') {
       const novatabelaDePrecos = { // Inclui a nova tabelaDePrecos
         bd: "tabelasDePrecos",
@@ -103,8 +100,8 @@ const ConfiguraTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tab
         history.push('/precos/list')
       })
       .catch((err) => {
-        setErro(err)
-        setErro(null) 
+/*         setErro(err)
+        setErro(null)  */
         history.push('/precos/list')
       })       
     } else {
@@ -127,8 +124,8 @@ const ConfiguraTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tab
         history.push('/precos/list')
       })
       .catch((err) => {
-        setErro(err)
-        setErro(null) 
+/*         setErro(err)
+        setErro(null)  */
         history.push('/precos/list')
       }) 
     }

@@ -66,12 +66,14 @@ const EditaTabelaDePreco = () => {
       if (rascunho === '1') { // rascunho da Tabela de Preços está gravada em Local Storage
         const tabelaDePrecosEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/tabeladeprecos'))
         if (tabelaDePrecosEmLocalStorage !==  null) {
+          console.log('----------------------- No EditaTabelaDePreco === getItem')
           setTabelaDePrecos(tabelaDePrecosEmLocalStorage.tabelaDePrecos)
           setVersaoDaTabelaDePrecos(tabelaDePrecosEmLocalStorage.versaoDaTabelaDePrecos)
           setItensDaTabelaDePrecos(tabelaDePrecosEmLocalStorage.itensDaTabelaDePrecos)
-          setEmpresa(propostasEmLocalStorage.empresa)
-          setOperacao(propostasEmLocalStorage.operacao)  
-          localStorage.removeItem('@appproposta/tabeladeprecos')
+          setDadosInformativosObrigatorios(tabelaDePrecosEmLocalStorage.dadosInformativosObrigatorios)
+          setDadosInformativosOpcionais(tabelaDePrecosEmLocalStorage.dadosInformativosOpcionais)
+          setEmpresa(tabelaDePrecosEmLocalStorage.empresa)
+          setOperacao(tabelaDePrecosEmLocalStorage.operacao)  
         } else history.push('/precos/list')
       } else {
         if (id !== undefined) { // Carrega a Tabela de Preços id
@@ -92,7 +94,9 @@ const EditaTabelaDePreco = () => {
             .then((resposta) => { 
               if (resposta !== null) {
                 setTabelaDePrecos(resposta) 
-                setVersaoDaTabelaDePrecos(resposta.versoesDaTabelaDePrecos[resposta.versoesDaTabelaDePrecos.length - 1])
+                setVersaoDaTabelaDePrecos(resposta.versoesDaTabelaDePrecos[resposta.versoesDaTabelaDePrecos.length - 1]) 
+                setDadosInformativosObrigatorios(resposta.versoesDaTabelaDePrecos[resposta.versoesDaTabelaDePrecos.length - 1].dadosInformativosObrigatorios)
+                setDadosInformativosOpcionais(resposta.versoesDaTabelaDePrecos[resposta.versoesDaTabelaDePrecos.length - 1].dadosInformativosOpcionais)
                 setOperacao('Atualizar')
 
 /*                 const copiaDaTabelaDeItens = Array.from(resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1].itensDaVersaoDaProposta)
@@ -115,7 +119,7 @@ const EditaTabelaDePreco = () => {
               setErro(null) */
             })  
           }
-        }
+        } 
 
         const queryEmpresa = { // Carrega es informações da empresa
           bd: "empresas",
@@ -133,6 +137,17 @@ const EditaTabelaDePreco = () => {
             idDaEmpresa: userData.idDaEmpresa,
             nomeDaEmpresa: userData.nomeDaEmpresa
           })) 
+          if (id === undefined) {
+            setTabelaDePrecos(registroAnterior => ({
+              ...registroAnterior, 
+              setor: null,
+              segmento: null,
+              servico: null,
+              setorCustomizado: false,
+              segmentoCustomizado: false,
+              servicoCustomizado: false
+            })) 
+          }
           setVersaoDaTabelaDePrecos(registroAnterior => ({
             ...registroAnterior, 
             idDoUsuario: userData._id,
@@ -142,23 +157,23 @@ const EditaTabelaDePreco = () => {
         .catch((err) => {
           history.push('/precos/list')
         }) 
-
-        const queryTabelas = { 
-          bd: "tabelasDePrecos",
-          operador: "get",
-          cardinalidade: "all",
-          pesquisa: { 
-            idDaEmpresa: userData.idDaEmpresa 
-          }
-        } 
-        db.getGenerico(queryTabelas, false) 
-        .then((resposta) => { 
-          setTodasAsTabelaDePrecos(resposta)
-        })
-        .catch((err) => {
-          history.push('/precos/list')
-        }) 
       }
+      const queryTabelas = { 
+        bd: "tabelasDePrecos",
+        operador: "get",
+        cardinalidade: "all",
+        pesquisa: { 
+          idDaEmpresa: userData.idDaEmpresa 
+        }
+      } 
+      db.getGenerico(queryTabelas, false) 
+      .then((resposta) => { 
+        setTodasAsTabelaDePrecos(resposta)
+        localStorage.removeItem('@appproposta/tabeladeprecos')
+      })
+      .catch((err) => {
+        history.push('/precos/list')
+      }) 
     }
   }, [userDataCarregado]) 
     
