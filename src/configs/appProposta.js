@@ -104,17 +104,17 @@ const SETOR_SEGMENTO_SERVICO = [
     type: "opcao",
     dadosInformativosSugeridos : [ 
       {
-        id: '1',
+        id: 'Local-do-evento',
         name: 'Local do evento',
         label: 'Local do evento'
       },
       {
-        id: '2',
+        id: 'Data-do-evento',
         name: 'Data do evento',
         label: 'Data do evento'
       }
     ],
-    parametrosSugeridos : ["Quantidade de participantes"],
+    parametrosSugeridos : ["Quantidade de pessoas"],
     segmentos : [ 
       {
         name: "segmento",
@@ -139,12 +139,12 @@ const SETOR_SEGMENTO_SERVICO = [
     type: "opcao",
     dadosInformativosSugeridos : [ 
       {
-        id: '1',
+        id: 'Endereco-da-escola',
         name: 'Endereço da escola',
         label: 'Endereço da escola'
       },
       {
-        id: '2',
+        id: 'Nome-do-diretor',
         name: 'Nome do diretor',
         label: 'Nome do diretor'
       }
@@ -170,7 +170,7 @@ const SETOR_SEGMENTO_SERVICO = [
 ]
 
 const DADO_INFORMATIVO_OBRIGATORIO = {
-  id: '1000',
+  id: 'Nome do cliente',
   name: 'Nome do cliente',
   label: 'Nome do cliente',
   filtered: true

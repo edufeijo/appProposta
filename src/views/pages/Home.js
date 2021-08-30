@@ -2,7 +2,6 @@
 //
 //
 // Tabela de preços
-// - Fazer botões Incluir dado informativo e Editar dado informativo. Ao criar Dado Informativo, rejeitar se já existe
 // - Gravar tabela externa no BD
 // - No List view de tabelas:
 //   - Editar versão da tabela
@@ -10,6 +9,7 @@
 //   - Transformar tabela externa em tabela interna
 //   - Cancelar tabela de preços
 //   - Permitir duplicar partes da tabela (checar o que é possível duplicar)
+// - Fazer botões Incluir dado informativo e Editar dado informativo. Ao criar Dado Informativo, rejeitar se já existe
 // - Definir ciclo de vida das tabelas de preço (status)
 // - O customizaArvoreSSS em Segmentacao deve tratar parametrosSugeridos
 // - Revisar todos os links na List view
