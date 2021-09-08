@@ -1,47 +1,54 @@
 import { Fragment, useState } from 'react'
 import { ArrowLeft, ArrowRight, Calendar, Check, Copy, DollarSign, Edit, Eye, Facebook, Instagram, MoreVertical, Plus, PlusCircle, Twitch, Twitter } from 'react-feather'
-import { Row, Col, Button, Badge, ListGroupItem, Nav, NavItem, NavLink, TabContent, TabPane, ButtonGroup, UncontrolledDropdown, DropdownToggle, CustomInput, Label, InputGroup, InputGroupAddon, InputGroupText, Input, FormGroup, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
+import { Row, Col, Button, Badge, ListGroupItem, Nav, NavItem, NavLink, TabContent, TabPane, ButtonGroup, UncontrolledDropdown, DropdownToggle, CustomInput, Label, InputGroup, InputGroupAddon, InputGroupText, Input, FormGroup, Modal, ModalHeader, ModalBody, ModalFooter, DropdownMenu, DropdownItem } from 'reactstrap'
 import { ReactSortable } from 'react-sortablejs'
 import Select from 'react-select'
 import { selectThemeColors } from '@utils'
-import DropdownMenu from 'reactstrap/lib/DropdownMenu'
-import DropdownItem from 'reactstrap/lib/DropdownItem'
 
-const ItemDePrecoFechado = ({ item }) => {
+const ItemDePrecoFechado = ({ item, index, itensDaTabelaDePrecos, setItensDaTabelaDePrecos }) => {
+  const abreItemNoFormulario = () => {
+    const copia = itensDaTabelaDePrecos
+    copia[index].itemAbertoNoFormulario = true
+    console.log("copia=", copia)
+    setItensDaTabelaDePrecos(copia)
+  }
+
   return (
     <Fragment>
-      <Col md='11' sm='12'>
-        <Badge color='light-secondary' pill>
-          {item.label}
-        </Badge>
-      </Col>
-      <Col md='1' sm='12'>
-        <div className='column-action d-flex align-items-center'>
-          <UncontrolledDropdown>
-            <DropdownToggle tag='span'>
-              <MoreVertical size={17} className='cursor-pointer' />
-            </DropdownToggle>
-            <DropdownMenu right>
-              {<DropdownItem className='w-100'>
-                <Eye size={14} className='mr-50' />
-                <span className='align-middle'>Editar</span>
-              </DropdownItem>}
-              <DropdownItem className='w-100'>
-                <Edit size={14} className='mr-50' />
-                <span className='align-middle'>Duplicar</span>
-              </DropdownItem>            
-              <DropdownItem className='w-100'>
-                <Edit size={14} className='mr-50' />
-                <span className='align-middle'>Simular</span>
-              </DropdownItem>            
-              {<DropdownItem className='w-100'>
-                <Copy size={14} className='mr-50' />
-                <span className='align-middle'>Excluir</span>
-              </DropdownItem>}
-            </DropdownMenu>
-          </UncontrolledDropdown>
-        </div>
-      </Col>
+      <Row>
+        <Col md='11' sm='6'>
+          <Badge color='light-secondary' pill>
+            {item.nomeDoItem}
+          </Badge>
+        </Col>
+        <Col md='1' sm='6'>
+          <div className='column-action d-flex align-items-center'>
+            <UncontrolledDropdown>
+              <DropdownToggle tag='span'>
+                <MoreVertical size={17} className='cursor-pointer' />
+              </DropdownToggle>
+              <DropdownMenu right>
+                <DropdownItem className='w-100' onClick={() => abreItemNoFormulario()} >
+                  <Eye size={14} className='mr-50' />
+                  <span className='align-middle'>Editar</span>
+                </DropdownItem>
+                <DropdownItem className='w-100'>
+                  <Edit size={14} className='mr-50' />
+                  <span className='align-middle'>Duplicar</span>
+                </DropdownItem>            
+                <DropdownItem className='w-100'>
+                  <Edit size={14} className='mr-50' />
+                  <span className='align-middle'>Simular</span>
+                </DropdownItem>            
+                <DropdownItem className='w-100'>
+                  <Copy size={14} className='mr-50' />
+                  <span className='align-middle'>Excluir</span>
+                </DropdownItem>
+              </DropdownMenu>
+            </UncontrolledDropdown>
+          </div>
+        </Col>
+      </Row>
     </Fragment>
   )
 }
@@ -281,7 +288,6 @@ const ItemDePrecoAberto = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDeP
   return (
     <Fragment>
       <Row>
-        <ItemDePrecoFechado item={item} />
         <Col md='12' sm='12'>
           <Badge color='light-secondary' pill>
             {item.label}
@@ -357,8 +363,26 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
     setactiveVertical(tab) 
   }
 
-  const [componentesDoPrecoDoItem, setComponentesDoPrecoDoItem] = useState([])
+  const VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM = {
+    erroNoFormularioDoComponente: {
+      componenteInvalido: true,
+      descricaoInvalida: true
+    } 
+  }
+
+  const [componentesDoItem, setComponentesDoItem] = useState([VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM])
   const [descricoesDoItem, setDescricoesDoItem] = useState([])
+
+  console.log("==================== No ItensDePreco")
+  console.log("operacao=", operacao)
+  console.log("todasAsTabelaDePrecos=", todasAsTabelaDePrecos)
+  console.log("tabelaDePrecos=", tabelaDePrecos)
+  console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos)
+  console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais) 
+  console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios) 
+  console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos) 
+  console.log("componentesDoItem=", componentesDoItem) 
+  console.log("descricoesDoItem=", descricoesDoItem) 
 
   return (
     <Fragment>    
@@ -401,21 +425,31 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
           <p><code>Itens de preço</code> são bla bla bla.</p>
           <ReactSortable
             tag='ul'
-            className='list-group sortable'
-            group='shared-group'
-            list={dadosInformativosOpcionais}
-            setList={setDadosInformativosOpcionais}
+            className='list-group'
+            list={itensDaTabelaDePrecos}
+            setList={setItensDaTabelaDePrecos}
           >
-            {dadosInformativosOpcionais.map(item => {
+            {itensDaTabelaDePrecos.map((item, index) => {
               return (
-                <ListGroupItem className='draggable' key={item.id}>
-                  <ItemDePrecoAberto 
-                    item={item}
-                    componentesDoPrecoDoItem={componentesDoPrecoDoItem}
-                    setComponentesDoPrecoDoItem={setComponentesDoPrecoDoItem}
-                    descricoesDoItem={descricoesDoItem}
-                    setDescricoesDoItem={descricoesDoItem}
-                  />
+                <ListGroupItem key={item.nomeDoItem}>
+                  {!item.itemAbertoNoFormulario && 
+                    <ItemDePrecoFechado 
+                      item={item} 
+                      index={index}
+                      itensDaTabelaDePrecos={itensDaTabelaDePrecos} 
+                      setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}                        
+                    />}
+                  {item.itemAbertoNoFormulario &&
+                    <ItemDePrecoAberto 
+                      item={item}
+                      index={index}
+                      itensDaTabelaDePrecos={itensDaTabelaDePrecos}
+                      setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
+                      componentesDoItem={componentesDoItem}
+                      setComponentesDoItem={setComponentesDoItem}
+                      descricoesDoItem={descricoesDoItem}
+                      setDescricoesDoItem={setDescricoesDoItem}
+                    />}
                 </ListGroupItem>
               )
             })}

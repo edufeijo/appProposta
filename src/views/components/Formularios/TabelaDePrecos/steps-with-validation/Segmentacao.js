@@ -337,20 +337,6 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
     toggle('1')
   }
 
-  console.log("==================== No Segmentacao")
-  console.log("todasAsTabelaDePrecos=", todasAsTabelaDePrecos)
-  console.log("operacao=", operacao)
-  console.log("tabelaDePrecos=", tabelaDePrecos)
-  console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos)
-  console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais) 
-  console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios) 
-  console.log("---------------------") 
-  console.log("arrayToSelectSetor=", arrayToSelectSetor) 
-  console.log("arrayToSelectSegmento=", arrayToSelectSegmento) 
-  console.log("arrayToSelectServico=", arrayToSelectServico) 
-  console.log("arrayToSelectSetor[arrayToSelectSetor.findIndex(element => element.label === tabelaDePrecos.setor)]=", arrayToSelectSetor[arrayToSelectSetor.findIndex(element => element.label === tabelaDePrecos.setor)]) 
-  console.log("arrayToSelectSegmento[arrayToSelectSegmento.findIndex(element => element.label === tabelaDePrecos.segmento)]=", arrayToSelectSegmento[arrayToSelectSegmento.findIndex(element => element.label === tabelaDePrecos.segmento)]) 
-
   return (   
     <Fragment>
       <Nav className='justify-content-end' pills>

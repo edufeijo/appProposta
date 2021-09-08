@@ -4,39 +4,24 @@ import { Row, Col } from 'reactstrap'
 import FormularioDeTabelaDePrecos from '../../components/Formularios/TabelaDePrecos/FormularioDeTabelaDePrecos'
 import { isUserLoggedIn } from '@utils'
 import db from '../../../db'
-import { VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA, VALORES_INICIAIS_DA_PROPOSTA } from '../../../configs/appProposta'
 import Erro from '../../components/Erro'
 import { toast } from 'react-toastify'
 import { ErrorToast }  from '../../components/Toasts/ToastTypes'
+import { VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA, VALORES_INICIAIS_DA_PROPOSTA } from '../../../configs/appProposta'
 
 const EditaTabelaDePreco = () => {
   const { id, rascunho } = useParams()
   const [erro, setErro] = useState(null)
   const history = useHistory()
-  
-  // ITENS ABAIXO DEVEM SER EXCLUIDOS
-  const [proposta, setProposta] = useState(Object.assign({}, VALORES_INICIAIS_DA_PROPOSTA))
-  const [versaoDaProposta, setVersaoDaProposta] = useState(Object.assign({}, VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA))
-  const VALORES_INICIAIS_DO_ITEM = { 
-    nomeDoItem: '', 
-    precoDoItem: null, 
-    descricaoDoItem: '',
-    erroNoFormulario: {
-      nomeDoItem: true, 
-      precoDoItem: true
-    }
-  }
-  const [tabelaDeItens, setTabelaDeItens] = useState([Object.assign({}, VALORES_INICIAIS_DO_ITEM)])
-  const [template, setTemplate] = useState(null)
 
   const VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS = { 
-    nomeDoItem: ''/* , 
-    precoDoItem: null, 
-    descricaoDoItem: '',
-    erroNoFormulario: {
-      nomeDoItem: true, 
-      precoDoItem: true
-    } */
+    nomeDoItem: 'NOME',
+    itemHabilitado: true,
+    itemObrigatorioNaProposta: false,
+    itemAbertoNoFormulario: false,
+    erroNoFormularioDoItem: {
+      nomeDoItem: true
+    } 
   }
 
   let msgToast = ''
@@ -51,7 +36,7 @@ const EditaTabelaDePreco = () => {
   const [versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos] = useState({})  
   const [dadosInformativosOpcionais, setDadosInformativosOpcionais] = useState([])
   const [dadosInformativosObrigatorios, setDadosInformativosObrigatorios] = useState([])
-  const [itensDaTabelaDePrecos, setItensDaTabelaDePrecos] = useState([])
+  const [itensDaTabelaDePrecos, setItensDaTabelaDePrecos] = useState([VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS])
   const [operacao, setOperacao] = useState('Criar')
 
   useEffect(() => {
@@ -66,7 +51,6 @@ const EditaTabelaDePreco = () => {
       if (rascunho === '1') { // rascunho da Tabela de Preços está gravada em Local Storage
         const tabelaDePrecosEmLocalStorage = JSON.parse(localStorage.getItem('@appproposta/tabeladeprecos'))
         if (tabelaDePrecosEmLocalStorage !==  null) {
-          console.log('----------------------- No EditaTabelaDePreco === getItem')
           setTabelaDePrecos(tabelaDePrecosEmLocalStorage.tabelaDePrecos)
           setVersaoDaTabelaDePrecos(tabelaDePrecosEmLocalStorage.versaoDaTabelaDePrecos)
           setItensDaTabelaDePrecos(tabelaDePrecosEmLocalStorage.itensDaTabelaDePrecos)
