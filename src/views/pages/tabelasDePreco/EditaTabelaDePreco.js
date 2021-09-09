@@ -14,18 +14,18 @@ const EditaTabelaDePreco = () => {
   const [erro, setErro] = useState(null)
   const history = useHistory()
 
+  let msgToast = ''
+  const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
+
   const VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS = { 
-    nomeDoItem: 'NOME',
+    nomeDoItem: null,
     itemHabilitado: true,
     itemObrigatorioNaProposta: false,
-    itemAbertoNoFormulario: false,
-    erroNoFormularioDoItem: {
+    itemAbertoNoFormulario: true,
+    errors: {
       nomeDoItem: true
     } 
   }
-
-  let msgToast = ''
-  const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
 
   const [userData, setUserData] = useState(null)
   const [userDataCarregado, setUserDataCarregado] = useState(false)

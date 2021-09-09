@@ -28,7 +28,7 @@ const NomeDoNovoItem = ({ index, tabelaDeItens, setTabelaDeItens }) => {
   })
 
   const handleChange = e => {
-    const { name, value } = e.target
+    const { value } = e.target
     const temporaryarray = Array.from(tabelaDeItens)
     temporaryarray[index].nomeDoItem = value
 
@@ -424,10 +424,6 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
       </div>
     )
   }
-
-  console.log("proposta=", proposta)
-  console.log("versaoDaProposta=", versaoDaProposta)
-  console.log("tabelaDeItens=", tabelaDeItens)
 
   return (
     <Fragment>

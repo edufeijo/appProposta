@@ -1,4 +1,3 @@
-import { Facebook, GitHub } from 'react-feather'
 import config from './comoPediuOptions'
 
 const QTDADE_MIN_LETRAS_NOME_DO_USUARIO = 3
@@ -12,7 +11,6 @@ const QTDADE_MIN_LETRAS_NOME_DO_ITEM = 2
 
 const QTDADE_MIN_LETRAS_SSS = 3
 const QTDADE_MAX_LETRAS_SSS = 20
-
 
 const QTDADE_MAX_LETRAS_NOME_DO_USUARIO = 30
 const QTDADE_MAX_LETRAS_QUEM_PEDIU = 50

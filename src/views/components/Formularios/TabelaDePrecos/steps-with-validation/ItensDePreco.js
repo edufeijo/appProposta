@@ -1,49 +1,72 @@
 import { Fragment, useState } from 'react'
-import { ArrowLeft, ArrowRight, Calendar, Check, Copy, DollarSign, Edit, Eye, Facebook, Instagram, MoreVertical, Plus, PlusCircle, Twitch, Twitter } from 'react-feather'
+import { ArrowLeft, ArrowRight, Box, Calendar, Check, Copy, DollarSign, Edit, Eye, Facebook, Instagram, MoreVertical, Plus, PlusCircle, Twitch, Twitter } from 'react-feather'
 import { Row, Col, Button, Badge, ListGroupItem, Nav, NavItem, NavLink, TabContent, TabPane, ButtonGroup, UncontrolledDropdown, DropdownToggle, CustomInput, Label, InputGroup, InputGroupAddon, InputGroupText, Input, FormGroup, Modal, ModalHeader, ModalBody, ModalFooter, DropdownMenu, DropdownItem } from 'reactstrap'
 import { ReactSortable } from 'react-sortablejs'
 import Select from 'react-select'
 import { selectThemeColors } from '@utils'
+import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM } from '../../../../../configs/appProposta'
 
-const ItemDePrecoFechado = ({ item, index, itensDaTabelaDePrecos, setItensDaTabelaDePrecos }) => {
-  const abreItemNoFormulario = () => {
+const erroQuantidadeDeCaracteres = (campo, min, max) => {
+  /*  retorna:
+      0 se campo está correto
+      1 se campo é null e não precisa mostrar msg de erro
+      2 se campo não está preenchido corretamente  
+  */
+  if (campo === null) return 1
+  else if (campo.length < min || campo.length > max) return 2
+  else return 0
+}
+
+const HeaderDoItem = ({ item, index, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, atualizaFormulario, setAtualizaFormulario }) => {
+  const abreItemNoFormulario = (toOpen) => {
     const copia = itensDaTabelaDePrecos
-    copia[index].itemAbertoNoFormulario = true
-    console.log("copia=", copia)
+    copia[index].itemAbertoNoFormulario = toOpen
     setItensDaTabelaDePrecos(copia)
+    setAtualizaFormulario(atualizaFormulario + 1)
   }
-
   return (
     <Fragment>
       <Row>
-        <Col md='11' sm='6'>
-          <Badge color='light-secondary' pill>
+        <Col md='11' sm='12'>
+          <Badge color={item.itemHabilitado ? 'primary' : 'light-secondary'} pill>
             {item.nomeDoItem}
           </Badge>
         </Col>
-        <Col md='1' sm='6'>
+        <Col md='1' sm='12'>
           <div className='column-action d-flex align-items-center'>
             <UncontrolledDropdown>
               <DropdownToggle tag='span'>
                 <MoreVertical size={17} className='cursor-pointer' />
               </DropdownToggle>
               <DropdownMenu right>
-                <DropdownItem className='w-100' onClick={() => abreItemNoFormulario()} >
+                {!item.itemAbertoNoFormulario && <DropdownItem className='w-100' onClick={() => abreItemNoFormulario(true)} >
                   <Eye size={14} className='mr-50' />
-                  <span className='align-middle'>Editar</span>
-                </DropdownItem>
+                  <span className='align-middle'>Abrir</span>
+                </DropdownItem>}
+                {item.itemAbertoNoFormulario && <DropdownItem className='w-100' onClick={() => abreItemNoFormulario(false)} >
+                  <Box size={14} className='mr-50' />
+                  <span className='align-middle'>Fechar item</span>
+                </DropdownItem>}
                 <DropdownItem className='w-100'>
                   <Edit size={14} className='mr-50' />
-                  <span className='align-middle'>Duplicar</span>
-                </DropdownItem>            
+                  <span className='align-middle'>Criar item</span>
+                </DropdownItem>               
                 <DropdownItem className='w-100'>
                   <Edit size={14} className='mr-50' />
-                  <span className='align-middle'>Simular</span>
-                </DropdownItem>            
+                  <span className='align-middle'>Duplicar item</span>
+                </DropdownItem>                      
                 <DropdownItem className='w-100'>
                   <Copy size={14} className='mr-50' />
-                  <span className='align-middle'>Excluir</span>
+                  <span className='align-middle'>Excluir item</span>
                 </DropdownItem>
+                <DropdownItem className='w-100'>
+                  <Edit size={14} className='mr-50' />
+                  <span className='align-middle'>Simular preço</span>
+                </DropdownItem>  
+                <DropdownItem className='w-100'>
+                  <Copy size={14} className='mr-50' />
+                  <span className='align-middle'>Salvar tabela</span>
+                </DropdownItem>                
               </DropdownMenu>
             </UncontrolledDropdown>
           </div>
@@ -53,10 +76,96 @@ const ItemDePrecoFechado = ({ item, index, itensDaTabelaDePrecos, setItensDaTabe
   )
 }
 
-const ConfiguracaoDoItem = ({ item }) => {
+const ItemDePrecoFechado = ({ item, index, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, atualizaFormulario, setAtualizaFormulario }) => {
   return (
-    <Fragment>
-      <p>Nome do item</p>
+    <HeaderDoItem 
+      item={item} 
+      index={index}
+      itensDaTabelaDePrecos={itensDaTabelaDePrecos} 
+      setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}  
+      atualizaFormulario={atualizaFormulario}
+      setAtualizaFormulario={setAtualizaFormulario}                      
+    />
+  )
+}
+
+const NomeDoItem = ({ index, itensDaTabelaDePrecos, setItensDaTabelaDePrecos }) => {
+/*   const SignupSchema = yup.object().shape({
+    [`nomeDoItem${index}`]: yup.string().min(QTDADE_MIN_LETRAS_NOME_DO_ITEM).max(QTDADE_MAX_LETRAS_NOME_DO_ITEM).required()
+  })
+
+  const { register, errors, handleSubmit, trigger } = useForm({ 
+    mode: 'onChange', 
+    resolver: yupResolver(SignupSchema)
+  }) */
+
+  const handleChange = e => {
+    const { value } = e.target
+    const temporaryarray = Array.from(itensDaTabelaDePrecos)
+    temporaryarray[index].nomeDoItem = value
+
+/*     if (isObjEmpty(errors)) delete temporaryarray[index].erroNoFormulario.nomeDoItem
+    else temporaryarray[index].erroNoFormulario.nomeDoItem = true    */
+ 
+    setItensDaTabelaDePrecos(temporaryarray)
+  }
+
+  const defaultValue = itensDaTabelaDePrecos[index].nomeDoItem
+/*   innerRef={register({ required: true })}
+  invalid={errors[`nomeDoItem${index}`] && true} */
+
+  return (
+    <div>
+      <Label className='form-label' for={`nomeDoItem${index}`}>
+        Nome do item
+      </Label>
+      <InputGroup className='input-group-merge mb-2'>
+        <Input
+          name={`nomeDoItem${index}`}
+          id={`nomeDoItem${index}`}
+          placeholder='Nome do item'
+          defaultValue={defaultValue}
+          autoComplete="off"
+          onChange={handleChange}
+        />
+{/*       {errors && errors[`nomeDoItem${index}`] && <FormFeedback>Nome do item com no mínimo {QTDADE_MIN_LETRAS_NOME_DO_ITEM} e no máximo {QTDADE_MAX_LETRAS_NOME_DO_ITEM} caracteres</FormFeedback>} */}
+      </InputGroup>
+    </div>
+  ) 
+}
+
+const ConfiguracaoDoItem = ({ item, index, operacao, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, atualizaFormulario, setAtualizaFormulario }) => {
+  const defaultValue = itensDaTabelaDePrecos[index].nomeDoItem
+  
+  const handleChange = e => {
+    const { value } = e.target
+    const temporaryarray = Array.from(itensDaTabelaDePrecos)
+    temporaryarray[index].nomeDoItem = value
+
+/*     if (isObjEmpty(temporaryarray[index].errors)) delete temporaryarray[index].erroNoFormulario.nomeDoItem
+    else temporaryarray[index].errors.nomeDoItem = true   */ 
+ 
+    setItensDaTabelaDePrecos(temporaryarray)
+  }
+
+  return (
+    <div>     
+      {(operacao === 'Criar') && <FormGroup tag={Col} md='6'>
+        <Label className='form-label' for={`nomeDoItem${index}`}>
+          Nome do item:
+        </Label>
+        <InputGroup className='input-group-merge mb-2'>
+          <Input
+            name={`nomeDoItem${index}`}
+            id={`nomeDoItem${index}`}
+            placeholder='Nome do item'
+            defaultValue={defaultValue}
+            autoComplete="off"
+            onChange={handleChange}
+          />
+        </InputGroup>
+{/*         {erroQuantidadeDeCaracteres(item.nomeDoItem, QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM) === 2 && <Alert color='danger'>Use entre {QTDADE_MIN_LETRAS_NOME_DO_ITEM} e {QTDADE_MAX_LETRAS_NOME_DO_ITEM} caracteres</Alert>}  */}
+      </FormGroup>}
       <CustomInput
         type='checkbox'
         className='custom-control-success'
@@ -73,7 +182,7 @@ const ConfiguracaoDoItem = ({ item }) => {
         defaultChecked
         inline
       />
-    </Fragment>
+    </div>
   )
 }
 
@@ -278,7 +387,7 @@ const DescricaoDoItem = ({ item, descricoesDoItem, setDescricoesDoItem }) => {
   )
 }
 
-const ItemDePrecoAberto = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, operacao, stepper, type, item, componentesDoPrecoDoItem, setComponentesDoPrecoDoItem, descricoesDoItem, setDescricoesDoItem }) => {
+const ItemDePrecoAberto = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, operacao, stepper, type, item, index, componentesDoPrecoDoItem, setComponentesDoPrecoDoItem, descricoesDoItem, setDescricoesDoItem, atualizaFormulario, setAtualizaFormulario }) => {
   const [activeHorizontal, setActiveHorizontal] = useState('A')
 
   const toggleHorizontal = tab => {
@@ -287,6 +396,14 @@ const ItemDePrecoAberto = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDeP
 
   return (
     <Fragment>
+      <HeaderDoItem 
+        item={item} 
+        index={index}
+        itensDaTabelaDePrecos={itensDaTabelaDePrecos} 
+        setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}  
+        atualizaFormulario={atualizaFormulario}
+        setAtualizaFormulario={setAtualizaFormulario}                      
+      />
       <Row>
         <Col md='12' sm='12'>
           <Badge color='light-secondary' pill>
@@ -301,7 +418,7 @@ const ItemDePrecoAberto = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDeP
                     toggleHorizontal('A')
                   }}
                 >
-                  Configurações
+                  Nome
                 </NavLink>
               </NavItem>
               <NavItem>
@@ -311,7 +428,7 @@ const ItemDePrecoAberto = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDeP
                     toggleHorizontal('B')
                   }}
                 >
-                  Componentes
+                  Preço
                 </NavLink>
               </NavItem>
               <NavItem>
@@ -321,13 +438,27 @@ const ItemDePrecoAberto = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDeP
                     toggleHorizontal('C')
                   }}
                 >
-                  Descrições
+                  Descrição
                 </NavLink>
               </NavItem>
             </Nav>
             <TabContent activeTab={activeHorizontal}>
               <TabPane tabId='A'>
-                <ConfiguracaoDoItem item={item} />
+                <NomeDoItem 
+                  index={index} 
+                  itensDaTabelaDePrecos={itensDaTabelaDePrecos} 
+                  setItensDaTabelaDePrecos={setItensDaTabelaDePrecos} 
+                />
+
+{/*                 <ConfiguracaoDoItem 
+                  item={item} 
+                  index={index}
+                  operacao={operacao}
+                  itensDaTabelaDePrecos={itensDaTabelaDePrecos} 
+                  setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}  
+                  atualizaFormulario={atualizaFormulario}
+                  setAtualizaFormulario={setAtualizaFormulario}   
+                /> */}
               </TabPane>
               <TabPane tabId='B'>
                 <PrecoDoItem item={item} componentesDoPrecoDoItem={componentesDoPrecoDoItem} setComponentesDoPrecoDoItem={setComponentesDoPrecoDoItem} />
@@ -339,18 +470,6 @@ const ItemDePrecoAberto = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDeP
           </div>
         </Col>
       </Row>
-      <Row>
-        <Col md={6} sm={12}>
-        </Col>
-        <Col md={6} sm={12}>
-          <ButtonGroup className='mb-1'>
-            <Button color='primary'>Fechar</Button>
-            <Button color='primary'>Duplicar</Button>
-            <Button color='primary'>Simular</Button>                        
-            <Button color='primary'>Excluir</Button>
-          </ButtonGroup>
-        </Col>
-      </Row>
     </Fragment>
   )
 }
@@ -358,6 +477,7 @@ const ItemDePrecoAberto = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDeP
 
 const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, operacao, stepper, type }) => {
   const [activeVertical, setactiveVertical] = useState('1')
+  const [atualizaFormulario, setAtualizaFormulario] = useState(0)
 
   const toggleVertical = tab => {
     setactiveVertical(tab) 
@@ -383,6 +503,7 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
   console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos) 
   console.log("componentesDoItem=", componentesDoItem) 
   console.log("descricoesDoItem=", descricoesDoItem) 
+  console.log("atualizaFormulario=", atualizaFormulario) 
 
   return (
     <Fragment>    
@@ -421,50 +542,56 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
 
       <TabContent className='py-50' activeTab={activeVertical}>
         <TabPane tabId='1'>
-          <h4 tag='h4'>Itens de preço</h4>
-          <p><code>Itens de preço</code> são bla bla bla.</p>
-          <ReactSortable
-            tag='ul'
-            className='list-group'
-            list={itensDaTabelaDePrecos}
-            setList={setItensDaTabelaDePrecos}
-          >
-            {itensDaTabelaDePrecos.map((item, index) => {
-              return (
-                <ListGroupItem key={item.nomeDoItem}>
-                  {!item.itemAbertoNoFormulario && 
-                    <ItemDePrecoFechado 
-                      item={item} 
-                      index={index}
-                      itensDaTabelaDePrecos={itensDaTabelaDePrecos} 
-                      setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}                        
-                    />}
-                  {item.itemAbertoNoFormulario &&
-                    <ItemDePrecoAberto 
-                      item={item}
-                      index={index}
-                      itensDaTabelaDePrecos={itensDaTabelaDePrecos}
-                      setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
-                      componentesDoItem={componentesDoItem}
-                      setComponentesDoItem={setComponentesDoItem}
-                      descricoesDoItem={descricoesDoItem}
-                      setDescricoesDoItem={setDescricoesDoItem}
-                    />}
-                </ListGroupItem>
-              )
-            })}
-          </ReactSortable>
-          <Button.Ripple color='primary' outline size='sm' className='btn-prev' block>
-            <Plus size={14} className='align-middle mr-sm-25 mr-0'/>
-            <span className='align-middle d-sm-inline-block d-none'>Novo item de preço</span>
-          </Button.Ripple>
+          <div key={atualizaFormulario}>
+            <h4 tag='h4'>Itens de preço</h4>
+            <p><code>Itens de preço</code> são bla bla bla.</p>
+            <ReactSortable
+              tag='ul'
+              className='list-group'
+              list={itensDaTabelaDePrecos}
+              setList={setItensDaTabelaDePrecos}
+            >
+              {itensDaTabelaDePrecos.map((item, index) => {
+                return (
+                  <ListGroupItem key={item.nomeDoItem}>
+                    {!item.itemAbertoNoFormulario && 
+                      <ItemDePrecoFechado 
+                        item={item} 
+                        index={index}
+                        operacao={operacao}
+                        itensDaTabelaDePrecos={itensDaTabelaDePrecos} 
+                        setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}  
+                        atualizaFormulario={atualizaFormulario}
+                        setAtualizaFormulario={setAtualizaFormulario}                      
+                      />}
+                    {item.itemAbertoNoFormulario &&
+                      <ItemDePrecoAberto 
+                        item={item}
+                        index={index}
+                        operacao={operacao}
+                        itensDaTabelaDePrecos={itensDaTabelaDePrecos}
+                        setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
+                        componentesDoItem={componentesDoItem}
+                        setComponentesDoItem={setComponentesDoItem}
+                        descricoesDoItem={descricoesDoItem}
+                        setDescricoesDoItem={setDescricoesDoItem}
+                        atualizaFormulario={atualizaFormulario}
+                        setAtualizaFormulario={setAtualizaFormulario}
+                      />}
+                  </ListGroupItem>
+                )
+              })}
+            </ReactSortable>
+          </div>
         </TabPane>
+
         <TabPane tabId='2'>
           Pendências:
           - definição de variáveis calculadas
             - Quantidade de fotógrafos
             - 
         </TabPane>
+        
         <TabPane tabId='3'>
           Quais são as opções?
           - salvar proposta (habilitar se tem pelo menos 1 item de preço) 
