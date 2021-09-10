@@ -18,11 +18,12 @@ const EditaTabelaDePreco = () => {
   const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
 
   const VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS = { 
+    id: 0,
     nomeDoItem: null,
     itemHabilitado: true,
     itemObrigatorioNaProposta: false,
     itemAbertoNoFormulario: true,
-    errors: {
+    erroNoFormulario: {
       nomeDoItem: true
     } 
   }
