@@ -8,8 +8,6 @@ import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm  } from 'react-hook-form'
 import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM } from '../../../../../configs/appProposta'
-import { Item } from 'react-contexify'
-import { conditionalExpression } from '@babel/types'
 
 const erroQuantidadeDeCaracteres = (campo, min, max) => {
   /*  retorna:
@@ -25,6 +23,7 @@ const erroQuantidadeDeCaracteres = (campo, min, max) => {
 const VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM = {
   id: 1,
   nomeDoComponente: 'Componente 1',
+  tipoDoComponente: null,
   erroNoFormulario: {
     nomeDoComponente: true,
     componenteInvalido: true,
@@ -67,38 +66,38 @@ const HeaderDoComponente = ({ componente, indexComponente, countComponente, setC
   return (
     <Fragment>
       <Row>
-        <Col md='10' sm='12'>
-          <Badge color='info' pill>
-            {componente.nomeDoComponente}
-          </Badge>
-        </Col>
-        <Col md='2' sm='12'>
-          <div className='column-action d-flex align-items-center'>
-            <UncontrolledDropdown>
-              <DropdownToggle tag='span'>
-                <MoreVertical size={17} className='cursor-pointer' />
-              </DropdownToggle>
-              <DropdownMenu right>
-                <DropdownItem className='w-100' onClick={() => criaComponente()}>
-                  <Edit size={14} className='mr-50' />
-                  <span className='align-middle'>Criar componente</span>
-                </DropdownItem>               
-                <DropdownItem className='w-100'>
-                  <Edit size={14} className='mr-50' />
-                  <span className='align-middle'>Duplicar componente</span>
-                </DropdownItem>                      
-                <DropdownItem className='w-100' onClick={() => excluiComponente(indexComponente)}>
-                  <Copy size={14} className='mr-50' />
-                  <span className='align-middle'>Excluir componente</span>
-                </DropdownItem>
-                <DropdownItem className='w-100'>
-                  <Edit size={14} className='mr-50' />
-                  <span className='align-middle'>Simular preço</span>
-                </DropdownItem>                
-              </DropdownMenu>
-            </UncontrolledDropdown>
-          </div>
-        </Col>
+        <Badge color='light-primary' pill>
+          {componente.nomeDoComponente}
+        </Badge>
+        <div className='column-action d-flex align-items-center'>
+          <UncontrolledDropdown direction='left'>
+            <DropdownToggle tag='span'>
+              <MoreVertical size={17} className='cursor-pointer' />
+            </DropdownToggle>
+            <DropdownMenu>
+              <DropdownItem className='w-100' onClick={() => criaComponente()}>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Criar componente</span>
+              </DropdownItem>               
+              <DropdownItem className='w-100'>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Duplicar componente</span>
+              </DropdownItem>                    
+{/*               <DropdownItem className='w-100'>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Renomear componente</span>
+              </DropdownItem>  */}                     
+              <DropdownItem className='w-100' onClick={() => excluiComponente(indexComponente)}>
+                <Copy size={14} className='mr-50' />
+                <span className='align-middle'>Excluir componente</span>
+              </DropdownItem>
+              <DropdownItem className='w-100'>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Simular preço</span>
+              </DropdownItem>                
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </div>
       </Row>
     </Fragment>
   )
@@ -156,50 +155,46 @@ const HeaderDoItem = ({ item, index, count, setCount, itensDaTabelaDePrecos, set
   return (
     <Fragment>
       <Row>
-        <Col md='11' sm='12'>
-          <Badge color={item.itemHabilitado ? 'primary' : 'light-secondary'} pill>
-            {item.nomeDoItem}
-          </Badge>
-        </Col>
-        <Col md='1' sm='12'>
-          <div className='column-action d-flex align-items-center'>
-            <UncontrolledDropdown>
-              <DropdownToggle tag='span'>
-                <MoreVertical size={17} className='cursor-pointer' />
-              </DropdownToggle>
-              <DropdownMenu right>
-                {!item.itemAbertoNoFormulario && <DropdownItem className='w-100' onClick={() => abreItemNoFormulario(true)} >
-                  <Eye size={14} className='mr-50' />
-                  <span className='align-middle'>Abrir item</span>
-                </DropdownItem>}
-                {item.itemAbertoNoFormulario && <DropdownItem className='w-100' onClick={() => abreItemNoFormulario(false)} >
-                  <Box size={14} className='mr-50' />
-                  <span className='align-middle'>Fechar item</span>
-                </DropdownItem>}
-                <DropdownItem className='w-100' onClick={() => criaItemNoFormulario()}>
-                  <Edit size={14} className='mr-50' />
-                  <span className='align-middle'>Criar item</span>
-                </DropdownItem>               
-                <DropdownItem className='w-100'>
-                  <Edit size={14} className='mr-50' />
-                  <span className='align-middle'>Duplicar item</span>
-                </DropdownItem>                      
-                <DropdownItem className='w-100' onClick={() => excluiItemNoFormulario(index)}>
-                  <Copy size={14} className='mr-50' />
-                  <span className='align-middle'>Excluir item</span>
-                </DropdownItem>
-                <DropdownItem className='w-100'>
-                  <Edit size={14} className='mr-50' />
-                  <span className='align-middle'>Simular preço</span>
-                </DropdownItem>  
-                <DropdownItem className='w-100'>
-                  <Copy size={14} className='mr-50' />
-                  <span className='align-middle'>Salvar tabela</span>
-                </DropdownItem>                
-              </DropdownMenu>
-            </UncontrolledDropdown>
-          </div>
-        </Col>
+        <Badge color={item.itemHabilitado ? 'primary' : 'light-secondary'} pill>
+          {item.nomeDoItem}
+        </Badge>
+        <div className='column-action d-flex align-items-center'>
+          <UncontrolledDropdown>
+            <DropdownToggle tag='span'>
+              <MoreVertical size={17} className='cursor-pointer' />
+            </DropdownToggle>
+            <DropdownMenu>
+              {!item.itemAbertoNoFormulario && <DropdownItem className='w-100' onClick={() => abreItemNoFormulario(true)} >
+                <Eye size={14} className='mr-50' />
+                <span className='align-middle'>Abrir item</span>
+              </DropdownItem>}
+              {item.itemAbertoNoFormulario && <DropdownItem className='w-100' onClick={() => abreItemNoFormulario(false)} >
+                <Box size={14} className='mr-50' />
+                <span className='align-middle'>Fechar item</span>
+              </DropdownItem>}
+              <DropdownItem className='w-100' onClick={() => criaItemNoFormulario()}>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Criar item</span>
+              </DropdownItem>               
+              <DropdownItem className='w-100'>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Duplicar item</span>
+              </DropdownItem>                      
+              <DropdownItem className='w-100' onClick={() => excluiItemNoFormulario(index)}>
+                <Copy size={14} className='mr-50' />
+                <span className='align-middle'>Excluir item</span>
+              </DropdownItem>
+              <DropdownItem className='w-100'>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Simular preço</span>
+              </DropdownItem>  
+              <DropdownItem className='w-100'>
+                <Copy size={14} className='mr-50' />
+                <span className='align-middle'>Salvar tabela</span>
+              </DropdownItem>                
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </div>
       </Row>
     </Fragment>
   )
@@ -244,6 +239,7 @@ const NomeDoItem = ({ index, itensDaTabelaDePrecos, setItensDaTabelaDePrecos }) 
 
   return (
     <div>
+      <p></p>
       <Label className='form-label' for={`nomeDoItem${index}`}>
         Nome do item
       </Label>
@@ -289,8 +285,8 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
 
   const tipoDoComponenteOptions = [
     { name: 'tipoDoComponente', value: 'Valor fixo', label: 'Valor fixo' },
-    { name: 'tipoDoComponente', value: 'Variável x valor fixo', label: 'Variável x valor fixo' },
-    { name: 'tipoDoComponente', value: 'Variável x tabela', label: 'Variável x tabela' }
+    { name: 'tipoDoComponente', value: 'Tabela', label: 'Tabela' },
+    { name: 'tipoDoComponente', value: 'Variável x valor fixo', label: 'Variável x valor fixo' }
   ]
 
   const variaveisOptions = [
@@ -299,17 +295,29 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
     { name: 'variaveis', value: 'Local único', label: 'Local único' }
   ]
 
-  const handleChangeSelect = e => {
+  const handleChangeSelect = e => { // PAREI AQUI!!!!!!!!!! ==========================
     const { name, label, value } = e
+    console.log("value=", value)
+/*     const temporaryarray = Array.from(componentesDoItem)
+    temporaryarray[name].tipoDoComponente = value 
+    setComponentesDoItem(temporaryarray)  */
+  }
+
+  const handleChange = e => {
+    const { value, name } = e.target
+    const temporaryarray = Array.from(componentesDoItem)
+    temporaryarray[name].nomeDoComponente = value 
+    setComponentesDoItem(temporaryarray) 
   }
 
   return ( 
     <Fragment>
-      <h6>O preço do item é a soma dos componentes:</h6>
+      <p></p>
+      <p>O preço do item é a soma dos <code>componentes</code>:</p>
       <ReactSortable className='row sortable-row' list={componentesDoItem} setList={setComponentesDoItem}>
         {componentesDoItem.map((componente, index) => (
-          <Col className='draggable' xl='3' md='6' sm='12' key={componente.id}>
-            <Card className={`draggable-cards ${componente.id !== 4 ? 'mr-1' : null}`}>
+          <Col className='draggable' xl='4' md='6' sm='12' key={componente.id}>
+            <Card className={`draggable-cards`}>
               <CardHeader>
                 <HeaderDoComponente
                   componente={componente}
@@ -322,22 +330,40 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
                   atualizaFormulario={atualizaFormulario}
                   setAtualizaFormulario={setAtualizaFormulario}   
                 />
-                <CardTitle tag='h4'>{componente.title}</CardTitle>
               </CardHeader>
-{/*               <CardBody>
-              <div>
+              <CardBody>
+                <FormGroup>
+                  <Label>Tipo do componente de preço:</Label>
+                  <Select
+                    name={index}
+                    id={`tipoDoComponente${index}`}               
+                    theme={selectThemeColors}
+                    className='react-select'
+                    classNamePrefix='select'
+                    defaultValue={tipoDoComponenteOptions[0]}
+                    options={tipoDoComponenteOptions}
+                    onChange={handleChangeSelect}
+                    isClearable={false}
+                  />
+                </FormGroup>
+                <Label className='form-label' for={`nomeDoComponente${index}`}>
+                  Nome do componente (opcional)
+                </Label>
+                <InputGroup className='input-group-merge mb-2'>
+                  <Input
+                    id={`nomeDoComponente${index}`}
+                    name={index}
+                    placeholder='Nome do componente'
+                    defaultValue={componente.nomeDoComponente}
+                    autoComplete="off"
+                    onChange={handleChange}
+                  />
+                </InputGroup>
+              </CardBody>
+{/*               <div>
           <Row>
             <FormGroup tag={Col} md='12'>
-              <div className='demo-inline-spacing'>
-                <Label>Tipo do componente de preço: </Label>
-                <CustomInput type='radio' id='exampleCustomRadio' name='customRadio' inline label='Valor fixo' defaultChecked />
-                <CustomInput type='radio' id='exampleCustomRadio2' name='customRadio' inline label='Variável x valor fixo' />
-                <CustomInput type='radio' id='exampleCustomRadio3' name='customRadio' inline label='Variável x tabela' />
                 <div>
-                  <Button.Ripple color='primary' outline size='sm' className='btn-prev' onClick={() => setFormModal(!formModal)}>
-                    <Plus size={14} className='align-middle mr-sm-25 mr-0'/>
-                    <span className='align-middle d-sm-inline-block d-none'>Componente do preço</span>
-                  </Button.Ripple>
                   <Modal isOpen={formModal} toggle={() => setFormModal(!formModal)} className='modal-dialog-centered modal-lg'>
                     <ModalHeader toggle={() => setFormModal(!formModal)}>Login Form</ModalHeader>
                     <ModalBody>
@@ -353,12 +379,6 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
                           isClearable={false}
                         />
                       </FormGroup>
-                      <div className='demo-inline-spacing'>
-                        <Label>Tipo do componente de preço: </Label>
-                        <CustomInput type='radio' id='exampleCustomRadio' name='customRadio' inline label='Valor fixo' defaultChecked />
-                        <CustomInput type='radio' id='exampleCustomRadio2' name='customRadio' inline label='Variável x valor fixo' />
-                        <CustomInput type='radio' id='exampleCustomRadio3' name='customRadio' inline label='Variável x tabela' />
-                      </div>
                     </ModalBody>
                     <ModalFooter>
                       <Button color='primary' onClick={() => setFormModal(!formModal)}>
