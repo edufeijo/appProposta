@@ -7,7 +7,8 @@ import { selectThemeColors, isObjEmpty } from '@utils'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm  } from 'react-hook-form'
-import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM } from '../../../../../configs/appProposta'
+import CurrencyInput from 'react-currency-input-field'
+import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM, QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } from '../../../../../configs/appProposta'
 
 const erroQuantidadeDeCaracteres = (campo, min, max) => {
   /*  retorna:
@@ -23,11 +24,9 @@ const erroQuantidadeDeCaracteres = (campo, min, max) => {
 const VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM = {
   id: 1,
   nomeDoComponente: 'Componente 1',
-  tipoDoComponente: null,
-  erroNoFormulario: {
-    nomeDoComponente: true,
-    componenteInvalido: true,
-    descricaoInvalida: true
+  tipoDoComponente: 'Valor fixo',
+  erroNoComponente: {
+    precoFixoDoComponente: true
   } 
 }
 
@@ -66,7 +65,7 @@ const HeaderDoComponente = ({ componente, indexComponente, countComponente, setC
   return (
     <Fragment>
       <Row>
-        <Badge color='light-primary' pill>
+        <Badge color={isObjEmpty(componente.erroNoComponente) ? 'light-primary' : 'light-danger'}  pill>
           {componente.nomeDoComponente}
         </Badge>
         <div className='column-action d-flex align-items-center'>
@@ -155,7 +154,7 @@ const HeaderDoItem = ({ item, index, count, setCount, itensDaTabelaDePrecos, set
   return (
     <Fragment>
       <Row>
-        <Badge color={item.itemHabilitado ? 'primary' : 'light-secondary'} pill>
+        <Badge color={isObjEmpty(item.erroNoItem) ? item.itemHabilitado ? 'primary' : 'light-secondary' : 'light-danger' } pill>
           {item.nomeDoItem}
         </Badge>
         <div className='column-action d-flex align-items-center'>
@@ -215,8 +214,8 @@ const NomeDoItem = ({ index, itensDaTabelaDePrecos, setItensDaTabelaDePrecos }) 
     const temporaryarray = Array.from(itensDaTabelaDePrecos)
     temporaryarray[index].nomeDoItem = value
 
-    if (isObjEmpty(errors)) delete temporaryarray[index].erroNoFormulario.nomeDoItem
-    else temporaryarray[index].erroNoFormulario.nomeDoItem = true   
+    if (isObjEmpty(errors)) delete temporaryarray[index].erroNoItem.nomeDoItem
+    else temporaryarray[index].erroNoItem.nomeDoItem = true   
  
     setItensDaTabelaDePrecos(temporaryarray)
   }
@@ -280,13 +279,139 @@ const NomeDoItem = ({ index, itensDaTabelaDePrecos, setItensDaTabelaDePrecos }) 
   ) 
 }
 
-const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente, componentesDoItem, setComponentesDoItem, atualizaFormulario, setAtualizaFormulario }) => { 
+// =============================== PAREIU AQUI EM BAIXO COM VARIOS ERROS
+const VariávelXValorFixo = ({ index, input, componentesDoItem, setComponentesDoItem, variaveisDoSistema, variaveisInternas, setVariaveisInternas }) => { 
+  const SignupSchema = yup.object().shape({
+    [`precoFixoDoComponente${index}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required()
+  })
+
+  const { register, errors, handleSubmit, trigger } = useForm({ 
+    mode: 'onChange', 
+    resolver: yupResolver(SignupSchema)
+  })
+
+  const handleChange = e => {
+    const { name, value } = e.target
+    const temporaryarray = Array.from(componentesDoItem)
+    temporaryarray[index].tipoDoComponente = 'Valor fixo'
+    temporaryarray[index].precoFixoDoComponente = value
+
+/*     if (isObjEmpty(errors)) delete temporaryarray[index].erroNoComponente.precoFixoDoComponente
+    else temporaryarray[index].erroNoComponente.precoFixoDoComponente = true    */
+  
+    setComponentesDoItem(temporaryarray)
+  }
+
+  const variaveis = variaveisDoSistema.concat(variaveisInternas)
+
+  let defaultValue = null
+  if (componentesDoItem[index].hasOwnProperty('precoFixoDoComponente')) defaultValue = componentesDoItem[index].precoFixoDoComponente
+
+  const setTipoDoComponente = (tipoDoComponente) => { 
+    const temporaryarray = Array.from(componentesDoItem)
+    temporaryarray[index].tipoDoComponente = tipoDoComponente  
+    setComponentesDoItem(temporaryarray)
+  }
+  useEffect(() => {
+    if (input === 'Variável x valor fixo') setTipoDoComponente('Variável x valor fixo')
+  }, [input]) 
+
+  const handleChangeSelect = e => { 
+    const { name, value } = e.target
+    const temporaryarray = Array.from(componentesDoItem)
+    temporaryarray[index].tipoDoComponente = 'Variável x valor fixo'
+
+/*     if (isObjEmpty(errors)) delete temporaryarray[index].erroNoComponente.precoFixoDoComponente
+    else temporaryarray[index].erroNoComponente.precoFixoDoComponente = true    */
+  
+    setComponentesDoItem(temporaryarray)
+  }
+
+  return (
+    <div>
+      <FormGroup>
+        <Label>Escolha a variável:</Label>
+        <Select
+          id={`escolhaDeVariavel${index}`}               
+          theme={selectThemeColors}
+          className='react-select'
+          classNamePrefix='select'
+          defaultValue={variaveis[0]}
+          options={variaveis}
+          onChange={handleChangeSelect}
+          isClearable={false}
+        />
+      </FormGroup>
+    </div>
+  )
+}
+
+const PrecoFixoDoComponente = ({ index, input, componentesDoItem, setComponentesDoItem }) => { 
+  const SignupSchema = yup.object().shape({
+    [`precoFixoDoComponente${index}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required()
+  })
+
+  const { register, errors, handleSubmit, trigger } = useForm({ 
+    mode: 'onChange', 
+    resolver: yupResolver(SignupSchema)
+  })
+
+  const setTipoDoComponente = (tipoDoComponente) => { 
+    const temporaryarray = Array.from(componentesDoItem)
+    temporaryarray[index].tipoDoComponente = tipoDoComponente  
+    setComponentesDoItem(temporaryarray)
+  }
+  useEffect(() => {
+    if (input === 'Valor fixo') setTipoDoComponente('Valor fixo')
+  }, [input]) 
+
+  const handleChange = e => {
+    const { name, value } = e.target
+    const temporaryarray = Array.from(componentesDoItem)
+    temporaryarray[index].tipoDoComponente = 'Valor fixo'
+    temporaryarray[index].precoFixoDoComponente = value
+
+    if (isObjEmpty(errors)) delete temporaryarray[index].erroNoComponente.precoFixoDoComponente
+    else temporaryarray[index].erroNoComponente.precoFixoDoComponente = true   
+ 
+    setComponentesDoItem(temporaryarray)
+  }
+
+  let defaultValue = null
+  if (componentesDoItem[index].hasOwnProperty('precoFixoDoComponente')) defaultValue = componentesDoItem[index].precoFixoDoComponente
+
+  return (
+    <div>
+      <Label className='form-label' for={`precoFixoDoComponente${index}`}>
+        Valor
+      </Label>
+      <InputGroup className='input-group-merge mb-2'>
+        <InputGroupAddon addonType='prepend'>
+          <InputGroupText>R$</InputGroupText>
+        </InputGroupAddon>
+        <Input
+          name={`precoFixoDoComponente${index}`}
+          id={`precoFixoDoComponente${index}`}
+          placeholder={"1000,00"}
+          defaultValue={defaultValue}
+          autoComplete="off"
+          innerRef={register({ required: true })}
+          invalid={errors[`precoFixoDoComponente${index}`] && true}
+          onChange={handleChange}
+        />
+        {errors && errors[`precoFixoDoComponente${index}`] && <FormFeedback>Exemplos: 1244 ou 283,15, máximo de {QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } dígitos</FormFeedback>}
+      </InputGroup>
+    </div>
+  )
+}
+
+const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente, componentesDoItem, setComponentesDoItem, itensDaTabelaDePrecos, variaveisDoSistema, variaveisInternas, setVariaveisInternas, atualizaFormulario, setAtualizaFormulario }) => { 
   const [formModal, setFormModal] = useState(false)
 
   const tipoDoComponenteOptions = [
     { name: 'tipoDoComponente', value: 'Valor fixo', label: 'Valor fixo' },
-    { name: 'tipoDoComponente', value: 'Tabela', label: 'Tabela' },
-    { name: 'tipoDoComponente', value: 'Variável x valor fixo', label: 'Variável x valor fixo' }
+    { name: 'tipoDoComponente', value: 'Variável x valor fixo', label: 'Variável x valor fixo' },
+    { name: 'tipoDoComponente', value: 'Tabela', label: 'Tabela' }
   ]
 
   const variaveisOptions = [
@@ -295,12 +420,10 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
     { name: 'variaveis', value: 'Local único', label: 'Local único' }
   ]
 
-  const handleChangeSelect = e => { // PAREI AQUI!!!!!!!!!! ==========================
-    const { name, label, value } = e
-    console.log("value=", value)
-/*     const temporaryarray = Array.from(componentesDoItem)
-    temporaryarray[name].tipoDoComponente = value 
-    setComponentesDoItem(temporaryarray)  */
+  const [input, setInput] = useState('Valor fixo')
+  const handleChangeSelect = e => { 
+    const { value } = e
+    setInput(value)
   }
 
   const handleChange = e => {
@@ -313,7 +436,7 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
   return ( 
     <Fragment>
       <p></p>
-      <p>O preço do item é a soma dos <code>componentes</code>:</p>
+      <p>O preço do item <b>{itensDaTabelaDePrecos && itensDaTabelaDePrecos[indexItem].nomeDoItem}</b> é a soma dos <code>componentes</code> abaixo:</p>
       <ReactSortable className='row sortable-row' list={componentesDoItem} setList={setComponentesDoItem}>
         {componentesDoItem.map((componente, index) => (
           <Col className='draggable' xl='4' md='6' sm='12' key={componente.id}>
@@ -335,7 +458,6 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
                 <FormGroup>
                   <Label>Tipo do componente de preço:</Label>
                   <Select
-                    name={index}
                     id={`tipoDoComponente${index}`}               
                     theme={selectThemeColors}
                     className='react-select'
@@ -346,7 +468,25 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
                     isClearable={false}
                   />
                 </FormGroup>
-                <Label className='form-label' for={`nomeDoComponente${index}`}>
+                {input === 'Valor fixo' && 
+                  <PrecoFixoDoComponente 
+                    index={index}
+                    input={input}
+                    componentesDoItem={componentesDoItem}
+                    setComponentesDoItem={setComponentesDoItem}
+                  />}
+
+                  {input === 'Variável x valor fixo' && 
+                  <VariávelXValorFixo 
+                    index={index}
+                    input={input}
+                    componentesDoItem={componentesDoItem}
+                    setComponentesDoItem={setComponentesDoItem}
+                    variaveisDoSistema={variaveisDoSistema}
+                    variaveisInternas={variaveisInternas} 
+                    setVariaveisInternas={setVariaveisInternas} 
+                  />}
+{/*                 <Label className='form-label' for={`nomeDoComponente${index}`}>
                   Nome do componente (opcional)
                 </Label>
                 <InputGroup className='input-group-merge mb-2'>
@@ -358,7 +498,7 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
                     autoComplete="off"
                     onChange={handleChange}
                   />
-                </InputGroup>
+                </InputGroup> */}
               </CardBody>
 {/*               <div>
           <Row>
@@ -389,96 +529,6 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
                 </div>
               </div>
             </FormGroup>
-            <Col  md='6' sm='12'>
-              <FormGroup tag={Col} md='12'>
-                <Label>Tipo do componente de preço:</Label>
-                <Select
-                  theme={selectThemeColors}
-                  className='react-select'
-                  classNamePrefix='select'
-                  defaultValue={tipoDoComponenteOptions[0]}
-                  options={tipoDoComponenteOptions}
-                  onChange={handleChangeSelect}
-                  isClearable={false}
-                />
-              </FormGroup>
-            </Col>
-            <Col  md='6' sm='12'>
-              <FormGroup tag={Col} md='12'>
-                <Label>Valor do componente de preço</Label>
-                <InputGroup className='input-group-merge mb-2'>
-                  <InputGroupAddon addonType='prepend'>
-                    <InputGroupText>R$</InputGroupText>
-                  </InputGroupAddon>
-                  <Input
-                    name='valor'
-                    id='valor'
-                    placeholder={"1000,00"}
-                    autoComplete="off"
-                  />
-                </InputGroup>
-              </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col md='5' sm='5'>
-              </Col>
-            <Col md='1' sm='2'>
-              <Button.Ripple className='btn-icon'  color='primary'>
-                <Plus size={16} />
-              </Button.Ripple>
-            </Col>
-            <Col md='6' sm='5'>
-            </Col>
-          </Row>
-          <Row>
-            <Col  md='6' sm='12'>
-              <FormGroup tag={Col} md='12'>
-                <Label>Tipo do componente de preço</Label>
-                <Select
-                  theme={selectThemeColors}
-                  className='react-select'
-                  classNamePrefix='select'
-                  defaultValue={tipoDoComponenteOptions[0]}
-                  options={tipoDoComponenteOptions}
-                  onChange={handleChangeSelect}
-                  isClearable={false}
-                />
-              </FormGroup>
-            </Col>
-            <Col  md='6' sm='12'>
-              <FormGroup tag={Col} md='12'>
-                <Label>Nome da variável</Label>
-                <Select
-                  theme={selectThemeColors}
-                  className='react-select'
-                  classNamePrefix='select'
-                  defaultValue={variaveisOptions[0]}
-                  options={variaveisOptions}
-                  onChange={handleChangeSelect}
-                  isClearable={false}
-                />
-              </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col md='5' sm='5'>
-              </Col>
-            <Col md='1' sm='2'>
-              <Button.Ripple className='btn-icon'  color='primary'>
-                <Plus size={16} />
-              </Button.Ripple>
-            </Col>
-            <Col md='6' sm='5'>
-            </Col>
-          </Row>
-          <Row>
-          <Button.Ripple color='primary' outline size='sm' className='btn-prev'>
-            <Plus size={14} className='align-middle mr-sm-25 mr-0'/>
-            <span className='align-middle d-sm-inline-block d-none'>Componente do preço</span>
-          </Button.Ripple>
-          </Row>
-        </div>
               </CardBody> */}
             </Card>
           </Col>
@@ -529,12 +579,17 @@ const DescricaoDoItem = ({ item, descricoesDoItem, setDescricoesDoItem }) => {
   )
 }
 
-const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, componentesDoItem, setComponentesDoItem, descricoesDoItem, setDescricoesDoItem, atualizaFormulario, setAtualizaFormulario }) => {
+const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, variaveisDoSistema, variaveisInternas, setVariaveisInternas, atualizaFormulario, setAtualizaFormulario }) => {
   const [activeHorizontal, setActiveHorizontal] = useState('A')
 
   const toggleHorizontal = tab => {
     setActiveHorizontal(tab)
   }
+
+  const [componentesDoItem, setComponentesDoItem] = useState([VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM])
+  const [descricoesDoItem, setDescricoesDoItem] = useState([])
+  console.log("componentesDoItem=", componentesDoItem) 
+  console.log("descricoesDoItem=", descricoesDoItem) 
 
   const [countComponente, setCountComponente] = useState(componentesDoItem.length)
   useEffect(() => {
@@ -604,6 +659,10 @@ const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaD
                   setCountComponente={setCountComponente}
                   componentesDoItem={componentesDoItem}
                   setComponentesDoItem={setComponentesDoItem} 
+                  itensDaTabelaDePrecos={itensDaTabelaDePrecos}
+                  variaveisDoSistema={variaveisDoSistema}
+                  variaveisInternas={variaveisInternas}
+                  setVariaveisInternas={setVariaveisInternas}
                   atualizaFormulario={atualizaFormulario}
                   setAtualizaFormulario={setAtualizaFormulario}                      
                 /> 
@@ -619,16 +678,13 @@ const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaD
   )
 }
 
-const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, operacao, stepper, type }) => {
+const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, variaveisDoSistema, setVariaveisDoSistema, variaveisInternas, setVariaveisInternas, operacao, stepper, type }) => {
   const [activeVertical, setactiveVertical] = useState('1')
   const [atualizaFormulario, setAtualizaFormulario] = useState(0)
 
   const toggleVertical = tab => {
     setactiveVertical(tab) 
   }
-
-  const [componentesDoItem, setComponentesDoItem] = useState([VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM])
-  const [descricoesDoItem, setDescricoesDoItem] = useState([])
 
   const [count, setCount] = useState(itensDaTabelaDePrecos.length)
   useEffect(() => {
@@ -638,13 +694,12 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
   console.log("==================== No ItensDePreco")
 /*   console.log("operacao=", operacao)
   console.log("todasAsTabelaDePrecos=", todasAsTabelaDePrecos)
+  console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos) */
   console.log("tabelaDePrecos=", tabelaDePrecos)
-  console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos)
   console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais) 
-  console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios) */
+  console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios)  
+  console.log("variaveisDoSistema=", variaveisDoSistema) 
   console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos)  
-  console.log("componentesDoItem=", componentesDoItem) 
-  console.log("descricoesDoItem=", descricoesDoItem) 
   console.log("atualizaFormulario=", atualizaFormulario) 
 
   return (
@@ -704,10 +759,9 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
                       setCount={setCount}
                       itensDaTabelaDePrecos={itensDaTabelaDePrecos}
                       setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
-                      componentesDoItem={componentesDoItem}
-                      setComponentesDoItem={setComponentesDoItem}
-                      descricoesDoItem={descricoesDoItem}
-                      setDescricoesDoItem={setDescricoesDoItem}
+                      variaveisDoSistema={variaveisDoSistema}
+                      variaveisInternas={variaveisInternas}
+                      setVariaveisInternas={setVariaveisInternas}
                       atualizaFormulario={atualizaFormulario}
                       setAtualizaFormulario={setAtualizaFormulario}
                     />

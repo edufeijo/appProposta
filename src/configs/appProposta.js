@@ -112,7 +112,17 @@ const SETOR_SEGMENTO_SERVICO = [
         label: 'Data do evento'
       }
     ],
-    parametrosSugeridos : ["Quantidade de pessoas"],
+    variaveisDoSistema : [
+      {
+      id: "Quantidade-de-pessoas",
+      name: "Quantidade de pessoas",
+      value: "Quantidade de pessoas",
+      label: "Quantidade de pessoas",
+      tipo: 'Numero inteiro',
+      valorMinimo: 0,
+      valorMaximo: -1
+      }
+    ],
     segmentos : [ 
       {
         name: "segmento",
@@ -147,28 +157,38 @@ const SETOR_SEGMENTO_SERVICO = [
         label: 'Nome do diretor'
       }
     ],
-    parametrosSugeridos : ["Quantidade de alunos"],
+    variaveisDoSistema : [
+      {
+      id: "Quantidade-de-alunos",
+      name: "Quantidade de alunos",
+      value: "Quantidade de alunos",
+      label: "Quantidade de alunos",
+      tipo: 'Numero inteiro',
+      valorMinimo: 0,
+      valorMaximo: -1
+      }
+    ],
     segmentos : [ 
-        {
-          name: "segmento",
-          label: "Escola pública",
-          value: "Escola pública",
-          type: "opcao",
-          servicos : SERVICOS_EM_EDUCACAO
-        }, 
-        {
-          name: "segmento",
-          label: "Escola particular",
-          value: "Escola particular",
-          type: "opcao",
-          servicos : SERVICOS_EM_EDUCACAO
-        }
+      {
+        name: "segmento",
+        label: "Escola pública",
+        value: "Escola pública",
+        type: "opcao",
+        servicos : SERVICOS_EM_EDUCACAO
+      }, 
+      {
+        name: "segmento",
+        label: "Escola particular",
+        value: "Escola particular",
+        type: "opcao",
+        servicos : SERVICOS_EM_EDUCACAO
+      }
     ]
   }
 ]
 
 const DADO_INFORMATIVO_OBRIGATORIO = {
-  id: 'Nome do cliente',
+  id: 'Nome-do-cliente',
   name: 'Nome do cliente',
   label: 'Nome do cliente',
   filtered: true
