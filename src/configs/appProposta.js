@@ -112,16 +112,27 @@ const SETOR_SEGMENTO_SERVICO = [
         label: 'Data do evento'
       }
     ],
-    variaveisDoSistema : [
+    variaveis : [
       {
       id: "Quantidade-de-pessoas",
+      origem: 'sistema',
       name: "Quantidade de pessoas",
       value: "Quantidade de pessoas",
       label: "Quantidade de pessoas",
       tipo: 'Numero inteiro',
       valorMinimo: 0,
       valorMaximo: -1
-      }
+      },
+      {
+        id: "Quantidade-de-alunos",
+        origem: 'sistema',
+        name: "Alunos",
+        value: "Alunos",
+        label: "Alunos",
+        tipo: 'Numero inteiro',
+        valorMinimo: 0,
+        valorMaximo: -1
+        }
     ],
     segmentos : [ 
       {
@@ -157,9 +168,10 @@ const SETOR_SEGMENTO_SERVICO = [
         label: 'Nome do diretor'
       }
     ],
-    variaveisDoSistema : [
+    variaveis : [
       {
       id: "Quantidade-de-alunos",
+      origem: 'sistema',
       name: "Quantidade de alunos",
       value: "Quantidade de alunos",
       label: "Quantidade de alunos",

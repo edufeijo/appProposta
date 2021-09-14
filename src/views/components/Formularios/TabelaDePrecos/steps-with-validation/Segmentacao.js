@@ -1,4 +1,3 @@
-import * as yup from 'yup'
 import { Fragment, useState, useEffect } from 'react'
 import { selectThemeColors, capitalizeFirst } from '@utils'
 import { ArrowLeft, ArrowRight } from 'react-feather'
@@ -10,7 +9,7 @@ import { ErrorToast }  from '../../../Toasts/ToastTypes'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 
-const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, variaveisDoSistema, setVariaveisDoSistema, variaveisInternas, setVariaveisInternas, operacao, stepper, type }) => {
+const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, variaveis, setVariaveis, operacao, stepper, type }) => {
   let msgToast = ''
   const notifyError = () => toast.error(<ErrorToast msg={msgToast} />, { hideProgressBar: true, autoClose: 5000 })
 
@@ -205,8 +204,8 @@ const Segmentacao = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos,
         const dadosInformativosObrigatorios = [DADO_INFORMATIVO_OBRIGATORIO]
         setDadosInformativosOpcionais(dadosInformativosSugeridos)
         setDadosInformativosObrigatorios(dadosInformativosObrigatorios)
-        const variaveisDoSistema = arrayToSelectSetor[index].variaveisDoSistema
-        setVariaveisDoSistema(variaveisDoSistema)
+        const variaveis = arrayToSelectSetor[index].variaveis
+        setVariaveis(variaveis)
         
         setTabelaDePrecos(registroAnterior => ({
           ...registroAnterior, 

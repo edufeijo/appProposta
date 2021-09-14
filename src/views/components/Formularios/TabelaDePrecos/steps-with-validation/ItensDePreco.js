@@ -7,7 +7,6 @@ import { selectThemeColors, isObjEmpty } from '@utils'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm  } from 'react-hook-form'
-import CurrencyInput from 'react-currency-input-field'
 import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM, QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } from '../../../../../configs/appProposta'
 
 const erroQuantidadeDeCaracteres = (campo, min, max) => {
@@ -26,7 +25,7 @@ const VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM = {
   nomeDoComponente: 'Componente 1',
   tipoDoComponente: 'Valor fixo',
   erroNoComponente: {
-    precoFixoDoComponente: true
+    valorFixoDoComponente: true
   } 
 }
 
@@ -65,7 +64,7 @@ const HeaderDoComponente = ({ componente, indexComponente, countComponente, setC
   return (
     <Fragment>
       <Row>
-        <Badge color={isObjEmpty(componente.erroNoComponente) ? 'light-primary' : 'light-danger'}  pill>
+        <Badge color={isObjEmpty(componentesDoItem[indexComponente].erroNoComponente) ? 'light-primary' : 'light-danger'}  pill>
           {componente.nomeDoComponente}
         </Badge>
         <div className='column-action d-flex align-items-center'>
@@ -90,9 +89,13 @@ const HeaderDoComponente = ({ componente, indexComponente, countComponente, setC
                 <Copy size={14} className='mr-50' />
                 <span className='align-middle'>Excluir componente</span>
               </DropdownItem>
+              <DropdownItem className='w-100' >
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Criar variável</span>
+              </DropdownItem>  
               <DropdownItem className='w-100'>
                 <Edit size={14} className='mr-50' />
-                <span className='align-middle'>Simular preço</span>
+                <span className='align-middle'>Simular componente</span>
               </DropdownItem>                
             </DropdownMenu>
           </UncontrolledDropdown>
@@ -279,10 +282,9 @@ const NomeDoItem = ({ index, itensDaTabelaDePrecos, setItensDaTabelaDePrecos }) 
   ) 
 }
 
-// =============================== PAREIU AQUI EM BAIXO COM VARIOS ERROS
-const VariávelXValorFixo = ({ index, input, componentesDoItem, setComponentesDoItem, variaveisDoSistema, variaveisInternas, setVariaveisInternas }) => { 
+const ValorFixoDoComponente = ({ index, atualizaValor, componentesDoItem, setComponentesDoItem }) => { 
   const SignupSchema = yup.object().shape({
-    [`precoFixoDoComponente${index}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required()
+    [`valorFixoDoComponente${index}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required()
   })
 
   const { register, errors, handleSubmit, trigger } = useForm({ 
@@ -290,45 +292,64 @@ const VariávelXValorFixo = ({ index, input, componentesDoItem, setComponentesDo
     resolver: yupResolver(SignupSchema)
   })
 
-  const handleChange = e => {
-    const { name, value } = e.target
-    const temporaryarray = Array.from(componentesDoItem)
-    temporaryarray[index].tipoDoComponente = 'Valor fixo'
-    temporaryarray[index].precoFixoDoComponente = value
-
-/*     if (isObjEmpty(errors)) delete temporaryarray[index].erroNoComponente.precoFixoDoComponente
-    else temporaryarray[index].erroNoComponente.precoFixoDoComponente = true    */
-  
-    setComponentesDoItem(temporaryarray)
-  }
-
-  const variaveis = variaveisDoSistema.concat(variaveisInternas)
-
   let defaultValue = null
-  if (componentesDoItem[index].hasOwnProperty('precoFixoDoComponente')) defaultValue = componentesDoItem[index].precoFixoDoComponente
+  if (componentesDoItem[index].hasOwnProperty('valorFixoDoComponente')) defaultValue = componentesDoItem[index].valorFixoDoComponente
 
-  const setTipoDoComponente = (tipoDoComponente) => { 
+  // Corrigir 2 erros:
+  // - qdo erro em 1 componente mostra erro nos demais
+  // - erro qdo cria 2º item
+
+  const handleChange = e => {
+    const { value } = e.target
     const temporaryarray = Array.from(componentesDoItem)
-    temporaryarray[index].tipoDoComponente = tipoDoComponente  
-    setComponentesDoItem(temporaryarray)
-  }
-  useEffect(() => {
-    if (input === 'Variável x valor fixo') setTipoDoComponente('Variável x valor fixo')
-  }, [input]) 
+    temporaryarray[index].valorFixoDoComponente = value
 
-  const handleChangeSelect = e => { 
-    const { name, value } = e.target
-    const temporaryarray = Array.from(componentesDoItem)
-    temporaryarray[index].tipoDoComponente = 'Variável x valor fixo'
+    console.log("index=", index)
+    console.log("errors=", errors)
+    console.log("ANTES temporaryarray=", temporaryarray)
 
-/*     if (isObjEmpty(errors)) delete temporaryarray[index].erroNoComponente.precoFixoDoComponente
-    else temporaryarray[index].erroNoComponente.precoFixoDoComponente = true    */
-  
+    if (isObjEmpty(errors)) delete temporaryarray[index].erroNoComponente.valorFixoDoComponente
+    else temporaryarray[index].erroNoComponente.valorFixoDoComponente = true   
+
+    console.log("DEPOIS temporaryarray=", temporaryarray)
+ 
     setComponentesDoItem(temporaryarray)
   }
 
   return (
-    <div>
+    <div key={atualizaValor}>
+      <Label className='form-label' for={`valorFixoDoComponente${index}`}>
+        Valor fixo
+      </Label>
+      <InputGroup className='input-group-merge mb-2'>
+        <InputGroupAddon addonType='prepend'>
+          <InputGroupText>R$</InputGroupText>
+        </InputGroupAddon>
+        <Input
+          name={`valorFixoDoComponente${index}`}
+          id={`valorFixoDoComponente${index}`}
+          placeholder={"1000,00"}
+          defaultValue={defaultValue}
+          autoComplete="off"
+          innerRef={register({ required: true })}
+          invalid={errors[`valorFixoDoComponente${index}`] && true}
+          onChange={handleChange}
+        />
+        {errors && errors[`valorFixoDoComponente${index}`] && <FormFeedback>Exemplos: 1244 ou 283,15, máximo de {QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } dígitos</FormFeedback>}
+      </InputGroup>
+    </div>
+  )
+}
+
+const VariávelXValorFixo = ({ index, atualizaValor, componentesDoItem, setComponentesDoItem, variaveis }) => { 
+  const handleChangeSelect = e => { 
+    const temporaryarray = Array.from(componentesDoItem)
+    temporaryarray[index].variavel = e
+    setComponentesDoItem(temporaryarray)
+  }
+
+  return (
+    <div key={atualizaValor}>
       <FormGroup>
         <Label>Escolha a variável:</Label>
         <Select
@@ -341,71 +362,19 @@ const VariávelXValorFixo = ({ index, input, componentesDoItem, setComponentesDo
           onChange={handleChangeSelect}
           isClearable={false}
         />
+        <ValorFixoDoComponente 
+          index={index}
+          atualizaValor={atualizaValor}
+          componentesDoItem={componentesDoItem}
+          setComponentesDoItem={setComponentesDoItem}
+          variaveis={variaveis}
+        />
       </FormGroup>
     </div>
   )
 }
 
-const PrecoFixoDoComponente = ({ index, input, componentesDoItem, setComponentesDoItem }) => { 
-  const SignupSchema = yup.object().shape({
-    [`precoFixoDoComponente${index}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required()
-  })
-
-  const { register, errors, handleSubmit, trigger } = useForm({ 
-    mode: 'onChange', 
-    resolver: yupResolver(SignupSchema)
-  })
-
-  const setTipoDoComponente = (tipoDoComponente) => { 
-    const temporaryarray = Array.from(componentesDoItem)
-    temporaryarray[index].tipoDoComponente = tipoDoComponente  
-    setComponentesDoItem(temporaryarray)
-  }
-  useEffect(() => {
-    if (input === 'Valor fixo') setTipoDoComponente('Valor fixo')
-  }, [input]) 
-
-  const handleChange = e => {
-    const { name, value } = e.target
-    const temporaryarray = Array.from(componentesDoItem)
-    temporaryarray[index].tipoDoComponente = 'Valor fixo'
-    temporaryarray[index].precoFixoDoComponente = value
-
-    if (isObjEmpty(errors)) delete temporaryarray[index].erroNoComponente.precoFixoDoComponente
-    else temporaryarray[index].erroNoComponente.precoFixoDoComponente = true   
- 
-    setComponentesDoItem(temporaryarray)
-  }
-
-  let defaultValue = null
-  if (componentesDoItem[index].hasOwnProperty('precoFixoDoComponente')) defaultValue = componentesDoItem[index].precoFixoDoComponente
-
-  return (
-    <div>
-      <Label className='form-label' for={`precoFixoDoComponente${index}`}>
-        Valor
-      </Label>
-      <InputGroup className='input-group-merge mb-2'>
-        <InputGroupAddon addonType='prepend'>
-          <InputGroupText>R$</InputGroupText>
-        </InputGroupAddon>
-        <Input
-          name={`precoFixoDoComponente${index}`}
-          id={`precoFixoDoComponente${index}`}
-          placeholder={"1000,00"}
-          defaultValue={defaultValue}
-          autoComplete="off"
-          innerRef={register({ required: true })}
-          invalid={errors[`precoFixoDoComponente${index}`] && true}
-          onChange={handleChange}
-        />
-        {errors && errors[`precoFixoDoComponente${index}`] && <FormFeedback>Exemplos: 1244 ou 283,15, máximo de {QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } dígitos</FormFeedback>}
-      </InputGroup>
-    </div>
-  )
-}
-
-const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente, componentesDoItem, setComponentesDoItem, itensDaTabelaDePrecos, variaveisDoSistema, variaveisInternas, setVariaveisInternas, atualizaFormulario, setAtualizaFormulario }) => { 
+const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente, componentesDoItem, setComponentesDoItem, itensDaTabelaDePrecos, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => { 
   const [formModal, setFormModal] = useState(false)
 
   const tipoDoComponenteOptions = [
@@ -414,23 +383,14 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
     { name: 'tipoDoComponente', value: 'Tabela', label: 'Tabela' }
   ]
 
-  const variaveisOptions = [
-    { name: 'variaveis', value: 'Quantidade de convidados', label: 'Quantidade de convidados' },
-    { name: 'variaveis', value: 'Quantidade de fotógrafos', label: 'Quantidade de fotógrafos'},
-    { name: 'variaveis', value: 'Local único', label: 'Local único' }
-  ]
-
-  const [input, setInput] = useState('Valor fixo')
-  const handleChangeSelect = e => { 
-    const { value } = e
-    setInput(value)
-  }
-
-  const handleChange = e => {
-    const { value, name } = e.target
+  const [atualizaValor, setAtualizaValor] = useState(false)
+  const setTipoDoComponente = (tipoDoComponente, index) => { 
     const temporaryarray = Array.from(componentesDoItem)
-    temporaryarray[name].nomeDoComponente = value 
-    setComponentesDoItem(temporaryarray) 
+    temporaryarray[index].tipoDoComponente = tipoDoComponente  
+    temporaryarray[index].valorFixoDoComponente = null
+    if (tipoDoComponente === 'Variável x valor fixo' && variaveis.length) temporaryarray[index].variavel = variaveis[0]
+    setComponentesDoItem(temporaryarray)
+    setAtualizaValor(!atualizaValor) 
   }
 
   return ( 
@@ -464,41 +424,28 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
                     classNamePrefix='select'
                     defaultValue={tipoDoComponenteOptions[0]}
                     options={tipoDoComponenteOptions}
-                    onChange={handleChangeSelect}
+                    onChange={e => { setTipoDoComponente(e.value, index) }}
                     isClearable={false}
                   />
                 </FormGroup>
-                {input === 'Valor fixo' && 
-                  <PrecoFixoDoComponente 
+
+                {componentesDoItem[index].tipoDoComponente === 'Valor fixo' && 
+                  <ValorFixoDoComponente 
                     index={index}
-                    input={input}
+                    atualizaValor={atualizaValor}
                     componentesDoItem={componentesDoItem}
                     setComponentesDoItem={setComponentesDoItem}
+                    variaveis={variaveis}
                   />}
 
-                  {input === 'Variável x valor fixo' && 
+                  {componentesDoItem[index].tipoDoComponente === 'Variável x valor fixo' && 
                   <VariávelXValorFixo 
                     index={index}
-                    input={input}
+                    atualizaValor={atualizaValor}
                     componentesDoItem={componentesDoItem}
                     setComponentesDoItem={setComponentesDoItem}
-                    variaveisDoSistema={variaveisDoSistema}
-                    variaveisInternas={variaveisInternas} 
-                    setVariaveisInternas={setVariaveisInternas} 
+                    variaveis={variaveis}
                   />}
-{/*                 <Label className='form-label' for={`nomeDoComponente${index}`}>
-                  Nome do componente (opcional)
-                </Label>
-                <InputGroup className='input-group-merge mb-2'>
-                  <Input
-                    id={`nomeDoComponente${index}`}
-                    name={index}
-                    placeholder='Nome do componente'
-                    defaultValue={componente.nomeDoComponente}
-                    autoComplete="off"
-                    onChange={handleChange}
-                  />
-                </InputGroup> */}
               </CardBody>
 {/*               <div>
           <Row>
@@ -579,7 +526,7 @@ const DescricaoDoItem = ({ item, descricoesDoItem, setDescricoesDoItem }) => {
   )
 }
 
-const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, variaveisDoSistema, variaveisInternas, setVariaveisInternas, atualizaFormulario, setAtualizaFormulario }) => {
+const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => {
   const [activeHorizontal, setActiveHorizontal] = useState('A')
 
   const toggleHorizontal = tab => {
@@ -660,9 +607,8 @@ const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaD
                   componentesDoItem={componentesDoItem}
                   setComponentesDoItem={setComponentesDoItem} 
                   itensDaTabelaDePrecos={itensDaTabelaDePrecos}
-                  variaveisDoSistema={variaveisDoSistema}
-                  variaveisInternas={variaveisInternas}
-                  setVariaveisInternas={setVariaveisInternas}
+                  variaveis={variaveis}
+                  setVariaveis={setVariaveis}
                   atualizaFormulario={atualizaFormulario}
                   setAtualizaFormulario={setAtualizaFormulario}                      
                 /> 
@@ -678,7 +624,7 @@ const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaD
   )
 }
 
-const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, variaveisDoSistema, setVariaveisDoSistema, variaveisInternas, setVariaveisInternas, operacao, stepper, type }) => {
+const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, variaveis, setVariaveis, operacao, stepper, type }) => {
   const [activeVertical, setactiveVertical] = useState('1')
   const [atualizaFormulario, setAtualizaFormulario] = useState(0)
 
@@ -698,7 +644,7 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
   console.log("tabelaDePrecos=", tabelaDePrecos)
   console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais) 
   console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios)  
-  console.log("variaveisDoSistema=", variaveisDoSistema) 
+  console.log("variaveis=", variaveis) 
   console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos)  
   console.log("atualizaFormulario=", atualizaFormulario) 
 
@@ -759,9 +705,8 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
                       setCount={setCount}
                       itensDaTabelaDePrecos={itensDaTabelaDePrecos}
                       setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}
-                      variaveisDoSistema={variaveisDoSistema}
-                      variaveisInternas={variaveisInternas}
-                      setVariaveisInternas={setVariaveisInternas}
+                      variaveis={variaveis}
+                      setVariaveis={setVariaveis}
                       atualizaFormulario={atualizaFormulario}
                       setAtualizaFormulario={setAtualizaFormulario}
                     />

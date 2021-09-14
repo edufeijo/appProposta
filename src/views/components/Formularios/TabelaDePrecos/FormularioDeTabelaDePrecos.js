@@ -5,7 +5,7 @@ import DadosInformativos from '../TabelaDePrecos/steps-with-validation/DadosInfo
 import ItensDePreco from '../TabelaDePrecos/steps-with-validation/ItensDePreco' 
 import Segmentacao from '../TabelaDePrecos/steps-with-validation/Segmentacao'
 
-const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, variaveisDoSistema, setVariaveisDoSistema, variaveisInternas, setVariaveisInternas, operacao }) => {
+const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, variaveis, setVariaveis, operacao }) => {
   const [stepper, setStepper] = useState(null)
   const ref = useRef(null)
 
@@ -29,10 +29,8 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, 
         setDadosInformativosOpcionais={setDadosInformativosOpcionais}
         dadosInformativosObrigatorios={dadosInformativosObrigatorios}
         setDadosInformativosObrigatorios={setDadosInformativosObrigatorios}
-        variaveisDoSistema={variaveisDoSistema}
-        setVariaveisDoSistema={setVariaveisDoSistema}
-        variaveisInternas={variaveisInternas}
-        setVariaveisInternas={setVariaveisInternas}
+        variaveis={variaveis}
+        setVariaveis={setVariaveis}
         stepper={stepper} 
         type='wizard-horizontal' 
       />
@@ -56,10 +54,8 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, 
         setDadosInformativosOpcionais={setDadosInformativosOpcionais}
         dadosInformativosObrigatorios={dadosInformativosObrigatorios}
         setDadosInformativosObrigatorios={setDadosInformativosObrigatorios}
-        variaveisDoSistema={variaveisDoSistema}
-        setVariaveisDoSistema={setVariaveisDoSistema}
-        variaveisInternas={variaveisInternas}
-        setVariaveisInternas={setVariaveisInternas}
+        variaveis={variaveis}
+        setVariaveis={setVariaveis}
         stepper={stepper} 
         type='wizard-horizontal' 
       />
@@ -83,10 +79,8 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, 
         setDadosInformativosOpcionais={setDadosInformativosOpcionais}
         dadosInformativosObrigatorios={dadosInformativosObrigatorios}
         setDadosInformativosObrigatorios={setDadosInformativosObrigatorios}
-        variaveisDoSistema={variaveisDoSistema}
-        setVariaveisDoSistema={setVariaveisDoSistema}
-        variaveisInternas={variaveisInternas}
-        setVariaveisInternas={setVariaveisInternas}
+        variaveis={variaveis}
+        setVariaveis={setVariaveis}
         stepper={stepper} 
         type='wizard-horizontal' 
       />
@@ -110,10 +104,8 @@ const FormularioDeTabelaDePrecos = ({ userData, empresa, todasAsTabelaDePrecos, 
         setDadosInformativosOpcionais={setDadosInformativosOpcionais}
         dadosInformativosObrigatorios={dadosInformativosObrigatorios}
         setDadosInformativosObrigatorios={setDadosInformativosObrigatorios}
-        variaveisDoSistema={variaveisDoSistema}
-        setVariaveisDoSistema={setVariaveisDoSistema}
-        variaveisInternas={variaveisInternas}
-        setVariaveisInternas={setVariaveisInternas}
+        variaveis={variaveis}
+        setVariaveis={setVariaveis}
         stepper={stepper} 
         type='wizard-horizontal' 
       />

@@ -37,8 +37,7 @@ const EditaTabelaDePreco = () => {
   const [versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos] = useState({})  
   const [dadosInformativosOpcionais, setDadosInformativosOpcionais] = useState([])
   const [dadosInformativosObrigatorios, setDadosInformativosObrigatorios] = useState([])
-  const [variaveisDoSistema, setVariaveisDoSistema] = useState([])
-  const [variaveisInternas, setVariaveisInternas] = useState([])
+  const [variaveis, setVariaveis] = useState([])
   const [itensDaTabelaDePrecos, setItensDaTabelaDePrecos] = useState([VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS])
   const [operacao, setOperacao] = useState('Criar')
 
@@ -59,8 +58,7 @@ const EditaTabelaDePreco = () => {
           setItensDaTabelaDePrecos(tabelaDePrecosEmLocalStorage.itensDaTabelaDePrecos)
           setDadosInformativosObrigatorios(tabelaDePrecosEmLocalStorage.dadosInformativosObrigatorios)
           setDadosInformativosOpcionais(tabelaDePrecosEmLocalStorage.dadosInformativosOpcionais)
-          setVariaveisDoSistema(tabelaDePrecosEmLocalStorage.variaveisDoSistema)
-          setVariaveisInternas(tabelaDePrecosEmLocalStorage.variaveisInternas)
+          setVariaveis(tabelaDePrecosEmLocalStorage.variaveis)
           setEmpresa(tabelaDePrecosEmLocalStorage.empresa)
           setOperacao(tabelaDePrecosEmLocalStorage.operacao)  
         } else history.push('/precos/list')
@@ -86,8 +84,7 @@ const EditaTabelaDePreco = () => {
                 setVersaoDaTabelaDePrecos(resposta.versoesDaTabelaDePrecos[resposta.versoesDaTabelaDePrecos.length - 1]) 
                 setDadosInformativosObrigatorios(resposta.versoesDaTabelaDePrecos[resposta.versoesDaTabelaDePrecos.length - 1].dadosInformativosObrigatorios)
                 setDadosInformativosOpcionais(resposta.versoesDaTabelaDePrecos[resposta.versoesDaTabelaDePrecos.length - 1].dadosInformativosOpcionais)
-                setVariaveisDoSistema(resposta.versoesDaTabelaDePrecos[resposta.versoesDaTabelaDePrecos.length - 1].variaveisDoSistema)
-                setVariaveisInternas(resposta.versoesDaTabelaDePrecos[resposta.versoesDaTabelaDePrecos.length - 1].variaveisInternas)
+                setVariaveis(resposta.versoesDaTabelaDePrecos[resposta.versoesDaTabelaDePrecos.length - 1].variaveis)
                 setOperacao('Atualizar')
 
 /*                 const copiaDaTabelaDeItens = Array.from(resposta.versoesDaProposta[resposta.versoesDaProposta.length - 1].itensDaVersaoDaProposta)
@@ -187,10 +184,8 @@ const EditaTabelaDePreco = () => {
             setDadosInformativosOpcionais={setDadosInformativosOpcionais}
             dadosInformativosObrigatorios={dadosInformativosObrigatorios}
             setDadosInformativosObrigatorios={setDadosInformativosObrigatorios}
-            variaveisDoSistema={variaveisDoSistema}
-            setVariaveisDoSistema={setVariaveisDoSistema}
-            variaveisInternas={variaveisInternas}
-            setVariaveisInternas={setVariaveisInternas}
+            variaveis={variaveis}
+            setVariaveis={setVariaveis}
           />
         </Col>
       </Row>
