@@ -1,5 +1,5 @@
 import { Fragment, useState, useEffect } from 'react'
-import { ArrowLeft, ArrowRight, Box, Calendar, Check, Copy, DollarSign, Edit, Eye, Facebook, Instagram, MoreVertical, Plus, PlusCircle, Twitch, Twitter } from 'react-feather'
+import { ArrowLeft, ArrowRight, Box, Calendar, Check, Copy, DollarSign, Edit, Eye, Facebook, Instagram, List, MoreVertical, Plus, PlusCircle, Settings, Twitch, Twitter } from 'react-feather'
 import { Card, CardHeader, CardBody, CardTitle, CardText, Row, Col, Button, Badge, ListGroupItem, Nav, NavItem, NavLink, TabContent, TabPane, ButtonGroup, UncontrolledDropdown, DropdownToggle, CustomInput, Label, InputGroup, InputGroupAddon, InputGroupText, Input, FormGroup, Modal, ModalHeader, ModalBody, ModalFooter, DropdownMenu, DropdownItem, FormFeedback } from 'reactstrap'
 import { ReactSortable } from 'react-sortablejs'
 import Select from 'react-select'
@@ -7,7 +7,7 @@ import { selectThemeColors, isObjEmpty } from '@utils'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm  } from 'react-hook-form'
-import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM, QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } from '../../../../../configs/appProposta'
+import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM, QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA, QTDADE_MIN_LETRAS_NOME_DA_VARIAVEL, QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL } from '../../../../../configs/appProposta'
 
 const erroQuantidadeDeCaracteres = (campo, min, max) => {
   /*  retorna:
@@ -20,18 +20,278 @@ const erroQuantidadeDeCaracteres = (campo, min, max) => {
   else return 0
 }
 
+const VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS = { 
+  id: 0,
+  nomeDoItem: null,
+  itemHabilitado: true,
+  itemObrigatorioNaProposta: false,
+  itemAbertoNoFormulario: true,
+  erroNoItem: {
+    nomeDoItem: true
+  } 
+}
+
 const VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM = {
   id: 1,
   nomeDoComponente: 'Componente 1',
   tipoDoComponente: 'Valor fixo',
+  valorFixoDoComponente: null,
   erroNoComponente: {
     valorFixoDoComponente: true
   } 
 }
 
+const VALORES_INICIAIS_DA_VARIAVEL = {
+  id: 0,
+  name: null,
+  value: null,
+  label: null,
+  conteudo: {
+    tipo: 'Numero inteiro',
+    valorMinimo: 0,
+    valorMaximo: null,
+    permitidoAlterar: {
+      tipo: true,
+      valorMinimo: true,
+      valorMaximo: true
+    }
+  },
+  variavelHabilitada: true, // não pode desabilitar uma variável que entra em cálculos
+  variavelObrigatoria: true, // não pode desobrigar uma variável que entra em cálculos
+  permitidoAlterar: {
+    name: true,
+    value: true,
+    label: true,
+    variavelHabilitada: true,
+    variavelObrigatoria: true
+  },
+
+  variavelAbertaNoFormulario: true,
+  erroNaVariavel: {
+    label: true
+  } 
+}
+
+////////////////////////////////////////////////////////////////////////////
+// PAREI AQUI. TESTAR VARIAVEIS
+////////////////////////////////////////////////////////////////////////////
+
+const variavelComErro = (item) => {  
+  if (isObjEmpty(item.erroNaVariavel)) return false
+  else return true
+}  
+
+const HeaderDaVariavel = ({ item, index, countVariaveis, setCountVariaveis, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => {                           
+  const abreVariavelNoFormulario = (toOpen) => { 
+    const copia = variaveis
+    copia[index].itemAbertoNoFormulario = toOpen
+    setVariaveis(copia)
+    setAtualizaFormulario(atualizaFormulario + 1)
+  }
+
+  const criaVariavelNoFormulario = () => { 
+    const item = VALORES_INICIAIS_DA_VARIAVEL
+    let id = 0
+    if (variaveis.length === 1) id = variaveis[0].id + 1
+    else {
+      const numbers = Array.from(variaveis) 
+      numbers.sort(function(a, b) {
+        return a.id - b.id
+      })
+      id = numbers[numbers.length - 1].id + 1
+    }
+    item.id = id
+    variaveis.push(Object.assign({}, item))
+    setCountVariaveis(countVariaveis + 1)
+  }
+
+  const excluiVariavelNoFormulario = (i) => {
+    if (variaveis.length > 1) {
+      const itensCopy = Array.from(variaveis)
+      itensCopy.splice(i, 1)
+      setVariaveis(itensCopy)
+      setCountVariaveis(countVariaveis - 1)
+    } else {
+      const item = VALORES_INICIAIS_DA_VARIAVEL
+      const id = variaveis[0].id + 1
+      item.id = id
+      setVariaveis([item])
+    } 
+  }  
+
+  const corDoNomeDaVariavel = (item) => {    
+    if (variavelComErro(item)) return 'light-danger'
+    else {
+      if (item.variavelHabilitada) return 'primary'
+      else return 'light-secondary'
+    }  
+  }  
+
+  return (
+    <Fragment>
+      <Row>
+        <Badge color={corDoNomeDaVariavel(item)} pill>
+          {item.label}
+        </Badge>
+        <div className='column-action d-flex align-items-center'>
+          <UncontrolledDropdown>
+            <DropdownToggle tag='span'>
+              <MoreVertical size={17} className='cursor-pointer' />
+            </DropdownToggle>
+            <DropdownMenu>
+              {!item.variavelAbertaNoFormulario && <DropdownItem className='w-100' onClick={() => abreVariavelNoFormulario(true)} >
+                <Eye size={14} className='mr-50' />
+                <span className='align-middle'>Abrir variável</span>
+              </DropdownItem>}
+              {item.variavelAbertaNoFormulario && <DropdownItem className='w-100' onClick={() => abreVariavelNoFormulario(false)} >
+                <Box size={14} className='mr-50' />
+                <span className='align-middle'>Fechar variável</span>
+              </DropdownItem>}
+              <DropdownItem className='w-100' onClick={() => criaVariavelNoFormulario()}>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Criar variável</span>
+              </DropdownItem>               
+              <DropdownItem className='w-100'>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Duplicar variável</span>
+              </DropdownItem>                      
+              <DropdownItem className='w-100' onClick={() => excluiVariavelNoFormulario(index)}>
+                <Copy size={14} className='mr-50' />
+                <span className='align-middle'>Excluir variável</span>
+              </DropdownItem> 
+              <DropdownItem className='w-100'>
+                <Copy size={14} className='mr-50' />
+                <span className='align-middle'>Salvar tabela</span>
+              </DropdownItem>                
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </div>
+      </Row>
+    </Fragment>
+  )
+}
+
+const NomeDaVariavel = ({ index, variaveis, setVariaveis }) => {
+  const SignupSchema = yup.object().shape({ 
+    [`nomeDaVariavel${index}`]: yup.string().min(QTDADE_MIN_LETRAS_NOME_DA_VARIAVEL).max(QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL).required()
+  })
+
+  const { register, errors, handleSubmit, trigger } = useForm({ 
+    mode: 'onChange', 
+    resolver: yupResolver(SignupSchema)
+  }) 
+
+  const handleChange = e => {
+    const { value } = e.target
+    const temporaryarray = Array.from(variaveis)
+    if (temporaryarray[index].permitidoAlterar.label) temporaryarray[index].label = value
+    if (temporaryarray[index].permitidoAlterar.value) temporaryarray[index].value = value
+    if (temporaryarray[index].permitidoAlterar.name) temporaryarray[index].name = value
+
+    if (isObjEmpty(errors)) delete temporaryarray[index].erroNaVariavel.label
+    else temporaryarray[index].erroNaVariavel.label = true   
+ 
+    setVariaveis(temporaryarray)
+  }
+
+  const handleChangeVariavelHabilitada = e => { 
+    const temporaryarray = Array.from(variaveis)
+    temporaryarray[index].variavelHabilitada = !temporaryarray[index].variavelHabilitada 
+    setVariaveis(temporaryarray)
+  }
+
+  const handleChangeVariavelObrigatoria = e => {
+    const temporaryarray = Array.from(variaveis)
+    temporaryarray[index].variavelObrigatoria = !temporaryarray[index].variavelObrigatoria 
+    setVariaveis(temporaryarray)
+  }
+
+  const defaultValue = variaveis[index].nomeDoItem
+  const defaultCheckedVariavelHabilitada = variaveis[index].variavelHabilitada 
+  const defaultCheckedVariavelObrigatoria = variaveis[index].variavelObrigatoria
+
+/*   variavelHabilitada: true, // não pode desabilitar uma variável que entra em cálculos
+  variavelObrigatoria: true, // não pode desobrigar uma variável que entra em cálculos */
+
+  return (
+    <div>
+      <p></p>
+      <p><code>Nome da variável</code> é como esta informacão será solicitada na criação de uma proposta.</p>
+      <Label className='form-label' for={`nomeDaVariavel${index}`}>
+        Nome da variável
+      </Label>
+      <InputGroup className='input-group-merge mb-2'>
+        <Input
+          name={`nomeDaVariavel${index}`}
+          id={`nomeDaVariavel${index}`}
+          placeholder='Nome da variável'
+          defaultValue={defaultValue}
+          autoComplete="off"
+          onChange={handleChange}
+          innerRef={register({ required: true })}
+          invalid={errors[`nomeDaVariavel${index}`] && true} 
+        />
+       {errors && errors[`nomeDaVariavel${index}`] && <FormFeedback>Use entre {QTDADE_MIN_LETRAS_NOME_DA_VARIAVEL} e {QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL} caracteres</FormFeedback>} 
+      </InputGroup>
+      <CustomInput
+        name={`variavelHabilitada${index}`}
+        id={`variavelHabilitada${index}`}
+        type='checkbox'
+        className='custom-control-success'
+        label='Variável habilitada?'
+        defaultChecked={defaultCheckedVariavelHabilitada}
+        inline
+        onChange={handleChangeVariavelHabilitada}
+      />
+      <CustomInput
+        name={`variavelObrigatoria${index}`}
+        id={`variavelObrigatoria${index}`}
+        type='checkbox'
+        className='custom-control-success'
+        label='Variável obrigatório para proposta?'
+        defaultChecked={defaultCheckedVariavelObrigatoria}
+        inline
+        onChange={handleChangeVariavelObrigatoria}
+      />
+    </div>
+  ) 
+}
+
+const VariavelIndividual = ({ item, index, operacao, countVariaveis, setCountVariaveis, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => {
+  return (
+    <Fragment>
+      <HeaderDaVariavel 
+        item={item} 
+        index={index}
+        countVariaveis={countVariaveis}
+        setCountVariaveis={setCountVariaveis}
+        variaveis={variaveis} 
+        setVariaveis={setVariaveis}  
+        atualizaFormulario={atualizaFormulario}
+        setAtualizaFormulario={setAtualizaFormulario}                      
+      />
+      <NomeDaVariavel 
+        index={index} 
+        variaveis={variaveis} 
+        setVariaveis={setVariaveis}  
+      />
+    </Fragment>
+  )
+}
+
+const itemComErro = (item, componentesDoItem) => {
+  let erroNoComponente = false
+  componentesDoItem.map(componente => {
+    if (!isObjEmpty(componente.erroNoComponente)) erroNoComponente = true || erroNoComponente
+  }) 
+  
+  if (!erroNoComponente && isObjEmpty(item.erroNoItem)) return false
+  else return true
+}  
+
 const HeaderDoComponente = ({ componente, indexComponente, countComponente, setCountComponente, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, componentesDoItem, setComponentesDoItem, atualizaFormulario, setAtualizaFormulario }) => {                           
   const criaComponente = () => { 
-    const item = VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM
+    const item = Object.assign({}, VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM)
     let id = 0
     if (componentesDoItem.length === 1) id = componentesDoItem[0].id + 1
     else {
@@ -105,23 +365,12 @@ const HeaderDoComponente = ({ componente, indexComponente, countComponente, setC
   )
 }
 
-const HeaderDoItem = ({ item, index, count, setCount, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, atualizaFormulario, setAtualizaFormulario }) => {                           
+const HeaderDoItem = ({ item, index, count, setCount, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, componentesDoItem, atualizaFormulario, setAtualizaFormulario }) => {                           
   const abreItemNoFormulario = (toOpen) => {
     const copia = itensDaTabelaDePrecos
     copia[index].itemAbertoNoFormulario = toOpen
     setItensDaTabelaDePrecos(copia)
     setAtualizaFormulario(atualizaFormulario + 1)
-  }
-
-  const VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS = { 
-    id: 0,
-    nomeDoItem: null,
-    itemHabilitado: true,
-    itemObrigatorioNaProposta: false,
-    itemAbertoNoFormulario: true,
-    erroNoFormulario: {
-      nomeDoItem: true
-    } 
   }
 
   const criaItemNoFormulario = () => {
@@ -154,10 +403,18 @@ const HeaderDoItem = ({ item, index, count, setCount, itensDaTabelaDePrecos, set
     } 
   }  
 
+  const corDoNomeDoItem = (item) => {    
+    if (itemComErro(item, componentesDoItem)) return 'light-danger'
+    else {
+      if (item.itemHabilitado) return 'primary'
+      else return 'light-secondary'
+    }  
+  }  
+
   return (
     <Fragment>
       <Row>
-        <Badge color={isObjEmpty(item.erroNoItem) ? item.itemHabilitado ? 'primary' : 'light-secondary' : 'light-danger' } pill>
+        <Badge color={corDoNomeDoItem(item)} pill>
           {item.nomeDoItem}
         </Badge>
         <div className='column-action d-flex align-items-center'>
@@ -242,6 +499,7 @@ const NomeDoItem = ({ index, itensDaTabelaDePrecos, setItensDaTabelaDePrecos }) 
   return (
     <div>
       <p></p>
+      <p><code>Nome do item</code> é como aparecerá na proposta</p>
       <Label className='form-label' for={`nomeDoItem${index}`}>
         Nome do item
       </Label>
@@ -295,24 +553,14 @@ const ValorFixoDoComponente = ({ index, atualizaValor, componentesDoItem, setCom
   let defaultValue = null
   if (componentesDoItem[index].hasOwnProperty('valorFixoDoComponente')) defaultValue = componentesDoItem[index].valorFixoDoComponente
 
-  // Corrigir 2 erros:
-  // - qdo erro em 1 componente mostra erro nos demais
-  // - erro qdo cria 2º item
-
   const handleChange = e => {
     const { value } = e.target
     const temporaryarray = Array.from(componentesDoItem)
     temporaryarray[index].valorFixoDoComponente = value
 
-    console.log("index=", index)
-    console.log("errors=", errors)
-    console.log("ANTES temporaryarray=", temporaryarray)
-
-    if (isObjEmpty(errors)) delete temporaryarray[index].erroNoComponente.valorFixoDoComponente
-    else temporaryarray[index].erroNoComponente.valorFixoDoComponente = true   
-
-    console.log("DEPOIS temporaryarray=", temporaryarray)
- 
+    if (isObjEmpty(errors)) delete temporaryarray[index].erroNoComponente.errors
+    else temporaryarray[index].erroNoComponente = errors   
+  
     setComponentesDoItem(temporaryarray)
   }
 
@@ -388,7 +636,9 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
     const temporaryarray = Array.from(componentesDoItem)
     temporaryarray[index].tipoDoComponente = tipoDoComponente  
     temporaryarray[index].valorFixoDoComponente = null
-    if (tipoDoComponente === 'Variável x valor fixo' && variaveis.length) temporaryarray[index].variavel = variaveis[0]
+    temporaryarray[index].erroNoComponente = { valorFixoDoComponente: true } 
+    if (tipoDoComponente === 'Valor fixo') delete temporaryarray[index].variavel
+    else if (tipoDoComponente === 'Variável x valor fixo' && variaveis.length) temporaryarray[index].variavel = variaveis[0]
     setComponentesDoItem(temporaryarray)
     setAtualizaValor(!atualizaValor) 
   }
@@ -447,36 +697,6 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
                     variaveis={variaveis}
                   />}
               </CardBody>
-{/*               <div>
-          <Row>
-            <FormGroup tag={Col} md='12'>
-                <div>
-                  <Modal isOpen={formModal} toggle={() => setFormModal(!formModal)} className='modal-dialog-centered modal-lg'>
-                    <ModalHeader toggle={() => setFormModal(!formModal)}>Login Form</ModalHeader>
-                    <ModalBody>
-                      <FormGroup tag={Col} md='12'>
-                        <Label>Tipo do componente de preço:</Label>
-                        <Select
-                          theme={selectThemeColors}
-                          className='react-select'
-                          classNamePrefix='select'
-                          defaultValue={tipoDoComponenteOptions[0]}
-                          options={tipoDoComponenteOptions}
-                          onChange={handleChangeSelect}
-                          isClearable={false}
-                        />
-                      </FormGroup>
-                    </ModalBody>
-                    <ModalFooter>
-                      <Button color='primary' onClick={() => setFormModal(!formModal)}>
-                        Login
-                      </Button>{' '}
-                    </ModalFooter>
-                  </Modal>
-                </div>
-              </div>
-            </FormGroup>
-              </CardBody> */}
             </Card>
           </Col>
         ))}
@@ -533,10 +753,11 @@ const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaD
     setActiveHorizontal(tab)
   }
 
-  const [componentesDoItem, setComponentesDoItem] = useState([VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM])
+  const [componentesDoItem, setComponentesDoItem] = useState([Object.assign({}, VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM)])
   const [descricoesDoItem, setDescricoesDoItem] = useState([])
+
   console.log("componentesDoItem=", componentesDoItem) 
-  console.log("descricoesDoItem=", descricoesDoItem) 
+//  console.log("descricoesDoItem=", descricoesDoItem) 
 
   const [countComponente, setCountComponente] = useState(componentesDoItem.length)
   useEffect(() => {
@@ -552,6 +773,7 @@ const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaD
         setCount={setCount}
         itensDaTabelaDePrecos={itensDaTabelaDePrecos} 
         setItensDaTabelaDePrecos={setItensDaTabelaDePrecos}  
+        componentesDoItem={componentesDoItem}
         atualizaFormulario={atualizaFormulario}
         setAtualizaFormulario={setAtualizaFormulario}                      
       />
@@ -566,7 +788,7 @@ const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaD
                     toggleHorizontal('A')
                   }}
                 >
-                  Nome
+                  <Edit size={24} />
                 </NavLink>
               </NavItem>
               <NavItem>
@@ -576,7 +798,7 @@ const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaD
                     toggleHorizontal('B')
                   }}
                 >
-                  Preço
+                  <DollarSign size={24} />
                 </NavLink>
               </NavItem>
               <NavItem>
@@ -586,7 +808,7 @@ const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaD
                     toggleHorizontal('C')
                   }}
                 >
-                  Descrição
+                  <List size={24} />
                 </NavLink>
               </NavItem>
             </Nav>
@@ -624,7 +846,7 @@ const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaD
   )
 }
 
-const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, dadosInformativosOpcionais, setDadosInformativosOpcionais, dadosInformativosObrigatorios, setDadosInformativosObrigatorios, variaveis, setVariaveis, operacao, stepper, type }) => {
+const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos, setTabelaDePrecos, versaoDaTabelaDePrecos, setVersaoDaTabelaDePrecos, itensDaTabelaDePrecos, setItensDaTabelaDePrecos, variaveis, setVariaveis, operacao, stepper, type }) => {
   const [activeVertical, setactiveVertical] = useState('1')
   const [atualizaFormulario, setAtualizaFormulario] = useState(0)
 
@@ -637,16 +859,21 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
     setCount(itensDaTabelaDePrecos.length)
   }, [itensDaTabelaDePrecos.length]) 
 
+  const [countVariaveis, setCountVariaveis] = useState(variaveis.length)
+  useEffect(() => {
+    setCountVariaveis(variaveis.length)
+  }, [variaveis.length]) 
+
   console.log("==================== No ItensDePreco")
 /*   console.log("operacao=", operacao)
   console.log("todasAsTabelaDePrecos=", todasAsTabelaDePrecos)
-  console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos) */
-  console.log("tabelaDePrecos=", tabelaDePrecos)
   console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais) 
   console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios)  
-  console.log("variaveis=", variaveis) 
-  console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos)  
   console.log("atualizaFormulario=", atualizaFormulario) 
+  console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos) 
+  console.log("tabelaDePrecos=", tabelaDePrecos) */
+  console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos)  
+  console.log("variaveis=", variaveis) 
 
   return (
     <Fragment>    
@@ -718,10 +945,34 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
         </TabPane>
 
         <TabPane tabId='2'>
-          Pendências:
-          - definição de variáveis calculadas
-            - Quantidade de fotógrafos
-            - 
+          <div key={atualizaFormulario}>
+            <h4 tag='h4'>Variáveis</h4>
+            <p><code>Variáveis</code> são bla bla bla.</p>
+            <ReactSortable
+              tag='ul'
+              className='list-group'
+              list={variaveis}
+              setList={setVariaveis}
+            >
+              {variaveis.map((item, index) => {
+                return (
+                  <ListGroupItem key={item.id}>
+                    <VariavelIndividual 
+                      item={item}
+                      index={index}
+                      operacao={operacao}
+                      countVariaveis={countVariaveis}
+                      setCountVariaveis={setCountVariaveis}
+                      variaveis={variaveis}
+                      setVariaveis={setVariaveis}
+                      atualizaFormulario={atualizaFormulario}
+                      setAtualizaFormulario={setAtualizaFormulario}
+                    />
+                  </ListGroupItem>
+                )
+              })}
+            </ReactSortable>
+          </div>
         </TabPane>
         
         <TabPane tabId='3'>

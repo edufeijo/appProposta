@@ -7,7 +7,13 @@ const QTDADE_MIN_LETRAS_SENHA_DO_USUARIO = 6
 const QTDADE_MIN_LETRAS_NOME_DA_EMPRESA = 3
 const QTDADE_MIN_CARACTERES_ID_DA_PROPOSTA = 3
 const QTDADE_MIN_LETRAS_ALERTA = 10
+
+const QTDADE_MIN_LETRAS_NOME_DA_VARIAVEL = 2
+const QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL = 30
+
 const QTDADE_MIN_LETRAS_NOME_DO_ITEM = 2
+const QTDADE_MAX_LETRAS_NOME_DO_ITEM = 40
+const QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM = 500
 
 const QTDADE_MIN_LETRAS_SSS = 3
 const QTDADE_MAX_LETRAS_SSS = 20
@@ -24,8 +30,6 @@ const QTDADE_MAX_CARACTERES_COMENTARIOS_DA_PROPOSTA = 500
 const QTDADE_MAX_LETRAS_ALERTA = 50
 const QTDADE_MAX_DIAS_PARA_ALERTA = 60
 const TAMANHO_MAX_ARQUIVO_DA_PROPOSTA = 10 // em MB
-const QTDADE_MAX_LETRAS_NOME_DO_ITEM = 40
-const QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM = 500
 
 // Alertas
 const ALERTA_FOLLOWUP_CLIENTE = 'Entre em contato com o cliente'
@@ -114,25 +118,34 @@ const SETOR_SEGMENTO_SERVICO = [
     ],
     variaveis : [
       {
-      id: "Quantidade-de-pessoas",
-      origem: 'sistema',
-      name: "Quantidade de pessoas",
-      value: "Quantidade de pessoas",
-      label: "Quantidade de pessoas",
-      tipo: 'Numero inteiro',
-      valorMinimo: 0,
-      valorMaximo: -1
-      },
-      {
-        id: "Quantidade-de-alunos",
-        origem: 'sistema',
-        name: "Alunos",
-        value: "Alunos",
-        label: "Alunos",
-        tipo: 'Numero inteiro',
-        valorMinimo: 0,
-        valorMaximo: -1
-        }
+        id: 0,
+        name: "Quantidade de pessoas",
+        value: "Quantidade de pessoas",
+        label: "Quantidade de pessoas",
+        conteudo: {
+          tipo: 'Numero inteiro',
+          valorMinimo: 0,
+          valorMaximo: null,
+          permitidoAlterar: {
+            tipo: false,
+            valorMinimo: true,
+            valorMaximo: true
+          }
+        },
+        variavelHabilitada: true,
+        variavelObrigatoria: true,
+        permitidoAlterar: {
+          name: false,
+          value: false,
+          label: true,
+          variavelHabilitada: false,
+          variavelObrigatoria: false
+        },
+        variavelAbertaNoFormulario: true,
+        erroNaVariavel: {
+          label: true
+        } 
+      }
     ],
     segmentos : [ 
       {
@@ -170,14 +183,36 @@ const SETOR_SEGMENTO_SERVICO = [
     ],
     variaveis : [
       {
-      id: "Quantidade-de-alunos",
-      origem: 'sistema',
-      name: "Quantidade de alunos",
-      value: "Quantidade de alunos",
-      label: "Quantidade de alunos",
-      tipo: 'Numero inteiro',
-      valorMinimo: 0,
-      valorMaximo: -1
+        id: 0,
+        name: "Quantidade de alunos",
+        value: "Quantidade de alunos",
+        label: "Quantidade de alunos",
+        conteudo: {
+          tipo: 'Numero inteiro',
+          valorMinimo: 0,
+          valorMaximo: null,
+          permitidoAlterar: {
+            tipo: false,
+            valorMinimo: true,
+            valorMaximo: true
+          }
+        },
+        variavelHabilitada: true,
+        variavelObrigatoria: true,
+        permitidoAlterar: {
+          name: false,
+          value: false,
+          label: false,
+          variavelHabilitada: false,
+          variavelObrigatoria: false
+        },
+
+        variavelPermanente: true, // esse camnpo será excluído
+        
+        variavelAbertaNoFormulario: true,
+        erroNaVariavel: {
+          label: true
+        } 
       }
     ],
     segmentos : [ 
@@ -235,5 +270,7 @@ export {
     SETOR_SEGMENTO_SERVICO,
     DADO_INFORMATIVO_OBRIGATORIO,
     QTDADE_MIN_LETRAS_SSS,
-    QTDADE_MAX_LETRAS_SSS
+    QTDADE_MAX_LETRAS_SSS,
+    QTDADE_MIN_LETRAS_NOME_DA_VARIAVEL,
+    QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL
 }

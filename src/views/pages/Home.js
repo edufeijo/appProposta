@@ -2,6 +2,10 @@
 //
 //
 // Tabela de preços
+// - Não pode criar 2 itens com o mesmo nome
+// - Não pode criar 2 variáveis com o mesmo nome
+// - Ao mudar o tipo de Componente perguntar se quer continuar pois todos os dados serão perdidos
+// - Antes de excluir variável, checar se ela não é usada em cálculos
 // - Gravar tabela externa no BD
 // - No List view de tabelas:
 //   - Editar versão da tabela
@@ -11,7 +15,6 @@
 //   - Permitir duplicar partes da tabela (checar o que é possível duplicar)
 // - Fazer botões Incluir dado informativo e Editar dado informativo. Ao criar Dado Informativo, rejeitar se já existe
 // - Definir ciclo de vida das tabelas de preço (status)
-// - O customizaArvoreSSS em Segmentacao deve tratar parametrosSugeridos
 // - Revisar todos os links na List view
 // - se não tem tabela de preço definida: mostrar quickstart
 // - mostrar Botão 'Quickstart' (com opção 'não mostrar novamente'). Se não tem Quickstart e não tem tabela de preços, então botão 'Criar tabela de preços'
