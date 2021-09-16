@@ -72,10 +72,6 @@ const VALORES_INICIAIS_DA_VARIAVEL = {
   } 
 }
 
-////////////////////////////////////////////////////////////////////////////
-// PAREI AQUI. TESTAR VARIAVEIS
-////////////////////////////////////////////////////////////////////////////
-
 const variavelComErro = (item) => {  
   if (isObjEmpty(item.erroNaVariavel)) return false
   else return true
@@ -84,7 +80,7 @@ const variavelComErro = (item) => {
 const HeaderDaVariavel = ({ item, index, countVariaveis, setCountVariaveis, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => {                           
   const abreVariavelNoFormulario = (toOpen) => { 
     const copia = variaveis
-    copia[index].itemAbertoNoFormulario = toOpen
+    copia[index].variavelAbertaNoFormulario = toOpen
     setVariaveis(copia)
     setAtualizaFormulario(atualizaFormulario + 1)
   }
@@ -158,11 +154,7 @@ const HeaderDaVariavel = ({ item, index, countVariaveis, setCountVariaveis, vari
               <DropdownItem className='w-100' onClick={() => excluiVariavelNoFormulario(index)}>
                 <Copy size={14} className='mr-50' />
                 <span className='align-middle'>Excluir variável</span>
-              </DropdownItem> 
-              <DropdownItem className='w-100'>
-                <Copy size={14} className='mr-50' />
-                <span className='align-middle'>Salvar tabela</span>
-              </DropdownItem>                
+              </DropdownItem>             
             </DropdownMenu>
           </UncontrolledDropdown>
         </div>
@@ -194,6 +186,12 @@ const NomeDaVariavel = ({ index, variaveis, setVariaveis }) => {
     setVariaveis(temporaryarray)
   }
 
+  const defaultValue = variaveis[index].label
+  const defaultCheckedVariavelHabilitada = variaveis[index].variavelHabilitada 
+  const defaultDisabledVariavelHabilitada = !variaveis[index].permitidoAlterar.variavelHabilitada 
+  const defaultCheckedVariavelObrigatoria = variaveis[index].variavelObrigatoria
+  const defaultDisabledVariavelObrigatoria = !variaveis[index].permitidoAlterar.variavelObrigatoria 
+
   const handleChangeVariavelHabilitada = e => { 
     const temporaryarray = Array.from(variaveis)
     temporaryarray[index].variavelHabilitada = !temporaryarray[index].variavelHabilitada 
@@ -206,17 +204,12 @@ const NomeDaVariavel = ({ index, variaveis, setVariaveis }) => {
     setVariaveis(temporaryarray)
   }
 
-  const defaultValue = variaveis[index].nomeDoItem
-  const defaultCheckedVariavelHabilitada = variaveis[index].variavelHabilitada 
-  const defaultCheckedVariavelObrigatoria = variaveis[index].variavelObrigatoria
-
 /*   variavelHabilitada: true, // não pode desabilitar uma variável que entra em cálculos
   variavelObrigatoria: true, // não pode desobrigar uma variável que entra em cálculos */
 
   return (
     <div>
       <p></p>
-      <p><code>Nome da variável</code> é como esta informacão será solicitada na criação de uma proposta.</p>
       <Label className='form-label' for={`nomeDaVariavel${index}`}>
         Nome da variável
       </Label>
@@ -241,6 +234,7 @@ const NomeDaVariavel = ({ index, variaveis, setVariaveis }) => {
         label='Variável habilitada?'
         defaultChecked={defaultCheckedVariavelHabilitada}
         inline
+        disabled={defaultDisabledVariavelHabilitada}
         onChange={handleChangeVariavelHabilitada}
       />
       <CustomInput
@@ -251,13 +245,60 @@ const NomeDaVariavel = ({ index, variaveis, setVariaveis }) => {
         label='Variável obrigatório para proposta?'
         defaultChecked={defaultCheckedVariavelObrigatoria}
         inline
+        disabled={defaultDisabledVariavelObrigatoria}
         onChange={handleChangeVariavelObrigatoria}
       />
     </div>
   ) 
 }
 
+const InputNumero = ({ index, atualizaValor, labelDoNumero, propriedadeDoNumero, variaveis, setVariaveis }) => { 
+  const SignupSchema = yup.object().shape({
+    [`inputNumero${labelDoNumero}${index}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required()
+  })
+
+  const { register, errors, handleSubmit, trigger } = useForm({ 
+    mode: 'onChange', 
+    resolver: yupResolver(SignupSchema)
+  })
+
+  const defaultValue = variaveis[index].conteudo[propriedadeDoNumero]
+
+  const handleChange = e => {
+    const { value } = e.target
+    const temporaryarray = Array.from(variaveis)
+    temporaryarray[index].conteudo[propriedadeDoNumero] = value
+
+    if (isObjEmpty(errors)) delete temporaryarray[index].erroNaVariavel.errors
+    else temporaryarray[index].erroNaVariavel = errors   
+  
+    setVariaveis(temporaryarray)
+  }
+
+  return (
+    <div key={atualizaValor}>
+      <Label className='form-label' for={`inputNumero${labelDoNumero}${index}`}>
+        {labelDoNumero}
+      </Label>
+      <InputGroup className='input-group-merge mb-2'>
+        <Input
+          name={`inputNumero${labelDoNumero}${index}`}
+          id={`inputNumero${labelDoNumero}${index}`}
+          placeholder={`Preencha com o ${labelDoNumero}`}
+          defaultValue={defaultValue}
+          autoComplete="off"
+          innerRef={register({ required: true })}
+          invalid={errors[`inputNumero${labelDoNumero}${index}`] && true}
+          onChange={handleChange}
+        />
+        {errors && errors[`inputNumero${labelDoNumero}${index}`] && <FormFeedback>Exemplos: 1244 ou 283,15, máximo de {QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } dígitos</FormFeedback>}
+      </InputGroup>
+    </div>
+  )
+}
 const VariavelIndividual = ({ item, index, operacao, countVariaveis, setCountVariaveis, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => {
+  const [atualizaValor, setAtualizaValor] = useState(false)
+
   return (
     <Fragment>
       <HeaderDaVariavel 
@@ -270,11 +311,29 @@ const VariavelIndividual = ({ item, index, operacao, countVariaveis, setCountVar
         atualizaFormulario={atualizaFormulario}
         setAtualizaFormulario={setAtualizaFormulario}                      
       />
-      <NomeDaVariavel 
-        index={index} 
-        variaveis={variaveis} 
-        setVariaveis={setVariaveis}  
-      />
+      {item.variavelAbertaNoFormulario && <div>
+        <NomeDaVariavel 
+          index={index} 
+          variaveis={variaveis} 
+          setVariaveis={setVariaveis}  
+        />
+        <InputNumero 
+          index={index}
+          atualizaValor={atualizaValor}
+          labelDoNumero={'Valor mínimo'}
+          propriedadeDoNumero={'valorMinimo'}
+          setVariaveis={setVariaveis}  
+          variaveis={variaveis}
+        />
+        <InputNumero 
+          index={index}
+          atualizaValor={atualizaValor}
+          labelDoNumero={'Valor máximo'}
+          propriedadeDoNumero={'valorMaximo'}
+          setVariaveis={setVariaveis}  
+          variaveis={variaveis}
+        />
+      </div>}
     </Fragment>
   )
 }
@@ -615,7 +674,6 @@ const VariávelXValorFixo = ({ index, atualizaValor, componentesDoItem, setCompo
           atualizaValor={atualizaValor}
           componentesDoItem={componentesDoItem}
           setComponentesDoItem={setComponentesDoItem}
-          variaveis={variaveis}
         />
       </FormGroup>
     </div>
@@ -685,7 +743,6 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
                     atualizaValor={atualizaValor}
                     componentesDoItem={componentesDoItem}
                     setComponentesDoItem={setComponentesDoItem}
-                    variaveis={variaveis}
                   />}
 
                   {componentesDoItem[index].tipoDoComponente === 'Variável x valor fixo' && 
@@ -947,7 +1004,7 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
         <TabPane tabId='2'>
           <div key={atualizaFormulario}>
             <h4 tag='h4'>Variáveis</h4>
-            <p><code>Variáveis</code> são bla bla bla.</p>
+            <p><code>Nome da variável</code> é como esta informacão aparecerá na criação de uma proposta.</p>
             <ReactSortable
               tag='ul'
               className='list-group'

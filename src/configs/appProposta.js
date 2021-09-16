@@ -122,16 +122,6 @@ const SETOR_SEGMENTO_SERVICO = [
         name: "Quantidade de pessoas",
         value: "Quantidade de pessoas",
         label: "Quantidade de pessoas",
-        conteudo: {
-          tipo: 'Numero inteiro',
-          valorMinimo: 0,
-          valorMaximo: null,
-          permitidoAlterar: {
-            tipo: false,
-            valorMinimo: true,
-            valorMaximo: true
-          }
-        },
         variavelHabilitada: true,
         variavelObrigatoria: true,
         permitidoAlterar: {
@@ -141,9 +131,22 @@ const SETOR_SEGMENTO_SERVICO = [
           variavelHabilitada: false,
           variavelObrigatoria: false
         },
-        variavelAbertaNoFormulario: true,
+        conteudo: {
+          tipo: 'Numero',
+          permitidoNegativo: false,
+          permitidasCasasDecimais: false,
+          valorMinimo: 0,
+          valorMaximo: null,
+          permitidoAlterar: {
+            tipo: false,
+            permitidoNegativo: false,
+            permitidasCasasDecimais: false,
+            valorMinimo: true,
+            valorMaximo: true
+          }
+        },
+        variavelAbertaNoFormulario: false,
         erroNaVariavel: {
-          label: true
         } 
       }
     ],
