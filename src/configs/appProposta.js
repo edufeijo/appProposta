@@ -119,35 +119,95 @@ const SETOR_SEGMENTO_SERVICO = [
     variaveis : [
       {
         id: 0,
-        name: "Quantidade de pessoas",
-        value: "Quantidade de pessoas",
-        label: "Quantidade de pessoas",
+        name: "Nome do cliente",
+        value: "Nome do cliente",
+        label: "Nome do cliente",
         variavelHabilitada: true,
         variavelObrigatoria: true,
         permitidoAlterar: {
           name: false,
           value: false,
-          label: true,
+          label: false,
           variavelHabilitada: false,
           variavelObrigatoria: false
         },
         conteudo: {
-          tipo: 'Numero',
-          permitidoNegativo: false,
-          permitidasCasasDecimais: false,
-          valorMinimo: 0,
+          tipoDaVariavel: 'Alfanumérica',
+          permitidoAlterar: {
+            tipoDaVariavel: false
+          }
+        },
+        erroNaVariavel: {} 
+      },
+      {
+        id: 1,
+        name: "Local do evento",
+        value: "Local do evento",
+        label: "Local do evento",
+        variavelHabilitada: true,
+        variavelObrigatoria: false,
+        permitidoAlterar: {
+          name: false,
+          value: false,
+          label: true,
+          variavelHabilitada: true,
+          variavelObrigatoria: true
+        },
+        conteudo: {
+          tipoDaVariavel: 'Alfanumérica',
+          permitidoAlterar: {
+            tipoDaVariavel: false
+          }
+        },
+        erroNaVariavel: {} 
+      },
+      {
+        id: 2,
+        name: "Data do evento",
+        value: "Data do evento",
+        label: "Data do evento",
+        variavelHabilitada: true,
+        variavelObrigatoria: false,
+        permitidoAlterar: {
+          name: false,
+          value: false,
+          label: true,
+          variavelHabilitada: true,
+          variavelObrigatoria: true
+        },
+        conteudo: {
+          tipoDaVariavel: 'Data',
+          permitidoAlterar: {
+            tipoDaVariavel: false
+          }
+        },
+        erroNaVariavel: {} 
+      },
+      {
+        id: 3,
+        name: "Quantidade de pessoas",
+        value: "Quantidade de pessoas",
+        label: "Quantidade de pessoas",
+        variavelHabilitada: true,
+        variavelObrigatoria: false,
+        permitidoAlterar: {
+          name: false,
+          value: false,
+          label: true,
+          variavelHabilitada: true,
+          variavelObrigatoria: true
+        },
+        conteudo: {
+          tipoDaVariavel: 'Número',
+          valorMinimo: null,
           valorMaximo: null,
           permitidoAlterar: {
-            tipo: false,
-            permitidoNegativo: false,
-            permitidasCasasDecimais: false,
+            tipoDaVariavel: false,
             valorMinimo: true,
             valorMaximo: true
           }
         },
-        variavelAbertaNoFormulario: false,
-        erroNaVariavel: {
-        } 
+        erroNaVariavel: {} 
       }
     ],
     segmentos : [ 

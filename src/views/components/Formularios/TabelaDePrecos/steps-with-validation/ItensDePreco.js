@@ -41,23 +41,24 @@ const VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM = {
   } 
 }
 
+const tipoDoComponenteOptions = [
+  { name: 'tipoDoComponente', value: 'Valor fixo', label: 'Valor fixo' },
+  { name: 'tipoDoComponente', value: 'Variável x valor fixo', label: 'Variável x valor fixo' },
+  { name: 'tipoDoComponente', value: 'Tabela', label: 'Tabela' }
+]
+
+const tipoDaVariavelOptions = [
+  { name: 'tipoDaVariavel', value: 'Número', label: 'Número' },
+  { name: 'tipoDaVariavel', value: 'Sim ou não', label: 'Sim ou não' },
+  { name: 'tipoDaVariavel', value: 'Seleção', label: 'Seleção' },
+  { name: 'tipoDaVariavel', value: 'Alfanumérica', label: 'Alfanumérica' },
+  { name: 'tipoDaVariavel', value: 'Data', label: 'Data' },
+  { name: 'tipoDaVariavel', value: 'Tabela', label: 'Tabela' }
+]
+   
 const VALORES_INICIAIS_DA_VARIAVEL = {
-  id: 0,
-  name: null,
-  value: null,
-  label: null,
-  conteudo: {
-    tipo: 'Numero inteiro',
-    valorMinimo: 0,
-    valorMaximo: null,
-    permitidoAlterar: {
-      tipo: true,
-      valorMinimo: true,
-      valorMaximo: true
-    }
-  },
   variavelHabilitada: true, // não pode desabilitar uma variável que entra em cálculos
-  variavelObrigatoria: true, // não pode desobrigar uma variável que entra em cálculos
+  variavelObrigatoria: false,
   permitidoAlterar: {
     name: true,
     value: true,
@@ -65,11 +66,16 @@ const VALORES_INICIAIS_DA_VARIAVEL = {
     variavelHabilitada: true,
     variavelObrigatoria: true
   },
-
-  variavelAbertaNoFormulario: true,
-  erroNaVariavel: {
-    label: true
-  } 
+  conteudo: {
+    tipoDaVariavel: 'Número',
+    valorMinimo: null,
+    valorMaximo: null,
+    permitidoAlterar: {
+      tipoDaVariavel: true,
+      valorMinimo: true,
+      valorMaximo: true
+    }
+  }
 }
 
 const variavelComErro = (item) => {  
@@ -77,14 +83,7 @@ const variavelComErro = (item) => {
   else return true
 }  
 
-const HeaderDaVariavel = ({ item, index, countVariaveis, setCountVariaveis, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => {                           
-  const abreVariavelNoFormulario = (toOpen) => { 
-    const copia = variaveis
-    copia[index].variavelAbertaNoFormulario = toOpen
-    setVariaveis(copia)
-    setAtualizaFormulario(atualizaFormulario + 1)
-  }
-
+const HeaderDaVariavel = ({ item, index, countVariaveis, setCountVariaveis, variaveis, setVariaveis, variavelAberta, setVariavelAberta, atualizaFormulario, setAtualizaFormulario }) => {     
   const criaVariavelNoFormulario = () => { 
     const item = VALORES_INICIAIS_DA_VARIAVEL
     let id = 0
@@ -97,23 +96,24 @@ const HeaderDaVariavel = ({ item, index, countVariaveis, setCountVariaveis, vari
       id = numbers[numbers.length - 1].id + 1
     }
     item.id = id
+    item.name = `Variável ${id}`
+    item.value = `Variável ${id}`
+    item.label = `Variável ${id}`
+    item.erroNaVariavel = {} 
     variaveis.push(Object.assign({}, item))
     setCountVariaveis(countVariaveis + 1)
   }
 
-  const excluiVariavelNoFormulario = (i) => {
-    if (variaveis.length > 1) {
+/*   const excluiVariavelNoFormulario = (i) => {
+    if (variaveis[i].permitidoAlterar.variavelExcluida) {
       const itensCopy = Array.from(variaveis)
-      itensCopy.splice(i, 1)
-      setVariaveis(itensCopy)
-      setCountVariaveis(countVariaveis - 1)
-    } else {
-      const item = VALORES_INICIAIS_DA_VARIAVEL
-      const id = variaveis[0].id + 1
-      item.id = id
-      setVariaveis([item])
-    } 
-  }  
+      itensCopy[i].variavelHabilitada = false
+      itensCopy[i].variavelObrigatoria = false
+      itensCopy[i].variavelAbertaNoFormulario = false
+      itensCopy[i].erroNaVariavel = {} 
+      setVariaveis(itensCopy)  
+    }
+  }   */
 
   const corDoNomeDaVariavel = (item) => {    
     if (variavelComErro(item)) return 'light-danger'
@@ -126,23 +126,15 @@ const HeaderDaVariavel = ({ item, index, countVariaveis, setCountVariaveis, vari
   return (
     <Fragment>
       <Row>
-        <Badge color={corDoNomeDaVariavel(item)} pill>
+        <Badge color={corDoNomeDaVariavel(item)} pill onClick={() => setVariavelAberta(!variavelAberta)}>
           {item.label}
         </Badge>
-        <div className='column-action d-flex align-items-center'>
+        <div className='column-action d-flex align-items-center'> 
           <UncontrolledDropdown>
             <DropdownToggle tag='span'>
               <MoreVertical size={17} className='cursor-pointer' />
             </DropdownToggle>
             <DropdownMenu>
-              {!item.variavelAbertaNoFormulario && <DropdownItem className='w-100' onClick={() => abreVariavelNoFormulario(true)} >
-                <Eye size={14} className='mr-50' />
-                <span className='align-middle'>Abrir variável</span>
-              </DropdownItem>}
-              {item.variavelAbertaNoFormulario && <DropdownItem className='w-100' onClick={() => abreVariavelNoFormulario(false)} >
-                <Box size={14} className='mr-50' />
-                <span className='align-middle'>Fechar variável</span>
-              </DropdownItem>}
               <DropdownItem className='w-100' onClick={() => criaVariavelNoFormulario()}>
                 <Edit size={14} className='mr-50' />
                 <span className='align-middle'>Criar variável</span>
@@ -151,10 +143,10 @@ const HeaderDaVariavel = ({ item, index, countVariaveis, setCountVariaveis, vari
                 <Edit size={14} className='mr-50' />
                 <span className='align-middle'>Duplicar variável</span>
               </DropdownItem>                      
-              <DropdownItem className='w-100' onClick={() => excluiVariavelNoFormulario(index)}>
+{/*               {item.permitidoAlterar.variavelExcluida && <DropdownItem className='w-100' onClick={() => excluiVariavelNoFormulario(index)}>
                 <Copy size={14} className='mr-50' />
                 <span className='align-middle'>Excluir variável</span>
-              </DropdownItem>             
+              </DropdownItem>}    */}     
             </DropdownMenu>
           </UncontrolledDropdown>
         </div>
@@ -187,25 +179,6 @@ const NomeDaVariavel = ({ index, variaveis, setVariaveis }) => {
   }
 
   const defaultValue = variaveis[index].label
-  const defaultCheckedVariavelHabilitada = variaveis[index].variavelHabilitada 
-  const defaultDisabledVariavelHabilitada = !variaveis[index].permitidoAlterar.variavelHabilitada 
-  const defaultCheckedVariavelObrigatoria = variaveis[index].variavelObrigatoria
-  const defaultDisabledVariavelObrigatoria = !variaveis[index].permitidoAlterar.variavelObrigatoria 
-
-  const handleChangeVariavelHabilitada = e => { 
-    const temporaryarray = Array.from(variaveis)
-    temporaryarray[index].variavelHabilitada = !temporaryarray[index].variavelHabilitada 
-    setVariaveis(temporaryarray)
-  }
-
-  const handleChangeVariavelObrigatoria = e => {
-    const temporaryarray = Array.from(variaveis)
-    temporaryarray[index].variavelObrigatoria = !temporaryarray[index].variavelObrigatoria 
-    setVariaveis(temporaryarray)
-  }
-
-/*   variavelHabilitada: true, // não pode desabilitar uma variável que entra em cálculos
-  variavelObrigatoria: true, // não pode desobrigar uma variável que entra em cálculos */
 
   return (
     <div>
@@ -221,40 +194,85 @@ const NomeDaVariavel = ({ index, variaveis, setVariaveis }) => {
           defaultValue={defaultValue}
           autoComplete="off"
           onChange={handleChange}
+          disabled={!variaveis[index].permitidoAlterar.label}
           innerRef={register({ required: true })}
           invalid={errors[`nomeDaVariavel${index}`] && true} 
         />
        {errors && errors[`nomeDaVariavel${index}`] && <FormFeedback>Use entre {QTDADE_MIN_LETRAS_NOME_DA_VARIAVEL} e {QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL} caracteres</FormFeedback>} 
       </InputGroup>
-      <CustomInput
-        name={`variavelHabilitada${index}`}
-        id={`variavelHabilitada${index}`}
-        type='checkbox'
-        className='custom-control-success'
-        label='Variável habilitada?'
-        defaultChecked={defaultCheckedVariavelHabilitada}
-        inline
-        disabled={defaultDisabledVariavelHabilitada}
-        onChange={handleChangeVariavelHabilitada}
-      />
-      <CustomInput
-        name={`variavelObrigatoria${index}`}
-        id={`variavelObrigatoria${index}`}
-        type='checkbox'
-        className='custom-control-success'
-        label='Variável obrigatório para proposta?'
-        defaultChecked={defaultCheckedVariavelObrigatoria}
-        inline
-        disabled={defaultDisabledVariavelObrigatoria}
-        onChange={handleChangeVariavelObrigatoria}
-      />
     </div>
   ) 
 }
 
+const TipoDaVariavel = ({ index, variaveis, setVariaveis }) => {
+  const setTipoDaVariavel = (tipoDaVariavel, index) => { 
+    const temporaryarray = Array.from(variaveis)
+    temporaryarray[index].conteudo.tipoDaVariavel = tipoDaVariavel  
+    setVariaveis(temporaryarray)
+  }
+
+  const handleChangeCheckbox = (flag) => { 
+    if (variaveis[index].permitidoAlterar[flag]) {
+      const temporaryarray = Array.from(variaveis)
+      temporaryarray[index][flag] = !temporaryarray[index][flag] 
+      setVariaveis(temporaryarray)
+    }
+  }
+
+  /*   variavelHabilitada: true, // não pode desabilitar uma variável que entra em cálculos
+  variavelObrigatoria: true, // não pode desobrigar uma variável que entra em cálculos */
+
+  return ( 
+    <Fragment>
+      <Row>
+        <FormGroup tag={Col} md='6' sd='12'>
+          <Label>Tipo da variável:</Label>
+          <Select
+            id={`tipoDaVariavel${index}`}               
+            theme={selectThemeColors}
+            className='react-select'
+            classNamePrefix='select'
+            value={tipoDaVariavelOptions[tipoDaVariavelOptions.findIndex(element => element.value === variaveis[index].conteudo.tipoDaVariavel)]}
+            options={tipoDaVariavelOptions}
+            onChange={e => { setTipoDaVariavel(e.value, index) }}
+            isClearable={false}
+            isDisabled={!variaveis[index].conteudo.permitidoAlterar.tipoDaVariavel}
+          />
+        </FormGroup>
+        <FormGroup tag={Col} md='3' sd='6'>
+          <CustomInput
+            name={`variavelHabilitada${index}`}
+            id={`variavelHabilitada${index}`}
+            type='checkbox'
+            className='custom-control-success'
+            label='Variável habilitada'
+            defaultChecked={variaveis[index].variavelHabilitada}
+            inline
+            disabled={!variaveis[index].permitidoAlterar.variavelHabilitada}
+            onChange={e => { handleChangeCheckbox('variavelHabilitada') }}
+          />
+        </FormGroup> 
+        <FormGroup tag={Col} md='3' sd='6'>
+          <CustomInput
+            name={`variavelObrigatoria${index}`}
+            id={`variavelObrigatoria${index}`}
+            type='checkbox'
+            className='custom-control-success'
+            label='Variável obrigatória'
+            defaultChecked={variaveis[index].variavelObrigatoria}
+            inline
+            disabled={!variaveis[index].permitidoAlterar.variavelObrigatoria}
+            onChange={e => { handleChangeCheckbox('variavelObrigatoria') }}
+          />
+        </FormGroup>
+      </Row>
+    </Fragment>
+  )
+}
+
 const InputNumero = ({ index, atualizaValor, labelDoNumero, propriedadeDoNumero, variaveis, setVariaveis }) => { 
   const SignupSchema = yup.object().shape({
-    [`inputNumero${labelDoNumero}${index}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^\d*,?\d{2}$/).required()
+    [`inputNumero${labelDoNumero}${index}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^-?\d*,?\d+$/).required() 
   })
 
   const { register, errors, handleSubmit, trigger } = useForm({ 
@@ -284,21 +302,52 @@ const InputNumero = ({ index, atualizaValor, labelDoNumero, propriedadeDoNumero,
         <Input
           name={`inputNumero${labelDoNumero}${index}`}
           id={`inputNumero${labelDoNumero}${index}`}
-          placeholder={`Preencha com o ${labelDoNumero}`}
+          placeholder={`${labelDoNumero}`}
           defaultValue={defaultValue}
           autoComplete="off"
           innerRef={register({ required: true })}
           invalid={errors[`inputNumero${labelDoNumero}${index}`] && true}
           onChange={handleChange}
         />
-        {errors && errors[`inputNumero${labelDoNumero}${index}`] && <FormFeedback>Exemplos: 1244 ou 283,15, máximo de {QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } dígitos</FormFeedback>}
+        {errors && errors[`inputNumero${labelDoNumero}${index}`] && <FormFeedback>Máximo de {QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } caracteres (incluindo números, vírgula e sinal de menos)</FormFeedback>}
       </InputGroup>
     </div>
   )
 }
-const VariavelIndividual = ({ item, index, operacao, countVariaveis, setCountVariaveis, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => {
+
+const ConfiguraNumero = ({ index, variaveis, setVariaveis }) => {
   const [atualizaValor, setAtualizaValor] = useState(false)
 
+  return (
+    <div>
+      <Row>
+        <FormGroup tag={Col} md='6' sd='12'>
+          <InputNumero 
+            index={index}
+            atualizaValor={atualizaValor}
+            labelDoNumero={`${variaveis[index].label} (mínimo)`}
+            propriedadeDoNumero={'valorMinimo'}
+            setVariaveis={setVariaveis}  
+            variaveis={variaveis}
+          />
+        </FormGroup>
+        <FormGroup tag={Col} md='6' sd='12'>
+          <InputNumero 
+            index={index}
+            atualizaValor={atualizaValor}
+            labelDoNumero={`${variaveis[index].label} (máximo)`}
+            propriedadeDoNumero={'valorMaximo'}
+            setVariaveis={setVariaveis}  
+            variaveis={variaveis}
+          />
+        </FormGroup>
+      </Row>
+    </div>
+  )
+}
+
+const VariavelIndividual = ({ item, index, operacao, countVariaveis, setCountVariaveis, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => {
+  const [variavelAberta, setVariavelAberta] = useState(false)
   return (
     <Fragment>
       <HeaderDaVariavel 
@@ -308,31 +357,27 @@ const VariavelIndividual = ({ item, index, operacao, countVariaveis, setCountVar
         setCountVariaveis={setCountVariaveis}
         variaveis={variaveis} 
         setVariaveis={setVariaveis}  
-        atualizaFormulario={atualizaFormulario}
+        variavelAberta={variavelAberta}
+        setVariavelAberta={setVariavelAberta}
+        atualizaFormulario={atualizaFormulario} 
         setAtualizaFormulario={setAtualizaFormulario}                      
       />
-      {item.variavelAbertaNoFormulario && <div>
+      {variavelAberta && <div>
         <NomeDaVariavel 
           index={index} 
           variaveis={variaveis} 
           setVariaveis={setVariaveis}  
         />
-        <InputNumero 
-          index={index}
-          atualizaValor={atualizaValor}
-          labelDoNumero={'Valor mínimo'}
-          propriedadeDoNumero={'valorMinimo'}
-          setVariaveis={setVariaveis}  
-          variaveis={variaveis}
+        <TipoDaVariavel
+          index={index} 
+          variaveis={variaveis} 
+          setVariaveis={setVariaveis} 
         />
-        <InputNumero 
-          index={index}
-          atualizaValor={atualizaValor}
-          labelDoNumero={'Valor máximo'}
-          propriedadeDoNumero={'valorMaximo'}
+        {item.conteudo.tipoDaVariavel === 'Número' && <ConfiguraNumero 
+          index={index} 
+          variaveis={variaveis} 
           setVariaveis={setVariaveis}  
-          variaveis={variaveis}
-        />
+        />}
       </div>}
     </Fragment>
   )
@@ -498,10 +543,10 @@ const HeaderDoItem = ({ item, index, count, setCount, itensDaTabelaDePrecos, set
                 <Edit size={14} className='mr-50' />
                 <span className='align-middle'>Duplicar item</span>
               </DropdownItem>                      
-              <DropdownItem className='w-100' onClick={() => excluiItemNoFormulario(index)}>
+{/*               <DropdownItem className='w-100' onClick={() => excluiItemNoFormulario(index)}>
                 <Copy size={14} className='mr-50' />
                 <span className='align-middle'>Excluir item</span>
-              </DropdownItem>
+              </DropdownItem> */}
               <DropdownItem className='w-100'>
                 <Edit size={14} className='mr-50' />
                 <span className='align-middle'>Simular preço</span>
@@ -681,14 +726,6 @@ const VariávelXValorFixo = ({ index, atualizaValor, componentesDoItem, setCompo
 }
 
 const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente, componentesDoItem, setComponentesDoItem, itensDaTabelaDePrecos, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => { 
-  const [formModal, setFormModal] = useState(false)
-
-  const tipoDoComponenteOptions = [
-    { name: 'tipoDoComponente', value: 'Valor fixo', label: 'Valor fixo' },
-    { name: 'tipoDoComponente', value: 'Variável x valor fixo', label: 'Variável x valor fixo' },
-    { name: 'tipoDoComponente', value: 'Tabela', label: 'Tabela' }
-  ]
-
   const [atualizaValor, setAtualizaValor] = useState(false)
   const setTipoDoComponente = (tipoDoComponente, index) => { 
     const temporaryarray = Array.from(componentesDoItem)
@@ -922,13 +959,6 @@ const ItensDePreco = ({ userData, empresa, todasAsTabelaDePrecos, tabelaDePrecos
   }, [variaveis.length]) 
 
   console.log("==================== No ItensDePreco")
-/*   console.log("operacao=", operacao)
-  console.log("todasAsTabelaDePrecos=", todasAsTabelaDePrecos)
-  console.log("dadosInformativosOpcionais=", dadosInformativosOpcionais) 
-  console.log("dadosInformativosObrigatorios=", dadosInformativosObrigatorios)  
-  console.log("atualizaFormulario=", atualizaFormulario) 
-  console.log("versaoDaTabelaDePrecos=", versaoDaTabelaDePrecos) 
-  console.log("tabelaDePrecos=", tabelaDePrecos) */
   console.log("itensDaTabelaDePrecos=", itensDaTabelaDePrecos)  
   console.log("variaveis=", variaveis) 
 

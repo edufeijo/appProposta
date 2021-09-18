@@ -492,7 +492,7 @@ const LinhaALinha = ({ userData, empresa, proposta, setProposta, versaoDaPropost
                             setTabelaDeItens={setTabelaDeItens}
                           />
                         </div>
-                      </Col>
+                      </Col>  
                       <Col md={2}>
                         <Button.Ripple block color='danger' className='text-nowrap px-1' onClick={() => deleteForm(i)} outline>
                           <Trash size={14} className='mr-50' />
