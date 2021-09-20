@@ -48,14 +48,61 @@ const tipoDoComponenteOptions = [
 ]
 
 const tipoDaVariavelOptions = [
-  { name: 'tipoDaVariavel', value: 'Número', label: 'Número' },
-  { name: 'tipoDaVariavel', value: 'Sim ou não', label: 'Sim ou não' },
-  { name: 'tipoDaVariavel', value: 'Seleção', label: 'Seleção' },
-  { name: 'tipoDaVariavel', value: 'Alfanumérica', label: 'Alfanumérica' },
-  { name: 'tipoDaVariavel', value: 'Data', label: 'Data' },
-  { name: 'tipoDaVariavel', value: 'Tabela', label: 'Tabela' }
+  { name: 'tipoDaVariavel', value: 'NUMERO', label: 'Número' },
+  { name: 'tipoDaVariavel', value: 'SIMNAO', label: 'Sim ou não' },
+  { name: 'tipoDaVariavel', value: 'SELECAO', label: 'Seleção' },
+  { name: 'tipoDaVariavel', value: 'ALFANUMERICA', label: 'Alfanumérica' },
+  { name: 'tipoDaVariavel', value: 'DATA', label: 'Data' },
+  { name: 'tipoDaVariavel', value: 'TABELA', label: 'Tabela' }
 ]
-   
+
+const VALORES_INICIAIS_DA_VARIAVEL_NUMERO = {
+  tipoDaVariavel: 'NUMERO',
+  valorMinimo: null,
+  valorMaximo: null,
+  permitidoAlterar: {
+    tipoDaVariavel: true,
+    valorMinimo: true,
+    valorMaximo: true
+  }
+}
+
+const VALORES_INICIAIS_DA_VARIAVEL_SIM_OU_NAO = {
+  tipoDaVariavel: 'SIMNAO',
+  permitidoAlterar: {
+    tipoDaVariavel: true
+  }
+}
+
+const VALORES_INICIAIS_DA_VARIAVEL_SELECAO = {
+  tipoDaVariavel: 'SELECAO',
+  opções: [],
+  permitidoAlterar: {
+    tipoDaVariavel: true
+  }
+}
+
+const VALORES_INICIAIS_DA_VARIAVEL_ALFANUMERICA = {
+  tipoDaVariavel: 'ALFANUMERICA',
+  permitidoAlterar: {
+    tipoDaVariavel: true
+  }
+}
+
+const VALORES_INICIAIS_DA_VARIAVEL_DATA = {
+  tipoDaVariavel: 'DATA',
+  permitidoAlterar: {
+    tipoDaVariavel: true
+  }
+}
+
+const VALORES_INICIAIS_DA_VARIAVEL_TABELA = {
+  tipoDaVariavel: 'TABELA',
+  permitidoAlterar: {
+    tipoDaVariavel: true
+  }
+}
+
 const VALORES_INICIAIS_DA_VARIAVEL = {
   variavelHabilitada: true, // não pode desabilitar uma variável que entra em cálculos
   variavelObrigatoria: false,
@@ -66,16 +113,7 @@ const VALORES_INICIAIS_DA_VARIAVEL = {
     variavelHabilitada: true,
     variavelObrigatoria: true
   },
-  conteudo: {
-    tipoDaVariavel: 'Número',
-    valorMinimo: null,
-    valorMaximo: null,
-    permitidoAlterar: {
-      tipoDaVariavel: true,
-      valorMinimo: true,
-      valorMaximo: true
-    }
-  }
+  conteudo: VALORES_INICIAIS_DA_VARIAVEL_NUMERO
 }
 
 const variavelComErro = (item) => {  
@@ -207,7 +245,22 @@ const NomeDaVariavel = ({ index, variaveis, setVariaveis }) => {
 const TipoDaVariavel = ({ index, variaveis, setVariaveis }) => {
   const setTipoDaVariavel = (tipoDaVariavel, index) => { 
     const temporaryarray = Array.from(variaveis)
-    temporaryarray[index].conteudo.tipoDaVariavel = tipoDaVariavel  
+
+    console.log("-----------------------------------=")
+    console.log("tipoDaVariavel=", tipoDaVariavel)
+    
+    if (tipoDaVariavel === 'NUMERO') temporaryarray[index].conteudo = VALORES_INICIAIS_DA_VARIAVEL_NUMERO
+    else 
+    if (tipoDaVariavel === 'SIMNAO') temporaryarray[index].conteudo = VALORES_INICIAIS_DA_VARIAVEL_SIM_OU_NAO
+    else 
+    if (tipoDaVariavel === 'SELECAO') temporaryarray[index].conteudo = VALORES_INICIAIS_DA_VARIAVEL_SELECAO
+    else 
+    if (tipoDaVariavel === 'ALFANUMERICA') temporaryarray[index].conteudo = VALORES_INICIAIS_DA_VARIAVEL_ALFANUMERICA
+    else 
+    if (tipoDaVariavel === 'DATA') temporaryarray[index].conteudo = VALORES_INICIAIS_DA_VARIAVEL_DATA
+    else 
+    if (tipoDaVariavel === 'TABELA') temporaryarray[index].conteudo = VALORES_INICIAIS_DA_VARIAVEL_TABELA
+
     setVariaveis(temporaryarray)
   }
 
@@ -230,6 +283,7 @@ const TipoDaVariavel = ({ index, variaveis, setVariaveis }) => {
           <Select
             id={`tipoDaVariavel${index}`}               
             theme={selectThemeColors}
+            maxMenuHeight={240}
             className='react-select'
             classNamePrefix='select'
             value={tipoDaVariavelOptions[tipoDaVariavelOptions.findIndex(element => element.value === variaveis[index].conteudo.tipoDaVariavel)]}
@@ -694,11 +748,29 @@ const ValorFixoDoComponente = ({ index, atualizaValor, componentesDoItem, setCom
 }
 
 const VariávelXValorFixo = ({ index, atualizaValor, componentesDoItem, setComponentesDoItem, variaveis }) => { 
+  const [variaveisNumericas, setVariaveisNumericas] = useState([])
+  let defaultValue = null
+
+  const montaVariaveisNumericas = () => { 
+    variaveisNumericas.length = 0
+    variaveis.map(variavel => {
+      if (variavel.conteudo.tipoDaVariavel === 'Número' || variavel.conteudo.tipoDaVariavel === 'Tabela') variaveisNumericas.push(variavel)
+    })  
+  }
+
+  useEffect(() => {
+    if (variaveis.length) montaVariaveisNumericas()
+  }, [variaveis])
+
   const handleChangeSelect = e => { 
     const temporaryarray = Array.from(componentesDoItem)
     temporaryarray[index].variavel = e
     setComponentesDoItem(temporaryarray)
   }
+
+  montaVariaveisNumericas()
+  if (componentesDoItem.variavel) defaultValue = componentesDoItem.variavel
+  else defaultValue = variaveisNumericas.length ? variaveisNumericas[0] : null
 
   return (
     <div key={atualizaValor}>
@@ -707,10 +779,11 @@ const VariávelXValorFixo = ({ index, atualizaValor, componentesDoItem, setCompo
         <Select
           id={`escolhaDeVariavel${index}`}               
           theme={selectThemeColors}
+          maxMenuHeight={120}
           className='react-select'
           classNamePrefix='select'
-          defaultValue={variaveis[0]}
-          options={variaveis}
+          defaultValue={defaultValue}
+          options={variaveisNumericas}
           onChange={handleChangeSelect}
           isClearable={false}
         />
@@ -733,7 +806,6 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
     temporaryarray[index].valorFixoDoComponente = null
     temporaryarray[index].erroNoComponente = { valorFixoDoComponente: true } 
     if (tipoDoComponente === 'Valor fixo') delete temporaryarray[index].variavel
-    else if (tipoDoComponente === 'Variável x valor fixo' && variaveis.length) temporaryarray[index].variavel = variaveis[0]
     setComponentesDoItem(temporaryarray)
     setAtualizaValor(!atualizaValor) 
   }
@@ -763,8 +835,9 @@ const PrecoDoItem = ({ indexItem, operacao, countComponente, setCountComponente,
                 <FormGroup>
                   <Label>Tipo do componente de preço:</Label>
                   <Select
-                    id={`tipoDoComponente${index}`}               
+                    id={`tipoDoComponente${index}`}              
                     theme={selectThemeColors}
+                    maxMenuHeight={240}
                     className='react-select'
                     classNamePrefix='select'
                     defaultValue={tipoDoComponenteOptions[0]}

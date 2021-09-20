@@ -132,7 +132,7 @@ const SETOR_SEGMENTO_SERVICO = [
           variavelObrigatoria: false
         },
         conteudo: {
-          tipoDaVariavel: 'Alfanumérica',
+          tipoDaVariavel: 'ALFANUMERICA',
           permitidoAlterar: {
             tipoDaVariavel: false
           }
@@ -154,7 +154,7 @@ const SETOR_SEGMENTO_SERVICO = [
           variavelObrigatoria: true
         },
         conteudo: {
-          tipoDaVariavel: 'Alfanumérica',
+          tipoDaVariavel: 'ALFANUMERICA',
           permitidoAlterar: {
             tipoDaVariavel: false
           }
@@ -176,7 +176,7 @@ const SETOR_SEGMENTO_SERVICO = [
           variavelObrigatoria: true
         },
         conteudo: {
-          tipoDaVariavel: 'Data',
+          tipoDaVariavel: 'DATA',
           permitidoAlterar: {
             tipoDaVariavel: false
           }
@@ -198,13 +198,57 @@ const SETOR_SEGMENTO_SERVICO = [
           variavelObrigatoria: true
         },
         conteudo: {
-          tipoDaVariavel: 'Número',
+          tipoDaVariavel: 'NUMERO',
           valorMinimo: null,
           valorMaximo: null,
           permitidoAlterar: {
             tipoDaVariavel: false,
             valorMinimo: true,
             valorMaximo: true
+          }
+        },
+        erroNaVariavel: {} 
+      },
+      {
+        id: 4,
+        name: "Proposta solicitada via",
+        value: "Proposta solicitada via",
+        label: "Proposta solicitada via",
+        variavelHabilitada: true,
+        variavelObrigatoria: false,
+        permitidoAlterar: {
+          name: false,
+          value: false,
+          label: false,
+          variavelHabilitada: true,
+          variavelObrigatoria: true
+        },
+        conteudo: {
+          tipoDaVariavel: 'SELECAO',
+          permitidoAlterar: {
+            tipoDaVariavel: false
+          }
+        },
+        erroNaVariavel: {} 
+      },
+      {
+        id: 5,
+        name: "Quem pediu",
+        value: "Quem pediu",
+        label: "Quem pediu",
+        variavelHabilitada: true,
+        variavelObrigatoria: false,
+        permitidoAlterar: {
+          name: false,
+          value: false,
+          label: false,
+          variavelHabilitada: true,
+          variavelObrigatoria: true
+        },
+        conteudo: {
+          tipoDaVariavel: 'ALFANUMERICA',
+          permitidoAlterar: {
+            tipoDaVariavel: false
           }
         },
         erroNaVariavel: {} 
