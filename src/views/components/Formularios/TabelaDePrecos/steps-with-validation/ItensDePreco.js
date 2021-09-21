@@ -7,18 +7,7 @@ import { selectThemeColors, isObjEmpty } from '@utils'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm  } from 'react-hook-form'
-import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM, QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA, QTDADE_MIN_LETRAS_NOME_DA_VARIAVEL, QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL } from '../../../../../configs/appProposta'
-
-const erroQuantidadeDeCaracteres = (campo, min, max) => {
-  /*  retorna:
-      0 se campo está correto
-      1 se campo é null e não precisa mostrar msg de erro
-      2 se campo não está preenchido corretamente  
-  */
-  if (campo === null) return 1
-  else if (campo.length < min || campo.length > max) return 2
-  else return 0
-}
+import { QTDADE_MIN_LETRAS_NOME_DO_ITEM, QTDADE_MAX_LETRAS_NOME_DO_ITEM, QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA, QTDADE_MIN_LETRAS_NOME_DA_VARIAVEL, QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL, QTDADE_MIN_LETRAS_OPCAO_DA_SELECAO, QTDADE_MAX_LETRAS_OPCAO_DA_SELECAO } from '../../../../../configs/appProposta'
 
 const VALORES_INICIAIS_DO_ITEM_DA_TABELA_DE_PRECOS = { 
   id: 0,
@@ -58,7 +47,7 @@ const tipoDaVariavelOptions = [
 
 const VALORES_INICIAIS_DA_VARIAVEL_NUMERO = {
   tipoDaVariavel: 'NUMERO',
-  valorMinimo: null,
+  valorMinimo: 0,
   valorMaximo: null,
   permitidoAlterar: {
     tipoDaVariavel: true,
@@ -76,7 +65,7 @@ const VALORES_INICIAIS_DA_VARIAVEL_SIM_OU_NAO = {
 
 const VALORES_INICIAIS_DA_VARIAVEL_SELECAO = {
   tipoDaVariavel: 'SELECAO',
-  opções: [],
+  opcoes: [],
   permitidoAlterar: {
     tipoDaVariavel: true
   }
@@ -116,14 +105,93 @@ const VALORES_INICIAIS_DA_VARIAVEL = {
   conteudo: VALORES_INICIAIS_DA_VARIAVEL_NUMERO
 }
 
-const variavelComErro = (item) => {  
-  if (isObjEmpty(item.erroNaVariavel)) return false
+const VALORES_INICIAIS_DA_OPCAO_DA_SELECAO = {
+  id: 1,
+  label: 'Opção 1',
+  erroNaOpcao: {}
+}
+
+const variavelComErro = (variavel, opcoes) => {  
+  let erroNaOpcao = false
+  opcoes.map(opcao => {
+    if (!isObjEmpty(opcao.erroNaOpcao)) erroNaOpcao = true || erroNaOpcao
+  }) 
+  
+  if (!erroNaOpcao && isObjEmpty(variavel.erroNaVariavel)) return false
   else return true
 }  
+ 
+const HeaderDaOpcaoDaSelecao = ({ index, opcoes, setOpcoes, countOpcoes, setCountOpcoes }) => {                           
+  const criaOpcao = () => { 
+    const item = Object.assign({}, VALORES_INICIAIS_DA_OPCAO_DA_SELECAO)
+    let id = 0
+    if (opcoes.length === 1) id = opcoes[0].id + 1
+    else {
+      const numbers = Array.from(opcoes)
+      numbers.sort(function(a, b) {
+        return a.id - b.id
+      })
+      id = numbers[numbers.length - 1].id + 1
+    }
+    item.id = id
+    item.label = `Opção ${opcoes.length + 1}`
+    opcoes.push(Object.assign({}, item))
 
-const HeaderDaVariavel = ({ item, index, countVariaveis, setCountVariaveis, variaveis, setVariaveis, variavelAberta, setVariavelAberta, atualizaFormulario, setAtualizaFormulario }) => {     
+    console.log("-------------------------")
+    console.log("item=", item)
+    console.log("opcoes=", opcoes)
+    setCountOpcoes(countOpcoes + 1)
+  }
+
+  const excluiOpcao = (i) => {
+    if (opcoes.length > 1) {
+      const itensCopy = Array.from(opcoes)
+      itensCopy.splice(i, 1)
+      setOpcoes(itensCopy)
+      setCountOpcoes(countOpcoes - 1)
+    } else {
+      const item = VALORES_INICIAIS_DA_OPCAO_DA_SELECAO
+      const id = opcoes[0].id + 1
+      item.id = id
+      setOpcoes([item])
+    } 
+  }  
+
+  return (
+    <Fragment>
+      <Row>
+        <Badge color={isObjEmpty(opcoes[index].erroNaOpcao) ? 'light-primary' : 'light-danger'}  pill>
+          Opção {index + 1}
+        </Badge>
+        <div className='column-action d-flex align-items-center'> 
+          <UncontrolledDropdown direction='left'>
+            <DropdownToggle tag='span'>
+              <MoreVertical size={17} className='cursor-pointer' />
+            </DropdownToggle>
+            <DropdownMenu>
+              <DropdownItem className='w-100' onClick={() => criaOpcao()}>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Criar opção</span>
+              </DropdownItem>               
+              <DropdownItem className='w-100'>
+                <Edit size={14} className='mr-50' />
+                <span className='align-middle'>Duplicar opção</span>
+              </DropdownItem>                                 
+              <DropdownItem className='w-100' onClick={() => excluiOpcao(index)}>
+                <Copy size={14} className='mr-50' />
+                <span className='align-middle'>Excluir opção</span>
+              </DropdownItem>               
+            </DropdownMenu>
+          </UncontrolledDropdown>
+        </div>
+      </Row>
+    </Fragment>
+  )
+}
+
+const HeaderDaVariavel = ({ item, index, opcoes, countVariaveis, setCountVariaveis, variaveis, setVariaveis, variavelAberta, setVariavelAberta, atualizaFormulario, setAtualizaFormulario }) => {     
   const criaVariavelNoFormulario = () => { 
-    const item = VALORES_INICIAIS_DA_VARIAVEL
+    const item = Object.assign({}, VALORES_INICIAIS_DA_VARIAVEL)
     let id = 0
     if (variaveis.length === 1) id = variaveis[0].id + 1
     else {
@@ -138,7 +206,13 @@ const HeaderDaVariavel = ({ item, index, countVariaveis, setCountVariaveis, vari
     item.value = `Variável ${id}`
     item.label = `Variável ${id}`
     item.erroNaVariavel = {} 
+    item.conteudo = Object.assign({}, VALORES_INICIAIS_DA_VARIAVEL_NUMERO)
     variaveis.push(Object.assign({}, item))
+
+    console.log("---------------------------------")
+    console.log("item=", item)
+    console.log("variaveis=", variaveis)
+
     setCountVariaveis(countVariaveis + 1)
   }
 
@@ -154,7 +228,7 @@ const HeaderDaVariavel = ({ item, index, countVariaveis, setCountVariaveis, vari
   }   */
 
   const corDoNomeDaVariavel = (item) => {    
-    if (variavelComErro(item)) return 'light-danger'
+    if (variavelComErro(item, opcoes)) return 'light-danger'
     else {
       if (item.variavelHabilitada) return 'primary'
       else return 'light-secondary'
@@ -219,10 +293,9 @@ const NomeDaVariavel = ({ index, variaveis, setVariaveis }) => {
   const defaultValue = variaveis[index].label
 
   return (
-    <div>
-      <p></p>
+    <Fragment>
       <Label className='form-label' for={`nomeDaVariavel${index}`}>
-        Nome da variável
+        Nome da variável:
       </Label>
       <InputGroup className='input-group-merge mb-2'>
         <Input
@@ -238,16 +311,55 @@ const NomeDaVariavel = ({ index, variaveis, setVariaveis }) => {
         />
        {errors && errors[`nomeDaVariavel${index}`] && <FormFeedback>Use entre {QTDADE_MIN_LETRAS_NOME_DA_VARIAVEL} e {QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL} caracteres</FormFeedback>} 
       </InputGroup>
-    </div>
+    </Fragment>
   ) 
+}
+
+const FlagsDaVariavel = ({ index, variaveis, setVariaveis }) => {
+  const handleChangeCheckbox = (flag) => { 
+    if (variaveis[index].permitidoAlterar[flag]) {
+      const temporaryarray = Array.from(variaveis)
+      temporaryarray[index][flag] = !temporaryarray[index][flag] 
+      setVariaveis(temporaryarray)
+    }
+  }
+
+  /*   variavelHabilitada: true, // não pode desabilitar uma variável que entra em cálculos
+  variavelObrigatoria: true, // não pode desobrigar uma variável que entra em cálculos */
+
+  return ( 
+    <Fragment>
+      <p></p>
+      <CustomInput
+        name={`variavelHabilitada${index}`}
+        id={`variavelHabilitada${index}`}
+        type='checkbox'
+        className='custom-control-success'
+        label='Variável habilitada'
+        defaultChecked={variaveis[index].variavelHabilitada}
+        inline
+        disabled={!variaveis[index].permitidoAlterar.variavelHabilitada}
+        onChange={e => { handleChangeCheckbox('variavelHabilitada') }}
+      />
+      <CustomInput
+        name={`variavelObrigatoria${index}`}
+        id={`variavelObrigatoria${index}`}
+        type='checkbox'
+        className='custom-control-success'
+        label='Variável obrigatória'
+        defaultChecked={variaveis[index].variavelObrigatoria}
+        inline
+        disabled={!variaveis[index].permitidoAlterar.variavelObrigatoria}
+        onChange={e => { handleChangeCheckbox('variavelObrigatoria') }}
+      />
+      <p></p>
+    </Fragment>
+  )
 }
 
 const TipoDaVariavel = ({ index, variaveis, setVariaveis }) => {
   const setTipoDaVariavel = (tipoDaVariavel, index) => { 
     const temporaryarray = Array.from(variaveis)
-
-    console.log("-----------------------------------=")
-    console.log("tipoDaVariavel=", tipoDaVariavel)
     
     if (tipoDaVariavel === 'NUMERO') temporaryarray[index].conteudo = VALORES_INICIAIS_DA_VARIAVEL_NUMERO
     else 
@@ -264,67 +376,27 @@ const TipoDaVariavel = ({ index, variaveis, setVariaveis }) => {
     setVariaveis(temporaryarray)
   }
 
-  const handleChangeCheckbox = (flag) => { 
-    if (variaveis[index].permitidoAlterar[flag]) {
-      const temporaryarray = Array.from(variaveis)
-      temporaryarray[index][flag] = !temporaryarray[index][flag] 
-      setVariaveis(temporaryarray)
-    }
-  }
-
-  /*   variavelHabilitada: true, // não pode desabilitar uma variável que entra em cálculos
-  variavelObrigatoria: true, // não pode desobrigar uma variável que entra em cálculos */
-
   return ( 
     <Fragment>
-      <Row>
-        <FormGroup tag={Col} md='6' sd='12'>
-          <Label>Tipo da variável:</Label>
-          <Select
-            id={`tipoDaVariavel${index}`}               
-            theme={selectThemeColors}
-            maxMenuHeight={240}
-            className='react-select'
-            classNamePrefix='select'
-            value={tipoDaVariavelOptions[tipoDaVariavelOptions.findIndex(element => element.value === variaveis[index].conteudo.tipoDaVariavel)]}
-            options={tipoDaVariavelOptions}
-            onChange={e => { setTipoDaVariavel(e.value, index) }}
-            isClearable={false}
-            isDisabled={!variaveis[index].conteudo.permitidoAlterar.tipoDaVariavel}
-          />
-        </FormGroup>
-        <FormGroup tag={Col} md='3' sd='6'>
-          <CustomInput
-            name={`variavelHabilitada${index}`}
-            id={`variavelHabilitada${index}`}
-            type='checkbox'
-            className='custom-control-success'
-            label='Variável habilitada'
-            defaultChecked={variaveis[index].variavelHabilitada}
-            inline
-            disabled={!variaveis[index].permitidoAlterar.variavelHabilitada}
-            onChange={e => { handleChangeCheckbox('variavelHabilitada') }}
-          />
-        </FormGroup> 
-        <FormGroup tag={Col} md='3' sd='6'>
-          <CustomInput
-            name={`variavelObrigatoria${index}`}
-            id={`variavelObrigatoria${index}`}
-            type='checkbox'
-            className='custom-control-success'
-            label='Variável obrigatória'
-            defaultChecked={variaveis[index].variavelObrigatoria}
-            inline
-            disabled={!variaveis[index].permitidoAlterar.variavelObrigatoria}
-            onChange={e => { handleChangeCheckbox('variavelObrigatoria') }}
-          />
-        </FormGroup>
-      </Row>
+      <Label className='form-label' for={`tipoDaVariavel${index}`}>Tipo da variável:</Label>
+      <Select
+        id={`tipoDaVariavel${index}`}               
+        theme={selectThemeColors}
+        maxMenuHeight={120}
+        className='react-select'
+        classNamePrefix='select'
+        value={tipoDaVariavelOptions[tipoDaVariavelOptions.findIndex(element => element.value === variaveis[index].conteudo.tipoDaVariavel)]}
+        options={tipoDaVariavelOptions}
+        onChange={e => { setTipoDaVariavel(e.value, index) }}
+        isClearable={false}
+        isDisabled={!variaveis[index].conteudo.permitidoAlterar.tipoDaVariavel}
+      />
+      <p></p>
     </Fragment>
   )
 }
 
-const InputNumero = ({ index, atualizaValor, labelDoNumero, propriedadeDoNumero, variaveis, setVariaveis }) => { 
+const InputNumero = ({ index, labelDoNumero, propriedadeDoNumero, variaveis, setVariaveis }) => { 
   const SignupSchema = yup.object().shape({
     [`inputNumero${labelDoNumero}${index}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^-?\d*,?\d+$/).required() 
   })
@@ -348,7 +420,7 @@ const InputNumero = ({ index, atualizaValor, labelDoNumero, propriedadeDoNumero,
   }
 
   return (
-    <div key={atualizaValor}>
+    <div>
       <Label className='form-label' for={`inputNumero${labelDoNumero}${index}`}>
         {labelDoNumero}
       </Label>
@@ -370,43 +442,143 @@ const InputNumero = ({ index, atualizaValor, labelDoNumero, propriedadeDoNumero,
 }
 
 const ConfiguraNumero = ({ index, variaveis, setVariaveis }) => {
-  const [atualizaValor, setAtualizaValor] = useState(false)
-
   return (
-    <div>
+    <Fragment>
       <Row>
-        <FormGroup tag={Col} md='6' sd='12'>
+        <FormGroup tag={Col} md='6' sd='6'>
           <InputNumero 
             index={index}
-            atualizaValor={atualizaValor}
-            labelDoNumero={`${variaveis[index].label} (mínimo)`}
+            id={`inputMinimo${index}`}
+            labelDoNumero={`${variaveis[index].label} (valor mínimo)`}
             propriedadeDoNumero={'valorMinimo'}
             setVariaveis={setVariaveis}  
             variaveis={variaveis}
           />
         </FormGroup>
-        <FormGroup tag={Col} md='6' sd='12'>
+        <FormGroup tag={Col} md='6' sd='6'>
           <InputNumero 
             index={index}
-            atualizaValor={atualizaValor}
-            labelDoNumero={`${variaveis[index].label} (máximo)`}
+            id={`inputMaximo${index}`}
+            labelDoNumero={`${variaveis[index].label} (valor máximo)`}
             propriedadeDoNumero={'valorMaximo'}
             setVariaveis={setVariaveis}  
             variaveis={variaveis}
           />
         </FormGroup>
       </Row>
-    </div>
+    </Fragment>
+  )
+}
+
+const InputOpcaoDaSelecao = ({ index, indexDaOpcao, variaveis, setVariaveis, opcoes, setOpcoes, countOpcoes, setCountOpcoes }) => {
+  const SignupSchema = yup.object().shape({ 
+    [`opcaoDaSelecao${indexDaOpcao}`]: yup.string().min(QTDADE_MIN_LETRAS_OPCAO_DA_SELECAO).max(QTDADE_MAX_LETRAS_OPCAO_DA_SELECAO).required()
+  }) 
+
+  const { register, errors, handleSubmit, trigger } = useForm({ 
+    mode: 'onChange', 
+    resolver: yupResolver(SignupSchema)
+  }) 
+
+  const handleChange = (e, index) => {
+    const { value } = e.target    
+    const temporaryarray = Array.from(opcoes)
+    temporaryarray[index].label = value
+
+    if (isObjEmpty(errors)) delete temporaryarray[index].erroNaOpcao.label
+    else temporaryarray[index].erroNaOpcao = errors   
+
+    console.log("index=", index)
+    console.log("errors=", errors)  
+    console.log("temporaryarray=", temporaryarray)  
+
+    setOpcoes(temporaryarray)
+  }
+
+  let defaultValue = null
+  if (variaveis && variaveis[index].conteudo.opcoes && variaveis[index].conteudo.opcoes.length) defaultValue = variaveis[index].conteudo.opcoes[indexDaOpcao].label
+  else defaultValue = opcoes[indexDaOpcao].label
+
+  console.log("index=", index)
+  console.log("indexDaOpcao=", indexDaOpcao)
+  console.log("opcoes=", opcoes)
+  console.log("defaultValue=", defaultValue)
+
+  return (
+    <Fragment>
+      <HeaderDaOpcaoDaSelecao 
+        index={indexDaOpcao}
+        opcoes={opcoes}
+        setOpcoes={setOpcoes}
+        countOpcoes={countOpcoes}
+        setCountOpcoes={setCountOpcoes}
+      />
+      <InputGroup className='input-group-merge mb-2'>
+        <Input
+          name={`opcaoDaSelecao${indexDaOpcao}`}
+          id={`opcaoDaSelecao${indexDaOpcao}`}
+          placeholder={`Preencha com a opção ${indexDaOpcao}`}
+          defaultValue={defaultValue}
+          autoComplete="off"
+          onChange={e => { handleChange(e, indexDaOpcao) }}
+          innerRef={register({ required: true })}
+          invalid={errors[`opcaoDaSelecao${indexDaOpcao}`] && true} 
+        />
+        {errors && errors[`opcaoDaSelecao${indexDaOpcao}`] && <FormFeedback>Use entre {QTDADE_MIN_LETRAS_OPCAO_DA_SELECAO} e {QTDADE_MAX_LETRAS_OPCAO_DA_SELECAO} caracteres</FormFeedback>} 
+      </InputGroup>
+    </Fragment>
+  ) 
+}
+
+const ConfiguraSelecao = ({ index, variaveis, setVariaveis, opcoes, setOpcoes }) => {
+  const [countOpcoes, setCountOpcoes] = useState(opcoes.length)
+
+  useEffect(() => {
+    setCountOpcoes(opcoes.length)
+  }, [opcoes.length]) 
+  
+  return (
+    <Fragment>
+      <div key={countOpcoes}>
+        <p>Preencha com as <code>opções</code> desta variável.</p>
+        <ReactSortable
+          tag='ul'
+          className='list-group'
+          list={opcoes}
+          setList={setOpcoes}
+        >
+          {opcoes.map((item, indexDaOpcao) => {
+            return (
+              <ListGroupItem key={item.id}>
+                <InputOpcaoDaSelecao
+                  index={index} 
+                  indexDaOpcao={indexDaOpcao}
+                  variaveis={variaveis} 
+                  setVariaveis={setVariaveis} 
+                  opcoes={opcoes}
+                  setOpcoes={setOpcoes}
+                  countOpcoes={countOpcoes}
+                  setCountOpcoes={setCountOpcoes}
+                />
+              </ListGroupItem>
+            )
+          })}
+        </ReactSortable>
+      </div>
+    </Fragment>
   )
 }
 
 const VariavelIndividual = ({ item, index, operacao, countVariaveis, setCountVariaveis, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => {
   const [variavelAberta, setVariavelAberta] = useState(false)
+  const [opcoes, setOpcoes] = useState([VALORES_INICIAIS_DA_OPCAO_DA_SELECAO])
+
   return (
     <Fragment>
       <HeaderDaVariavel 
         item={item} 
         index={index}
+        opcoes={opcoes}
         countVariaveis={countVariaveis}
         setCountVariaveis={setCountVariaveis}
         variaveis={variaveis} 
@@ -422,13 +594,25 @@ const VariavelIndividual = ({ item, index, operacao, countVariaveis, setCountVar
           variaveis={variaveis} 
           setVariaveis={setVariaveis}  
         />
+        <FlagsDaVariavel
+          index={index} 
+          variaveis={variaveis} 
+          setVariaveis={setVariaveis} 
+        />
         <TipoDaVariavel
           index={index} 
           variaveis={variaveis} 
           setVariaveis={setVariaveis} 
         />
-        {item.conteudo.tipoDaVariavel === 'Número' && <ConfiguraNumero 
+        {item.conteudo.tipoDaVariavel === 'NUMERO' && <ConfiguraNumero 
           index={index} 
+          variaveis={variaveis} 
+          setVariaveis={setVariaveis}  
+        />}
+        {item.conteudo.tipoDaVariavel === 'SELECAO' && <ConfiguraSelecao 
+          index={index} 
+          opcoes={opcoes}
+          setOpcoes={setOpcoes}
           variaveis={variaveis} 
           setVariaveis={setVariaveis}  
         />}
@@ -754,7 +938,9 @@ const VariávelXValorFixo = ({ index, atualizaValor, componentesDoItem, setCompo
   const montaVariaveisNumericas = () => { 
     variaveisNumericas.length = 0
     variaveis.map(variavel => {
-      if (variavel.conteudo.tipoDaVariavel === 'Número' || variavel.conteudo.tipoDaVariavel === 'Tabela') variaveisNumericas.push(variavel)
+      if (variavel.conteudo.tipoDaVariavel === 'NUMERO' || variavel.conteudo.tipoDaVariavel === 'TABELA') {
+        variaveisNumericas.push(variavel)
+      }
     })  
   }
 

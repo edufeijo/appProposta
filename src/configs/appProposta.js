@@ -18,6 +18,9 @@ const QTDADE_MAX_CARACTERES_DESCRICAO_DO_ITEM = 500
 const QTDADE_MIN_LETRAS_SSS = 3
 const QTDADE_MAX_LETRAS_SSS = 20
 
+const QTDADE_MIN_LETRAS_OPCAO_DA_SELECAO = 1
+const QTDADE_MAX_LETRAS_OPCAO_DA_SELECAO = 20
+
 const QTDADE_MAX_LETRAS_NOME_DO_USUARIO = 30
 const QTDADE_MAX_LETRAS_QUEM_PEDIU = 50
 const QTDADE_MAX_LETRAS_EMAIL_DO_USUARIO = 30
@@ -199,7 +202,7 @@ const SETOR_SEGMENTO_SERVICO = [
         },
         conteudo: {
           tipoDaVariavel: 'NUMERO',
-          valorMinimo: null,
+          valorMinimo: 0,
           valorMaximo: null,
           permitidoAlterar: {
             tipoDaVariavel: false,
@@ -379,5 +382,7 @@ export {
     QTDADE_MIN_LETRAS_SSS,
     QTDADE_MAX_LETRAS_SSS,
     QTDADE_MIN_LETRAS_NOME_DA_VARIAVEL,
-    QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL
+    QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL,
+    QTDADE_MIN_LETRAS_OPCAO_DA_SELECAO,
+    QTDADE_MAX_LETRAS_OPCAO_DA_SELECAO
 }
