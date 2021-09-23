@@ -71,6 +71,23 @@ const VALORES_INICIAIS_DA_VERSAO_DA_PROPOSTA = {
   arquivoDaProposta: null
 } 
 
+const VALORES_INICIAIS_DA_OPCAO_DA_SELECAO = {
+  id: 1,
+  label: 'Opção 1',
+  erroNaOpcao: {}
+}
+
+const VALORES_INICIAIS_DA_VARIAVEL_NUMERO = {
+  tipoDaVariavel: 'NUMERO',
+  valorMinimo: null,
+  valorMaximo: null,
+  permitidoAlterar: {
+    tipoDaVariavel: true,
+    valorMinimo: true,
+    valorMaximo: true
+  }
+}
+
 const SERVICOS_EM_EVENTOS = [
   {
     name: "servico",
@@ -384,5 +401,7 @@ export {
     QTDADE_MIN_LETRAS_NOME_DA_VARIAVEL,
     QTDADE_MAX_LETRAS_NOME_DA_VARIAVEL,
     QTDADE_MIN_LETRAS_OPCAO_DA_SELECAO,
-    QTDADE_MAX_LETRAS_OPCAO_DA_SELECAO
+    QTDADE_MAX_LETRAS_OPCAO_DA_SELECAO,
+    VALORES_INICIAIS_DA_OPCAO_DA_SELECAO,
+    VALORES_INICIAIS_DA_VARIAVEL_NUMERO
 }
