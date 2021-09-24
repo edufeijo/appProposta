@@ -24,9 +24,6 @@ const HeaderDaOpcaoDaSelecao = ({ index, opcoes, setOpcoes, countOpcoes, setCoun
     item.label = `Opção ${opcoes.length + 1}`
     opcoes.push(Object.assign({}, item))
 
-    console.log("-------------------------")
-    console.log("item=", item)
-    console.log("opcoes=", opcoes)
     setCountOpcoes(countOpcoes + 1)
   }
 
@@ -94,21 +91,12 @@ const InputOpcaoDaSelecao = ({ index, indexDaOpcao, variaveis, setVariaveis, opc
     if (isObjEmpty(errors)) delete temporaryarray[index].erroNaOpcao.label
     else temporaryarray[index].erroNaOpcao = errors   
 
-    console.log("index=", index)
-    console.log("errors=", errors)  
-    console.log("temporaryarray=", temporaryarray)  
-
     setOpcoes(temporaryarray)
   }
 
   let defaultValue = null
   if (variaveis && variaveis[index].conteudo.opcoes && variaveis[index].conteudo.opcoes.length) defaultValue = variaveis[index].conteudo.opcoes[indexDaOpcao].label
   else defaultValue = opcoes[indexDaOpcao].label
-
-  console.log("index=", index)
-  console.log("indexDaOpcao=", indexDaOpcao)
-  console.log("opcoes=", opcoes)
-  console.log("defaultValue=", defaultValue)
 
   return (
     <Fragment>

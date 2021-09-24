@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useState, useEffect } from 'react'
 import { Edit, MoreVertical } from 'react-feather'
 import { Row, Badge, UncontrolledDropdown, DropdownToggle, CustomInput, Label, InputGroup, Input, DropdownMenu, DropdownItem, FormFeedback } from 'reactstrap'
 import Select from 'react-select'
@@ -51,10 +51,10 @@ const VALORES_INICIAIS_DA_VARIAVEL_DATA = {
 
 const VALORES_INICIAIS_DA_VARIAVEL_TABELA = {
   tipoDaVariavel: 'TABELA',
-  tabela: {},
   permitidoAlterar: {
     tipoDaVariavel: true
-  }
+  },
+  erroNaTabela: {}
 }
 
 const VALORES_INICIAIS_DA_VARIAVEL = {
@@ -70,7 +70,7 @@ const VALORES_INICIAIS_DA_VARIAVEL = {
   conteudo: VALORES_INICIAIS_DA_VARIAVEL_NUMERO
 }
 
-const variavelComErro = (variavel, opcoes) => {  
+const variavelComErroNasOpcoes = (variavel, opcoes) => {  
   let erroNaOpcao = false
   opcoes.map(opcao => {
     if (!isObjEmpty(opcao.erroNaOpcao)) erroNaOpcao = true || erroNaOpcao
@@ -78,6 +78,11 @@ const variavelComErro = (variavel, opcoes) => {
   
   if (!erroNaOpcao && isObjEmpty(variavel.erroNaVariavel)) return false
   else return true
+}  
+
+const variavelComErroNasTabelas = (item) => {  
+  if (!isObjEmpty(item.conteudo.erroNaTabela)) return true
+  else return false
 }  
  
 const HeaderDaVariavel = ({ item, index, opcoes, countVariaveis, setCountVariaveis, variaveis, setVariaveis, variavelAberta, setVariavelAberta, atualizaFormulario, setAtualizaFormulario }) => {     
@@ -119,7 +124,8 @@ const HeaderDaVariavel = ({ item, index, opcoes, countVariaveis, setCountVariave
   }   */
 
   const corDoNomeDaVariavel = (item) => {    
-    if (variavelComErro(item, opcoes)) return 'light-danger'
+//    if (variavelComErroNasOpcoes(item, opcoes)) return 'light-danger'
+    if (!isObjEmpty(item.erroNaVariavel)) return 'light-danger'
     else {
       if (item.variavelHabilitada) return 'primary'
       else return 'light-secondary'
@@ -262,7 +268,7 @@ const TipoDaVariavel = ({ index, variaveis, setVariaveis }) => {
     else 
     if (tipoDaVariavel === 'DATA') temporaryarray[index].conteudo = VALORES_INICIAIS_DA_VARIAVEL_DATA
     else 
-    if (tipoDaVariavel === 'TABELA') temporaryarray[index].conteudo = VALORES_INICIAIS_DA_VARIAVEL_TABELA
+    if (tipoDaVariavel === 'TABELA') temporaryarray[index].conteudo = Object.assign({}, VALORES_INICIAIS_DA_VARIAVEL_TABELA)
 
     setVariaveis(temporaryarray)
   }
@@ -289,8 +295,21 @@ const TipoDaVariavel = ({ index, variaveis, setVariaveis }) => {
 
 const VariavelIndividual = ({ item, index, operacao, countVariaveis, setCountVariaveis, variaveis, setVariaveis, atualizaFormulario, setAtualizaFormulario }) => {
   const [variavelAberta, setVariavelAberta] = useState(false)
-  const [opcoes, setOpcoes] = useState([VALORES_INICIAIS_DA_OPCAO_DA_SELECAO])
-  const [tabela, setTabela] = useState([VALORES_INICIAIS_DA_VARIAVEL_TABELA])
+  const [opcoes, setOpcoes] = useState([Object.assign({}, VALORES_INICIAIS_DA_OPCAO_DA_SELECAO)]) 
+  const [tabela, setTabela] = useState(Object.assign({}, VALORES_INICIAIS_DA_VARIAVEL_TABELA)) 
+
+  useEffect(() => {
+    if (variaveis[index].conteudo.tipoDaVariavel === 'TABELA') {
+      const temporaryarray = Array.from(variaveis)
+      
+      temporaryarray[index].conteudo = tabela
+
+      if (variavelComErroNasTabelas(temporaryarray[index])) temporaryarray[index].erroNaVariavel = { erroNaTabela: true }
+      else delete temporaryarray[index].erroNaVariavel.erroNaTabela
+
+      setVariaveis(temporaryarray)
+    } 
+  }, [tabela])
 
   return (
     <Fragment>
@@ -337,10 +356,10 @@ const VariavelIndividual = ({ item, index, operacao, countVariaveis, setCountVar
         />}
         {item.conteudo.tipoDaVariavel === 'TABELA' && <ConfiguraTabela 
           index={index} 
-          tabela={tabela}
-          setTabela={setTabela}
           variaveis={variaveis} 
           setVariaveis={setVariaveis}  
+          tabela={tabela}
+          setTabela={setTabela}
         />}
       </div>}
     </Fragment>

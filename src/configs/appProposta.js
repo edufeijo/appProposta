@@ -219,7 +219,7 @@ const SETOR_SEGMENTO_SERVICO = [
         },
         conteudo: {
           tipoDaVariavel: 'NUMERO',
-          valorMinimo: 0,
+          valorMinimo: '0',
           valorMaximo: null,
           permitidoAlterar: {
             tipoDaVariavel: false,

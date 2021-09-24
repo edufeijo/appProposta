@@ -525,9 +525,6 @@ const ItemIndividual = ({ item, index, operacao, count, setCount, itensDaTabelaD
   const [componentesDoItem, setComponentesDoItem] = useState([Object.assign({}, VALORES_INICIAIS_DO_COMPONENTE_DO_ITEM)])
   const [descricoesDoItem, setDescricoesDoItem] = useState([])
 
-  console.log("componentesDoItem=", componentesDoItem) 
-//  console.log("descricoesDoItem=", descricoesDoItem) 
-
   const [countComponente, setCountComponente] = useState(componentesDoItem.length)
   useEffect(() => {
     setCountComponente(componentesDoItem.length)
