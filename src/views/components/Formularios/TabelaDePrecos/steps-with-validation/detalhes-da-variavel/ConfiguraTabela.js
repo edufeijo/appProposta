@@ -9,12 +9,12 @@ import { useForm  } from 'react-hook-form'
 import { QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA, VALORES_INICIAIS_DA_OPCAO_DA_SELECAO } from '../../../../../../configs/appProposta'
 
 // PAREI AQUI:
-// - repetir o input do número da 2ª coluna do intevalo na 1ª coluna do intervalo seguinte
+// - ao definir uma variavel do tipo NUMERO: obrigatorio preencher minimo e maximo
 // - ao criar ou excluir intervalos: tentar preencher os campos
 // - Implementar o PreenchimentoDaTabela
 // - fazer as consistencias e mensagens de erro da tabela
 
-const InputNumeroNoIntervalo = ({ indexDoIntervalo, dimensao, labelDoNumero, propriedadeDoNumero, tabela, setTabela }) => { 
+const InputNumeroNoIntervalo = ({ indexDoIntervalo, dimensao, labelDoNumero, tabela, setTabela}) => { 
   const SignupSchema = yup.object().shape({
     [`inputNumero${labelDoNumero}${indexDoIntervalo}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^-?\d*,?\d+$/).required() 
   })
@@ -24,24 +24,21 @@ const InputNumeroNoIntervalo = ({ indexDoIntervalo, dimensao, labelDoNumero, pro
     resolver: yupResolver(SignupSchema)
   })
 
-  const defaultValue = tabela[dimensao].intervalos[indexDoIntervalo][propriedadeDoNumero]
+  const defaultValue = tabela[dimensao].intervalos[indexDoIntervalo].valor
 
   const handleChange = e => {
     const { value } = e.target
     const tabelaTemporaria = Object.assign({}, tabela)
-    tabelaTemporaria[dimensao].intervalos[indexDoIntervalo][propriedadeDoNumero] = value
+    tabelaTemporaria[dimensao].intervalos[indexDoIntervalo].valor = value
 
-    if (propriedadeDoNumero === 'maiorOuIgualA' && indexDoIntervalo > 0) tabelaTemporaria[dimensao].intervalos[indexDoIntervalo - 1].menorQue = value
-    if (propriedadeDoNumero === 'menorQue' && indexDoIntervalo + 1 < tabelaTemporaria[dimensao].intervalos.length) tabelaTemporaria[dimensao].intervalos[indexDoIntervalo + 1].maiorOuIgualA = value
-
-/*     if (isObjEmpty(errors)) delete temporaryarray[index].erroNaVariavel.errors
-    else temporaryarray[dimensao].intervalos[indexDoIntervalo] = errors    */
+    if (isObjEmpty(errors)) delete tabelaTemporaria[dimensao].intervalos[indexDoIntervalo].erroNoIntervalo.valor
+    else tabelaTemporaria[dimensao].intervalos[indexDoIntervalo].erroNoIntervalo.valor = true  
   
     setTabela(tabelaTemporaria)
   }
 
   return (
-    <div>
+    <Fragment>
       <Label className='form-label' for={`inputNumero${labelDoNumero}${indexDoIntervalo}`}>
         {labelDoNumero}
       </Label>
@@ -58,7 +55,7 @@ const InputNumeroNoIntervalo = ({ indexDoIntervalo, dimensao, labelDoNumero, pro
         />
         {errors && errors[`inputNumero${labelDoNumero}${indexDoIntervalo}`] && <FormFeedback>Máximo de {QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } caracteres (incluindo números, vírgula e sinal de menos)</FormFeedback>}
       </InputGroup> 
-    </div>
+    </Fragment>
   )
 }
  
@@ -149,7 +146,8 @@ const HeaderDoIntervalo = ({ indexDoIntervalo, intervalo, dimensao, setCountInte
   const criaIntervalo = () => { 
     const tabelaTemporaria = Object.assign({}, tabela)
     tabelaTemporaria[dimensao].intervalos.push(Object.assign({}, intervaloVazio))
-//    indexDoNovoIntervalo = tabelaTemporaria[dimensao].intervalos.length
+/*     const indexDoNovoIntervalo = tabelaTemporaria[dimensao].intervalos.length - 1
+    tabelaTemporaria[dimensao].intervalos[indexDoNovoIntervalo].maiorOuIgualA = tabelaTemporaria[dimensao].intervalos[indexDoNovoIntervalo - 1].menorQue  */
     setTabela(tabelaTemporaria)
   } 
 
@@ -178,7 +176,7 @@ const HeaderDoIntervalo = ({ indexDoIntervalo, intervalo, dimensao, setCountInte
             <DropdownMenu>
               <DropdownItem className='w-100' onClick={() => criaIntervalo()}>
                 <Edit size={14} className='mr-50' />
-                <span className='align-middle'>Criar intervalo</span>
+                <span className='align-middle'>Adicionar intervalo</span>
               </DropdownItem>                                             
               <DropdownItem className='w-100' onClick={() => excluiIntervalo(indexDoIntervalo)}>
                 <Copy size={14} className='mr-50' />
@@ -193,49 +191,75 @@ const HeaderDoIntervalo = ({ indexDoIntervalo, intervalo, dimensao, setCountInte
 }
 
 const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) => {
-  const [countIntervalos, setCountIntervalos] = useState(3)
+  const [countIntervalos, setCountIntervalos] = useState(4)
   console.log("countIntervalos=", countIntervalos)
   console.log("tabela[dimensao].intervalos=", tabela[dimensao].intervalos)
 
   useEffect(() => {
     setCountIntervalos(tabela[dimensao].intervalos.length)
   }, [tabela[dimensao].intervalos.length])  
+
+  const erroNosIntervalos = () => {
+    let erroNoIntervalo = null
+    tabela[dimensao].intervalos.map((intervalo, index) => {
+      if (index > 0 && index < tabela[dimensao].intervalos.length - 1) {
+        if (intervalo.valor === null || intervalo.valor === '') {
+          erroNoIntervalo = 'campo vazio'
+        }
+      } 
+    })
+
+    if (erroNoIntervalo) return erroNoIntervalo 
+
+    tabela[dimensao].intervalos.map((intervalo, index) => {
+      if (index === 1) {
+        const campoVazio = tabela[dimensao].intervalos[0].valor === null || tabela[dimensao].intervalos[0].valor === ''
+        if (!campoVazio) {
+          const op1 = parseFloat(tabela[dimensao].intervalos[0].valor.replace(",", "."))
+          const op2 = parseFloat(intervalo.valor.replace(",", "."))
+          if (op1 >= op2) {
+            erroNoIntervalo = 'fora de ordem'
+          }
+        }
+      } else {
+        const ultimo = tabela[dimensao].intervalos.length - 1
+        if (index === ultimo) {
+          const campoVazio = tabela[dimensao].intervalos[ultimo].valor === null || tabela[dimensao].intervalos[ultimo].valor === ''
+          if (!campoVazio) {
+            const op1 = parseFloat(intervalo.valor.replace(",", "."))
+            const op2 = parseFloat(tabela[dimensao].intervalos[ultimo - 1].valor.replace(",", "."))
+            if (op1 <= op2) {
+              erroNoIntervalo = 'fora de ordem'
+            }
+          }
+        } else 
+        if (index > 1 && index < ultimo) {
+          const op1 = parseFloat(intervalo.valor.replace(",", "."))
+          const op2 = parseFloat(tabela[dimensao].intervalos[index - 1].valor.replace(",", "."))
+          if (op1 <= op2) {
+            erroNoIntervalo = 'fora de ordem'
+          }
+        }
+      }
+    })  
+    return erroNoIntervalo // 'fora de ordem'
+  }
   
   return (
     <Fragment>
       <div key={countIntervalos}>
-        <p>Preencha com os <code>intervalos</code> desta variável.</p>
+        <p>Preencha os <code>intervalos</code> desta variável.</p>
         <ListGroup>
           {tabela[dimensao].intervalos.map((intervalo, indexDoIntervalo) => {
             return (
               <ListGroupItem key={indexDoIntervalo}>
-                <HeaderDoIntervalo
-                  indexDoIntervalo={indexDoIntervalo}
-                  intervalo={intervalo}
-                  dimensao={dimensao}
-                  setCountIntervalos={setCountIntervalos}
-                  tabela={tabela}
-                  setTabela={setTabela}  
-                />
-                <Row>
+                <Row>      
                   <FormGroup tag={Col} md='6' sd='6'>
                     <InputNumeroNoIntervalo 
                       indexDoIntervalo={indexDoIntervalo}
                       dimensao={dimensao}
                       id={`maiorOuIgualA${index}`}
-                      labelDoNumero={`Maior ou iguar a:`}
-                      propriedadeDoNumero={'maiorOuIgualA'}
-                      tabela={tabela}
-                      setTabela={setTabela}  
-                    />
-                  </FormGroup>
-                  <FormGroup tag={Col} md='6' sd='6'>
-                    <InputNumeroNoIntervalo 
-                      indexDoIntervalo={indexDoIntervalo}
-                      dimensao={dimensao}
-                      id={`menorQue${index}`}
-                      labelDoNumero={`Menor que:`}
-                      propriedadeDoNumero={'menorQue'}
+                      labelDoNumero={indexDoIntervalo === 0 ? 'Maior ou iguar a:' : indexDoIntervalo === tabela[dimensao].intervalos.length - 1 ? 'Menor que:' : `Valor intermediário ${indexDoIntervalo}:`}
                       tabela={tabela}
                       setTabela={setTabela}  
                     />
@@ -245,6 +269,8 @@ const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) 
             )
           })}
         </ListGroup>
+        {erroNosIntervalos() === 'campo vazio' && <Alert color='danger'>Preencha todos os campos acima descritos como 'Valor intermediário'</Alert>}
+        {erroNosIntervalos() === 'fora de ordem' && <Alert color='danger'>Os campos devem estar com valores em ordem crescente e sem repetições</Alert>}
       </div>
     </Fragment>
   )
@@ -294,55 +320,76 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
       const diferenca = maximo - minimo
       const i1 = diferenca >= 3 ? (Math.round(diferenca / 3) + minimo).toString() : null
       const i2 = diferenca >= 3 ? ((Math.round(diferenca / 3) * 2) + minimo).toString() : null
-      return [
+      return [ 
         { 
-          maiorOuIgualA: valorMinimo, 
-          menorQue: i1, 
+          valor: valorMinimo, 
           erroNoIntervalo: {} 
         }, 
         { 
-          maiorOuIgualA: i1, 
-          menorQue: i2, 
+          valor: i1, 
           erroNoIntervalo: {} 
         }, 
         { 
-          maiorOuIgualA: i2, 
-          menorQue: valorMaximo, 
+          valor: i2, 
+          erroNoIntervalo: {} 
+        },
+        { 
+          valor: valorMaximo, 
           erroNoIntervalo: {} 
         }
       ]
     } else {
       if (valorMinimo) return [
         { 
-          maiorOuIgualA: valorMinimo, 
-          menorQue: null, 
+          valor: valorMinimo, 
           erroNoIntervalo: {} 
         }, 
         { 
-          maiorOuIgualA: null, 
-          menorQue: null, 
+          valor: null, 
           erroNoIntervalo: {} 
         }, 
         { 
-          maiorOuIgualA: null, 
-          menorQue: null, 
+          valor: null, 
+          erroNoIntervalo: {} 
+        },        
+        { 
+          valor: null, 
           erroNoIntervalo: {} 
         }
       ]
       if (valorMaximo) return [
         { 
-          maiorOuIgualA: null, 
-          menorQue: null, 
+          valor: null, 
           erroNoIntervalo: {} 
         }, 
         { 
-          maiorOuIgualA: null, 
-          menorQue: null, 
+          valor: null, 
           erroNoIntervalo: {} 
         }, 
         { 
-          maiorOuIgualA: null, 
-          menorQue: valorMaximo, 
+          valor: null, 
+          erroNoIntervalo: {} 
+        }, 
+        { 
+          valor: valorMaximo, 
+          erroNoIntervalo: {} 
+        }
+      ]
+      else return [
+        { 
+          valor: null, 
+          erroNoIntervalo: {} 
+        }, 
+        { 
+          valor: null, 
+          erroNoIntervalo: {} 
+        }, 
+        { 
+          valor: null, 
+          erroNoIntervalo: {} 
+        }, 
+        { 
+          valor: null, 
           erroNoIntervalo: {} 
         }
       ]

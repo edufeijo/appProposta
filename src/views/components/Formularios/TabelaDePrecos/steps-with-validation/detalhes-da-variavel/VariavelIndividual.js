@@ -80,9 +80,22 @@ const variavelComErroNasOpcoes = (variavel, opcoes) => {
   else return true
 }  
 
-const variavelComErroNasTabelas = (item) => {  
-  if (!isObjEmpty(item.conteudo.erroNaTabela)) return true
-  else return false
+const variavelComErroNaTabela = (item) => {  
+  let erroNaTabela = false
+  if (item.conteudo.hasOwnProperty('dimensao1') && item.conteudo.dimensao1.hasOwnProperty('intervalos')) {
+    item.conteudo.dimensao1.intervalos.map(intervalo => {
+      if (!isObjEmpty(intervalo.erroNoIntervalo)) erroNaTabela = true || erroNaTabela
+    }) 
+  }
+
+  if (item.conteudo.hasOwnProperty('dimensao2') && item.conteudo.dimensao2.hasOwnProperty('intervalos')) {
+    item.conteudo.dimensao2.intervalos.map(intervalo => {
+      if (!isObjEmpty(intervalo.erroNoIntervalo)) erroNaTabela = true || erroNaTabela
+    }) 
+  }
+
+  if (!erroNaTabela && isObjEmpty(item.erroNaVariavel)) return false
+  else return true
 }  
  
 const HeaderDaVariavel = ({ item, index, opcoes, countVariaveis, setCountVariaveis, variaveis, setVariaveis, variavelAberta, setVariavelAberta, atualizaFormulario, setAtualizaFormulario }) => {     
@@ -125,6 +138,10 @@ const HeaderDaVariavel = ({ item, index, opcoes, countVariaveis, setCountVariave
 
   const corDoNomeDaVariavel = (item) => {    
 //    if (variavelComErroNasOpcoes(item, opcoes)) return 'light-danger'
+    if (item.conteudo.tipoDaVariavel === 'TABELA') {
+      if (variavelComErroNaTabela(item)) return 'light-danger'
+    } 
+
     if (!isObjEmpty(item.erroNaVariavel)) return 'light-danger'
     else {
       if (item.variavelHabilitada) return 'primary'
@@ -303,13 +320,9 @@ const VariavelIndividual = ({ item, index, operacao, countVariaveis, setCountVar
       const temporaryarray = Array.from(variaveis)
       
       temporaryarray[index].conteudo = tabela
-
-      if (variavelComErroNasTabelas(temporaryarray[index])) temporaryarray[index].erroNaVariavel = { erroNaTabela: true }
-      else delete temporaryarray[index].erroNaVariavel.erroNaTabela
-
       setVariaveis(temporaryarray)
     } 
-  }, [tabela])
+  }, [tabela]) 
 
   return (
     <Fragment>
