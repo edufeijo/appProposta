@@ -1,6 +1,6 @@
 import { Fragment, useState, useEffect } from 'react'
-import { Copy, Edit, MoreVertical } from 'react-feather'
-import { Row, Badge, ListGroup, ListGroupItem, UncontrolledDropdown, Input, DropdownToggle, InputGroup, FormGroup, Col, DropdownMenu, DropdownItem, FormFeedback, Label, Alert } from 'reactstrap'
+import { Trash, Copy, Edit, MoreVertical, Plus } from 'react-feather'
+import { Button, Row, Badge, ListGroup, ListGroupItem, UncontrolledDropdown, Input, DropdownToggle, InputGroup, FormGroup, Col, DropdownMenu, DropdownItem, FormFeedback, Label, Alert } from 'reactstrap'
 import Select from 'react-select'
 import { selectThemeColors, isObjEmpty } from '@utils'
 import * as yup from 'yup'
@@ -9,10 +9,17 @@ import { useForm  } from 'react-hook-form'
 import { QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA, VALORES_INICIAIS_DA_OPCAO_DA_SELECAO } from '../../../../../../configs/appProposta'
 
 // PAREI AQUI:
-// - ao definir uma variavel do tipo NUMERO: obrigatorio preencher minimo e maximo
-// - ao criar ou excluir intervalos: tentar preencher os campos
 // - Implementar o PreenchimentoDaTabela
 // - fazer as consistencias e mensagens de erro da tabela
+
+const quantidadeDeVariaveisDaTabela = [
+  { name: 'quantidadeDeVariaveisDaTabela', value: 1, label: '1 dimensão' },
+  { name: 'quantidadeDeVariaveisDaTabela', value: 2, label: '2 dimensões' }
+]
+
+const findVariavelById = (variaveis, id) => { 
+  return variaveis.findIndex(element => element.id === id)
+}
 
 const InputNumeroNoIntervalo = ({ indexDoIntervalo, dimensao, labelDoNumero, tabela, setTabela}) => { 
   const SignupSchema = yup.object().shape({
@@ -25,6 +32,7 @@ const InputNumeroNoIntervalo = ({ indexDoIntervalo, dimensao, labelDoNumero, tab
   })
 
   const defaultValue = tabela[dimensao].intervalos[indexDoIntervalo].valor
+  const ultimoIntervalo = tabela[dimensao].intervalos.length - 1
 
   const handleChange = e => {
     const { value } = e.target
@@ -43,7 +51,7 @@ const InputNumeroNoIntervalo = ({ indexDoIntervalo, dimensao, labelDoNumero, tab
         {labelDoNumero}
       </Label>
       <InputGroup className='input-group-merge mb-2'>
-        <Input
+        {!(indexDoIntervalo === 0 || indexDoIntervalo === ultimoIntervalo) && <Input
           name={`inputNumero${labelDoNumero}${indexDoIntervalo}`}
           id={`inputNumero${labelDoNumero}${indexDoIntervalo}`}
           placeholder={`${labelDoNumero}`}
@@ -52,140 +60,16 @@ const InputNumeroNoIntervalo = ({ indexDoIntervalo, dimensao, labelDoNumero, tab
           innerRef={register({ required: true })}
           invalid={errors[`inputNumero${labelDoNumero}${indexDoIntervalo}`] && true}
           onChange={handleChange}
-        />
+        />}
+        {(indexDoIntervalo === 0 || indexDoIntervalo === ultimoIntervalo) && <Input
+          name={`inputNumero${labelDoNumero}${indexDoIntervalo}`}
+          id={`inputNumero${labelDoNumero}${indexDoIntervalo}`}
+          placeholder={defaultValue === null ? `Não há valor definido` : defaultValue}
+          defaultValue={defaultValue}
+          disabled={true}
+        />}
         {errors && errors[`inputNumero${labelDoNumero}${indexDoIntervalo}`] && <FormFeedback>Máximo de {QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA } caracteres (incluindo números, vírgula e sinal de menos)</FormFeedback>}
       </InputGroup> 
-    </Fragment>
-  )
-}
- 
-const quantidadeDeVariaveisDaTabela = [
-  { name: 'quantidadeDeVariaveisDaTabela', value: 1, label: '1 dimensão' },
-  { name: 'quantidadeDeVariaveisDaTabela', value: 2, label: '2 dimensões' }
-]
-
-const findVariavelById = (variaveis, id) => { 
-  return variaveis.findIndex(element => element.id === id)
-}
-
-const HeaderDoPreenchimento = ({ index, tabela, setTabela, countOpcoes, setCountOpcoes }) => {                           
-  const criaOpcao = () => { 
-    const item = Object.assign({}, VALORES_INICIAIS_DA_OPCAO_DA_SELECAO)
-    let id = 0
-    if (opcoes.length === 1) id = opcoes[0].id + 1
-    else {
-      const numbers = Array.from(opcoes)
-      numbers.sort(function(a, b) {
-        return a.id - b.id
-      })
-      id = numbers[numbers.length - 1].id + 1
-    }
-    item.id = id
-    item.label = `Opção ${opcoes.length + 1}`
-    opcoes.push(Object.assign({}, item))
-
-    console.log("-------------------------")
-    console.log("item=", item)
-    console.log("opcoes=", opcoes)
-    setCountOpcoes(countOpcoes + 1)
-  }
-
-  const excluiOpcao = (i) => {
-    if (opcoes.length > 1) {
-      const itensCopy = Array.from(opcoes)
-      itensCopy.splice(i, 1)
-      setOpcoes(itensCopy)
-      setCountOpcoes(countOpcoes - 1)
-    } else {
-      const item = VALORES_INICIAIS_DA_OPCAO_DA_SELECAO
-      const id = opcoes[0].id + 1
-      item.id = id
-      setOpcoes([item])
-    } 
-  }  
-
-  return (
-    <Fragment>
-      <Row>
-        <Badge color={isObjEmpty(opcoes[index].erroNaOpcao) ? 'light-primary' : 'light-danger'}  pill>
-          Opção {index + 1}
-        </Badge>
-        <div className='column-action d-flex align-items-center'> 
-          <UncontrolledDropdown direction='left'>
-            <DropdownToggle tag='span'>
-              <MoreVertical size={17} className='cursor-pointer' />
-            </DropdownToggle>
-            <DropdownMenu>
-              <DropdownItem className='w-100' onClick={() => criaOpcao()}>
-                <Edit size={14} className='mr-50' />
-                <span className='align-middle'>Criar opção</span>
-              </DropdownItem>               
-              <DropdownItem className='w-100'>
-                <Edit size={14} className='mr-50' />
-                <span className='align-middle'>Duplicar opção</span>
-              </DropdownItem>                                 
-              <DropdownItem className='w-100' onClick={() => excluiOpcao(index)}>
-                <Copy size={14} className='mr-50' />
-                <span className='align-middle'>Excluir opção</span>
-              </DropdownItem>               
-            </DropdownMenu>
-          </UncontrolledDropdown>
-        </div>
-      </Row>
-    </Fragment>
-  )
-}
-
-const HeaderDoIntervalo = ({ indexDoIntervalo, intervalo, dimensao, setCountIntervalos, tabela, setTabela }) => {    
-  const intervaloVazio = Object.assign({}, { 
-    maiorOuIgualA: null, 
-    menorQue: null, 
-    erroNoIntervalo: {} 
-  })
-
-  const criaIntervalo = () => { 
-    const tabelaTemporaria = Object.assign({}, tabela)
-    tabelaTemporaria[dimensao].intervalos.push(Object.assign({}, intervaloVazio))
-/*     const indexDoNovoIntervalo = tabelaTemporaria[dimensao].intervalos.length - 1
-    tabelaTemporaria[dimensao].intervalos[indexDoNovoIntervalo].maiorOuIgualA = tabelaTemporaria[dimensao].intervalos[indexDoNovoIntervalo - 1].menorQue  */
-    setTabela(tabelaTemporaria)
-  } 
-
-  const excluiIntervalo = (i) => {
-    const tabelaTemporaria = Object.assign({}, tabela)
-    if (tabelaTemporaria[dimensao].intervalos.length > 2) {
-      const itensCopy = Array.from(tabelaTemporaria[dimensao].intervalos)
-      itensCopy.splice(i, 1)
-      tabelaTemporaria[dimensao].intervalos.length = 0
-      tabelaTemporaria[dimensao].intervalos = itensCopy
-      setTabela(tabelaTemporaria)
-    } // else, não deixa ter menos do que 2 intervalos
-  }  
-
-  return (
-    <Fragment>
-      <Row>
-        <Badge color={isObjEmpty(intervalo.erroNoIntervalo) ? 'primary' : 'light-danger'}  pill>
-          Intervalo {indexDoIntervalo + 1}
-        </Badge>
-        <div className='column-action d-flex align-items-center'> 
-          <UncontrolledDropdown direction='left'>
-            <DropdownToggle tag='span'>
-              <MoreVertical size={17} className='cursor-pointer' />
-            </DropdownToggle>
-            <DropdownMenu>
-              <DropdownItem className='w-100' onClick={() => criaIntervalo()}>
-                <Edit size={14} className='mr-50' />
-                <span className='align-middle'>Adicionar intervalo</span>
-              </DropdownItem>                                             
-              <DropdownItem className='w-100' onClick={() => excluiIntervalo(indexDoIntervalo)}>
-                <Copy size={14} className='mr-50' />
-                <span className='align-middle'>Excluir intervalo</span>
-              </DropdownItem>               
-            </DropdownMenu>
-          </UncontrolledDropdown>
-        </div>
-      </Row>
     </Fragment>
   )
 }
@@ -194,6 +78,8 @@ const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) 
   const [countIntervalos, setCountIntervalos] = useState(4)
   console.log("countIntervalos=", countIntervalos)
   console.log("tabela[dimensao].intervalos=", tabela[dimensao].intervalos)
+
+  const ultimoIntervalo = tabela[dimensao].intervalos.length - 1
 
   useEffect(() => {
     setCountIntervalos(tabela[dimensao].intervalos.length)
@@ -213,8 +99,9 @@ const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) 
 
     tabela[dimensao].intervalos.map((intervalo, index) => {
       if (index === 1) {
-        const campoVazio = tabela[dimensao].intervalos[0].valor === null || tabela[dimensao].intervalos[0].valor === ''
-        if (!campoVazio) {
+        const campo1Vazio = tabela[dimensao].intervalos[0].valor === null || tabela[dimensao].intervalos[0].valor === ''
+        const campo2Vazio = intervalo.valor === null || intervalo.valor === ''
+        if (!(campo1Vazio || campo2Vazio)) {
           const op1 = parseFloat(tabela[dimensao].intervalos[0].valor.replace(",", "."))
           const op2 = parseFloat(intervalo.valor.replace(",", "."))
           if (op1 >= op2) {
@@ -244,6 +131,27 @@ const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) 
     })  
     return erroNoIntervalo // 'fora de ordem'
   }
+
+  const criaIntervalo = () => { 
+    const tabelaTemporaria = Object.assign({}, tabela)
+    const novoIntervalo = Object.assign({}, { 
+      valor: null,
+      erroNoIntervalo: {} 
+    })
+    tabelaTemporaria[dimensao].intervalos.push(Object.assign({}, novoIntervalo))
+    setTabela(tabelaTemporaria)
+  } 
+
+  const excluiIntervalo = (i) => {
+    const tabelaTemporaria = Object.assign({}, tabela)
+    if (tabelaTemporaria[dimensao].intervalos.length > 3) {
+      const itensCopy = Array.from(tabelaTemporaria[dimensao].intervalos)
+      itensCopy.splice(i, 1)
+      tabelaTemporaria[dimensao].intervalos.length = 0
+      tabelaTemporaria[dimensao].intervalos = itensCopy
+      setTabela(tabelaTemporaria)
+    } // else, não deixa ter menos do que 2 intervalos
+  } 
   
   return (
     <Fragment>
@@ -253,8 +161,8 @@ const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) 
           {tabela[dimensao].intervalos.map((intervalo, indexDoIntervalo) => {
             return (
               <ListGroupItem key={indexDoIntervalo}>
-                <Row>      
-                  <FormGroup tag={Col} md='6' sd='6'>
+                <Row className='justify-content-between align-items-center'>
+                  <Col md={6}>
                     <InputNumeroNoIntervalo 
                       indexDoIntervalo={indexDoIntervalo}
                       dimensao={dimensao}
@@ -263,7 +171,19 @@ const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) 
                       tabela={tabela}
                       setTabela={setTabela}  
                     />
-                  </FormGroup>
+                  </Col>  
+                  {!(indexDoIntervalo === 0 || indexDoIntervalo === ultimoIntervalo) && <div>
+                    {(tabela[dimensao].intervalos.length > 3) && <Col sd={6}>
+                      <Button.Ripple color='danger' color='flat-danger' onClick={() => excluiIntervalo(indexDoIntervalo)}>
+                        <Trash size={18}/>
+                      </Button.Ripple>
+                    </Col>}
+                    {(indexDoIntervalo === ultimoIntervalo - 1) && <Col sd={6}>
+                      <Button.Ripple block color='danger' color='flat-primary' onClick={() => criaIntervalo()}>
+                        <Plus size={18}/>
+                      </Button.Ripple>
+                    </Col>}
+                  </div>}
                 </Row>
               </ListGroupItem>
             )
