@@ -1,6 +1,6 @@
 import { Fragment, useState, useEffect } from 'react'
-import { Trash, Copy, Edit, MoreVertical, Plus } from 'react-feather'
-import { Button, Row, Badge, ListGroup, ListGroupItem, UncontrolledDropdown, Input, DropdownToggle, InputGroup, FormGroup, Col, DropdownMenu, DropdownItem, FormFeedback, Label, Alert } from 'reactstrap'
+import { Trash, Copy, Edit, MoreVertical, Plus, Lock } from 'react-feather'
+import { Table, CustomInput, Button, Row, Badge, ListGroup, ListGroupItem, UncontrolledDropdown, Input, DropdownToggle, InputGroup, FormGroup, Col, DropdownMenu, DropdownItem, FormFeedback, Label, Alert } from 'reactstrap'
 import Select from 'react-select'
 import { selectThemeColors, isObjEmpty } from '@utils'
 import * as yup from 'yup'
@@ -9,6 +9,7 @@ import { useForm  } from 'react-hook-form'
 import { QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA, VALORES_INICIAIS_DA_OPCAO_DA_SELECAO } from '../../../../../../configs/appProposta'
 
 // PAREI AQUI:
+// - fazer 2ª dimensão
 // - Implementar o PreenchimentoDaTabela
 // - fazer as consistencias e mensagens de erro da tabela
 
@@ -134,8 +135,9 @@ const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) 
 
   const criaIntervalo = () => { 
     const tabelaTemporaria = Object.assign({}, tabela)
+    const ultimo = tabela[dimensao].intervalos.length - 1
     const novoIntervalo = Object.assign({}, { 
-      valor: null,
+      valor: tabela[dimensao].intervalos[ultimo].valor,
       erroNoIntervalo: {} 
     })
     tabelaTemporaria[dimensao].intervalos.push(Object.assign({}, novoIntervalo))
@@ -172,27 +174,152 @@ const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) 
                       setTabela={setTabela}  
                     />
                   </Col>  
-                  {!(indexDoIntervalo === 0 || indexDoIntervalo === ultimoIntervalo) && <div>
-                    {(tabela[dimensao].intervalos.length > 3) && <Col sd={6}>
-                      <Button.Ripple color='danger' color='flat-danger' onClick={() => excluiIntervalo(indexDoIntervalo)}>
+                  {!(indexDoIntervalo === 0 || indexDoIntervalo === ultimoIntervalo) && (tabela[dimensao].intervalos.length > 3) && <Col sd={6}>
+                      <Button.Ripple color='flat-danger'  onClick={() => excluiIntervalo(indexDoIntervalo)}>
                         <Trash size={18}/>
                       </Button.Ripple>
                     </Col>}
-                    {(indexDoIntervalo === ultimoIntervalo - 1) && <Col sd={6}>
-                      <Button.Ripple block color='danger' color='flat-primary' onClick={() => criaIntervalo()}>
-                        <Plus size={18}/>
-                      </Button.Ripple>
-                    </Col>}
-                  </div>}
+                  {(indexDoIntervalo === ultimoIntervalo) && <Col sd={6}>
+                    <Button.Ripple color='flat-primary' onClick={() => criaIntervalo()}>
+                      <Plus size={18}/>
+                    </Button.Ripple>
+                  </Col>}
                 </Row>
               </ListGroupItem>
             )
           })}
         </ListGroup>
-        {erroNosIntervalos() === 'campo vazio' && <Alert color='danger'>Preencha todos os campos acima descritos como 'Valor intermediário'</Alert>}
+        {erroNosIntervalos() === 'campo vazio' && <Alert color='danger'>Preencha ou exclua os campos acima descritos como 'Valor intermediário'</Alert>}
         {erroNosIntervalos() === 'fora de ordem' && <Alert color='danger'>Os campos devem estar com valores em ordem crescente e sem repetições</Alert>}
       </div>
     </Fragment>
+  )
+}
+
+const DetalhesDaDimensao = ({ index, variaveis, dimensao, tabela, setTabela }) => {
+  return (
+    <Fragment>
+      {tabela.hasOwnProperty(dimensao) && tabela[dimensao].hasOwnProperty('id') && tabela[dimensao].id && variaveis[findVariavelById(variaveis, tabela[dimensao].id)].conteudo.tipoDaVariavel === 'NUMERO' && <ConfiguraIntervalos
+        index={index}
+        variaveis={variaveis}
+        dimensao={dimensao}
+        tabela={tabela}
+        setTabela={setTabela}  
+      />} 
+      {tabela.hasOwnProperty(dimensao) && tabela[dimensao].hasOwnProperty('id') && tabela[dimensao].id && variaveis[findVariavelById(variaveis, tabela[dimensao].id)].conteudo.tipoDaVariavel === 'SELECAO' && <div>
+        <Label className='form-label' for={`dimensao2${index}`}>Esta dimensão tem estas opções:</Label>
+        <ul>
+          {variaveis[findVariavelById(variaveis, tabela[dimensao].id)].conteudo.opcoes.map(opcao => {
+            <li>{opcao.label}</li> 
+          })}
+        </ul> 
+      </div>} 
+      {tabela.hasOwnProperty(dimensao) && tabela[dimensao].hasOwnProperty('id') && tabela[dimensao].id && variaveis[findVariavelById(variaveis, tabela[dimensao].id)].conteudo.tipoDaVariavel === 'SIMNAO' && <div>
+        <Label className='form-label' for={`dimensao2${index}`}>Esta dimensão tem estas opções:</Label>
+        <ul>
+          <li>Sim</li>
+          <li>Não</li>
+        </ul> 
+      </div>} 
+    </Fragment>
+  )
+}
+
+const PreenchimentoDaTabela = ({ index, variaveis, tabela, setTabela }) => {
+  return (
+    <Row>
+      <Col sm='12'>
+      <div className='permissions border mt-1'>
+        <Table borderless striped responsive> 
+          <thead className='thead-light'>
+            <tr>
+              {tabela.dimensao1.intervalos.map((intervalo, index) => {
+                if (index === 0) return <th key={index}>??????</th>
+                return <th key={index}>{tabela.dimensao1.intervalos[index - 1].valor}{'≤X<'}{intervalo.valor}</th> 
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Admin</td>
+              <td>
+                <CustomInput type='checkbox' id='admin-1' label='' defaultChecked />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='admin-2' label='' />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='admin-3' label='' />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='admin-4' label='' />
+              </td>
+            </tr>
+            <tr>
+              <td>Staff</td>
+              <td>
+                <CustomInput type='checkbox' id='staff-1' label='' />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='staff-2' label='' defaultChecked />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='staff-3' label='' />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='staff-4' label='' />
+              </td>
+            </tr>
+            <tr>
+              <td>Author</td>
+              <td>
+                <CustomInput type='checkbox' id='author-1' label='' defaultChecked />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='author-2' label='' />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='author-3' label='' defaultChecked />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='author-4' label='' />
+              </td>
+            </tr>
+            <tr>
+              <td>Contributor</td>
+              <td>
+                <CustomInput type='checkbox' id='contributor-1' label='' />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='contributor-2' label='' />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='contributor-3' label='' />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='contributor-4' label='' />
+              </td>
+            </tr>
+            <tr>
+              <td>User</td>
+              <td>
+                <CustomInput type='checkbox' id='user-1' label='' />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='user-2' label='' />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='user-3' label='' />
+              </td>
+              <td>
+                <CustomInput type='checkbox' id='user-4' label='' defaultChecked />
+              </td>
+            </tr>
+          </tbody>
+        </Table> 
+      </div>
+    </Col>
+  </Row>
   )
 }
 
@@ -335,6 +462,10 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
     setTabela(tabelaTemporaria)
   }
 
+  const erroNasTabelas = () => { 
+    return false
+  } 
+  
   console.log("tabela=", tabela) 
 
   // Incluir no Select abaixo: value={tipoDaVariavelOptions[tipoDaVariavelOptions.findIndex(element => element.value === variaveis[index].conteudo.tipoDaVariavel)]}
@@ -367,6 +498,9 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
       />}
 
       {quantidadeDeDimensoesDaTabela > 0 && <div>
+        <div className='divider'>
+          <div className='divider-text'><h4>{`Dimensão 1`}</h4></div>
+        </div>
         <Label className='form-label' for={`dimensao1${index}`}>Escolha a{quantidadeDeDimensoesDaTabela === 2 && ' 1ª'} dimensão:</Label>      
         <Select
           id={`dimensao1${index}`}               
@@ -378,16 +512,19 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
           onChange={e => { setDimensao(e, 'dimensao1') }}
           isClearable={false}
         />
-        {tabela.hasOwnProperty('dimensao1') && tabela.dimensao1.hasOwnProperty('id') && tabela.dimensao1.id && variaveis[findVariavelById(variaveis, tabela.dimensao1.id)].conteudo.tipoDaVariavel === 'NUMERO' && <ConfiguraIntervalos
+        <DetalhesDaDimensao
           index={index}
           variaveis={variaveis}
           dimensao='dimensao1'
           tabela={tabela}
           setTabela={setTabela}  
-        />} 
+        />
       </div>}
 
       {quantidadeDeDimensoesDaTabela === 2 && <div>
+        <div className='divider'>
+          <div className='divider-text'><h4>{`Dimensão 2`}</h4></div>
+        </div>
         <Label className='form-label' for={`dimensao2${index}`}>Escolha a 2ª dimensão:</Label>      
         <Select
           id={`dimensao2${index}`}               
@@ -400,6 +537,25 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
           isClearable={false}
         />
         {tabela.erroNaTabela && tabela.erroNaTabela.dimesaoDuplicada && <Alert color='danger'>Escolha dimensões distintas</Alert>}
+        <DetalhesDaDimensao
+          index={index}
+          variaveis={variaveis}
+          dimensao='dimensao2'
+          tabela={tabela}
+          setTabela={setTabela}  
+        />
+      </div>}
+      {!erroNasTabelas() && <div>
+        <div className='divider'>
+          <div className='divider-text'><h4>{`Conteúdo da tabela`}</h4></div>
+        </div>
+        <Label className='form-label' for={`dimensao2${index}`}>Preencha a tabela:</Label>      
+        <PreenchimentoDaTabela
+          index={index}
+          variaveis={variaveis}
+          tabela={tabela}
+          setTabela={setTabela}  
+        />
       </div>}
     </Fragment>
   )
