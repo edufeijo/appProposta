@@ -53,8 +53,7 @@ const VALORES_INICIAIS_DA_VARIAVEL_TABELA = {
   tipoDaVariavel: 'TABELA',
   permitidoAlterar: {
     tipoDaVariavel: true
-  },
-  erroNaTabela: {}
+  }
 }
 
 const VALORES_INICIAIS_DA_VARIAVEL = {
@@ -77,24 +76,6 @@ const variavelComErroNasOpcoes = (variavel, opcoes) => {
   }) 
   
   if (!erroNaOpcao && isObjEmpty(variavel.erroNaVariavel)) return false
-  else return true
-}  
-
-const variavelComErroNaTabela = (item) => {  
-  let erroNaTabela = false
-  if (item.conteudo.hasOwnProperty('dimensao1') && item.conteudo.dimensao1.hasOwnProperty('intervalos')) {
-    item.conteudo.dimensao1.intervalos.map(intervalo => {
-      if (!isObjEmpty(intervalo.erroNoIntervalo)) erroNaTabela = true || erroNaTabela
-    }) 
-  }
-
-  if (item.conteudo.hasOwnProperty('dimensao2') && item.conteudo.dimensao2.hasOwnProperty('intervalos')) {
-    item.conteudo.dimensao2.intervalos.map(intervalo => {
-      if (!isObjEmpty(intervalo.erroNoIntervalo)) erroNaTabela = true || erroNaTabela
-    }) 
-  }
-
-  if (!erroNaTabela && isObjEmpty(item.erroNaVariavel)) return false
   else return true
 }  
  
@@ -138,10 +119,6 @@ const HeaderDaVariavel = ({ item, index, opcoes, countVariaveis, setCountVariave
 
   const corDoNomeDaVariavel = (item) => {    
 //    if (variavelComErroNasOpcoes(item, opcoes)) return 'light-danger'
-    if (item.conteudo.tipoDaVariavel === 'TABELA') {
-      if (variavelComErroNaTabela(item)) return 'light-danger'
-    } 
-
     if (!isObjEmpty(item.erroNaVariavel)) return 'light-danger'
     else {
       if (item.variavelHabilitada) return 'primary'
@@ -285,7 +262,10 @@ const TipoDaVariavel = ({ index, variaveis, setVariaveis }) => {
     else 
     if (tipoDaVariavel === 'DATA') temporaryarray[index].conteudo = VALORES_INICIAIS_DA_VARIAVEL_DATA
     else 
-    if (tipoDaVariavel === 'TABELA') temporaryarray[index].conteudo = Object.assign({}, VALORES_INICIAIS_DA_VARIAVEL_TABELA)
+    if (tipoDaVariavel === 'TABELA') {
+      temporaryarray[index].conteudo = Object.assign({}, VALORES_INICIAIS_DA_VARIAVEL_TABELA)
+      temporaryarray[index].erroNaVariavel.tabelaVazia = true
+    }
 
     setVariaveis(temporaryarray)
   }

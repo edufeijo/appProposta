@@ -9,9 +9,7 @@ import { useForm  } from 'react-hook-form'
 import { QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA, VALORES_INICIAIS_DA_OPCAO_DA_SELECAO } from '../../../../../../configs/appProposta'
 
 // PAREI AQUI:
-// - fazer 2ª dimensão
-// - Implementar o PreenchimentoDaTabela
-// - fazer as consistencias e mensagens de erro da tabela
+// - Finalizar o PreenchimentoDaTabela, incluindo erro enquanto nnao finalizar o preenchimento
 
 const quantidadeDeVariaveisDaTabela = [
   { name: 'quantidadeDeVariaveisDaTabela', value: 1, label: '1 dimensão' },
@@ -22,7 +20,7 @@ const findVariavelById = (variaveis, id) => {
   return variaveis.findIndex(element => element.id === id)
 }
 
-const InputNumeroNoIntervalo = ({ indexDoIntervalo, dimensao, labelDoNumero, tabela, setTabela}) => { 
+const InputNumeroNoIntervalo = ({ index, variaveis, setVariaveis, indexDoIntervalo, dimensao, labelDoNumero, tabela, setTabela}) => { 
   const SignupSchema = yup.object().shape({
     [`inputNumero${labelDoNumero}${indexDoIntervalo}`]: yup.string().min(0).max(QTDADE_MAX_DIGITOS_NO_VALOR_DA_PROPOSTA).matches(/^-?\d*,?\d+$/).required() 
   })
@@ -32,17 +30,19 @@ const InputNumeroNoIntervalo = ({ indexDoIntervalo, dimensao, labelDoNumero, tab
     resolver: yupResolver(SignupSchema)
   })
 
-  const defaultValue = tabela[dimensao].intervalos[indexDoIntervalo].valor
+  const defaultValue = tabela[dimensao].intervalos[indexDoIntervalo]
   const ultimoIntervalo = tabela[dimensao].intervalos.length - 1
 
   const handleChange = e => {
     const { value } = e.target
     const tabelaTemporaria = Object.assign({}, tabela)
-    tabelaTemporaria[dimensao].intervalos[indexDoIntervalo].valor = value
+    tabelaTemporaria[dimensao].intervalos[indexDoIntervalo] = value
 
-    if (isObjEmpty(errors)) delete tabelaTemporaria[dimensao].intervalos[indexDoIntervalo].erroNoIntervalo.valor
-    else tabelaTemporaria[dimensao].intervalos[indexDoIntervalo].erroNoIntervalo.valor = true  
+    const temporaryarray = Array.from(variaveis)
+    if (isObjEmpty(errors)) delete temporaryarray[index].erroNaVariavel[`valor-${dimensao}-${indexDoIntervalo}$`]
+    else temporaryarray[index].erroNaVariavel[`valor-${dimensao}-${indexDoIntervalo}$`] = true
   
+    setVariaveis(temporaryarray)
     setTabela(tabelaTemporaria)
   }
 
@@ -75,11 +75,8 @@ const InputNumeroNoIntervalo = ({ indexDoIntervalo, dimensao, labelDoNumero, tab
   )
 }
 
-const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) => {
+const ConfiguraIntervalos = ({ index, variaveis, setVariaveis, dimensao, tabela, setTabela }) => {
   const [countIntervalos, setCountIntervalos] = useState(4)
-  console.log("countIntervalos=", countIntervalos)
-  console.log("tabela[dimensao].intervalos=", tabela[dimensao].intervalos)
-
   const ultimoIntervalo = tabela[dimensao].intervalos.length - 1
 
   useEffect(() => {
@@ -90,57 +87,71 @@ const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) 
     let erroNoIntervalo = null
     tabela[dimensao].intervalos.map((intervalo, index) => {
       if (index > 0 && index < tabela[dimensao].intervalos.length - 1) {
-        if (intervalo.valor === null || intervalo.valor === '') {
-          erroNoIntervalo = 'campo vazio'
+        if (intervalo === null || intervalo === '') {
+          erroNoIntervalo = 'campo-vazio'
         }
       } 
     })
 
-    if (erroNoIntervalo) return erroNoIntervalo 
-
-    tabela[dimensao].intervalos.map((intervalo, index) => {
-      if (index === 1) {
-        const campo1Vazio = tabela[dimensao].intervalos[0].valor === null || tabela[dimensao].intervalos[0].valor === ''
-        const campo2Vazio = intervalo.valor === null || intervalo.valor === ''
-        if (!(campo1Vazio || campo2Vazio)) {
-          const op1 = parseFloat(tabela[dimensao].intervalos[0].valor.replace(",", "."))
-          const op2 = parseFloat(intervalo.valor.replace(",", "."))
-          if (op1 >= op2) {
-            erroNoIntervalo = 'fora de ordem'
-          }
-        }
-      } else {
-        const ultimo = tabela[dimensao].intervalos.length - 1
-        if (index === ultimo) {
-          const campoVazio = tabela[dimensao].intervalos[ultimo].valor === null || tabela[dimensao].intervalos[ultimo].valor === ''
-          if (!campoVazio) {
-            const op1 = parseFloat(intervalo.valor.replace(",", "."))
-            const op2 = parseFloat(tabela[dimensao].intervalos[ultimo - 1].valor.replace(",", "."))
-            if (op1 <= op2) {
-              erroNoIntervalo = 'fora de ordem'
+    if (!erroNoIntervalo) {
+      tabela[dimensao].intervalos.map((intervalo, index) => {
+        if (index === 1) {
+          const campo1Vazio = tabela[dimensao].intervalos[0] === null || tabela[dimensao].intervalos[0] === ''
+          const campo2Vazio = intervalo === null || intervalo === ''
+          if (!(campo1Vazio || campo2Vazio)) {
+            const op1 = parseFloat(tabela[dimensao].intervalos[0].replace(",", "."))
+            const op2 = parseFloat(intervalo.replace(",", "."))
+            if (op1 >= op2) {
+              erroNoIntervalo = 'fora-de-ordem'
             }
           }
-        } else 
-        if (index > 1 && index < ultimo) {
-          const op1 = parseFloat(intervalo.valor.replace(",", "."))
-          const op2 = parseFloat(tabela[dimensao].intervalos[index - 1].valor.replace(",", "."))
-          if (op1 <= op2) {
-            erroNoIntervalo = 'fora de ordem'
+        } else {
+          const ultimo = tabela[dimensao].intervalos.length - 1
+          if (index === ultimo) {
+            const campoVazio = tabela[dimensao].intervalos[ultimo] === null || tabela[dimensao].intervalos[ultimo] === ''
+            if (!campoVazio) {
+              const op1 = parseFloat(intervalo.replace(",", "."))
+              const op2 = parseFloat(tabela[dimensao].intervalos[ultimo - 1].replace(",", "."))
+              if (op1 <= op2) {
+                erroNoIntervalo = 'fora-de-ordem'
+              }
+            }
+          } else 
+          if (index > 1 && index < ultimo) {
+            const op1 = parseFloat(intervalo.replace(",", "."))
+            const op2 = parseFloat(tabela[dimensao].intervalos[index - 1].replace(",", "."))
+            if (op1 <= op2) {
+              erroNoIntervalo = 'fora-de-ordem'
+            }
           }
         }
-      }
-    })  
-    return erroNoIntervalo // 'fora de ordem'
+      })  
+    }
+    return erroNoIntervalo 
   }
+
+  useEffect(() => {
+    const erro = erroNosIntervalos()
+    const temporaryarray = Array.from(variaveis)
+
+    if (erro) {
+      temporaryarray[index].erroNaVariavel[`${dimensao}${erro}`] = true
+      if (erro === 'campo-vazio') delete temporaryarray[index].erroNaVariavel[`${dimensao}fora-de-ordem`]
+      if (erro === 'fora-de-ordem') delete temporaryarray[index].erroNaVariavel[`${dimensao}campo-vazio`]
+
+      setVariaveis(temporaryarray)
+    } else {
+      delete temporaryarray[index].erroNaVariavel[`${dimensao}campo-vazio`]
+      delete temporaryarray[index].erroNaVariavel[`${dimensao}fora-de-ordem`]
+      setVariaveis(temporaryarray)
+    }
+  }, [tabela]) 
 
   const criaIntervalo = () => { 
     const tabelaTemporaria = Object.assign({}, tabela)
     const ultimo = tabela[dimensao].intervalos.length - 1
-    const novoIntervalo = Object.assign({}, { 
-      valor: tabela[dimensao].intervalos[ultimo].valor,
-      erroNoIntervalo: {} 
-    })
-    tabelaTemporaria[dimensao].intervalos.push(Object.assign({}, novoIntervalo))
+    const novoIntervalo = tabela[dimensao].intervalos[ultimo]
+    tabelaTemporaria[dimensao].intervalos.push(novoIntervalo)
     setTabela(tabelaTemporaria)
   } 
 
@@ -159,68 +170,82 @@ const ConfiguraIntervalos = ({ index, variaveis, dimensao, tabela, setTabela }) 
     <Fragment>
       <div key={countIntervalos}>
         <p>Preencha os <code>intervalos</code> desta variável.</p>
-        <ListGroup>
-          {tabela[dimensao].intervalos.map((intervalo, indexDoIntervalo) => {
-            return (
-              <ListGroupItem key={indexDoIntervalo}>
-                <Row className='justify-content-between align-items-center'>
-                  <Col md={6}>
-                    <InputNumeroNoIntervalo 
-                      indexDoIntervalo={indexDoIntervalo}
-                      dimensao={dimensao}
-                      id={`maiorOuIgualA${index}`}
-                      labelDoNumero={indexDoIntervalo === 0 ? 'Maior ou iguar a:' : indexDoIntervalo === tabela[dimensao].intervalos.length - 1 ? 'Menor que:' : `Valor intermediário ${indexDoIntervalo}:`}
-                      tabela={tabela}
-                      setTabela={setTabela}  
-                    />
-                  </Col>  
-                  {!(indexDoIntervalo === 0 || indexDoIntervalo === ultimoIntervalo) && (tabela[dimensao].intervalos.length > 3) && <Col sd={6}>
-                      <Button.Ripple color='flat-danger'  onClick={() => excluiIntervalo(indexDoIntervalo)}>
+        <div className='permissions border mt-1'>
+          <Table borderless striped responsive> 
+            <thead className='thead-light'>
+              <tr>
+                <th>Maior ou igual a</th>
+                <th>Menor que</th>
+                <th>Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              {tabela[dimensao].intervalos.map((intervalo, indexDoIntervalo) => {
+                if (indexDoIntervalo < tabela[dimensao].intervalos.length - 1) return (
+                  <tr key={indexDoIntervalo}>
+                    <td>{intervalo}</td>
+                    <td>                    
+                      <InputNumeroNoIntervalo 
+                        index={index}
+                        variaveis={variaveis}
+                        setVariaveis={setVariaveis}
+                        indexDoIntervalo={indexDoIntervalo + 1}
+                        dimensao={dimensao}
+                        id={`maiorOuIgualA${index}`}
+                        tabela={tabela}
+                        setTabela={setTabela}  
+                      />
+                    </td>
+                    {!(indexDoIntervalo === 0 || indexDoIntervalo === ultimoIntervalo - 1) && (tabela[dimensao].intervalos.length > 3) && <td>
+                      <Button.Ripple color='flat-danger'  onClick={() => excluiIntervalo(indexDoIntervalo + 1)}>
                         <Trash size={18}/>
                       </Button.Ripple>
-                    </Col>}
-                  {(indexDoIntervalo === ultimoIntervalo) && <Col sd={6}>
-                    <Button.Ripple color='flat-primary' onClick={() => criaIntervalo()}>
-                      <Plus size={18}/>
-                    </Button.Ripple>
-                  </Col>}
-                </Row>
-              </ListGroupItem>
-            )
-          })}
-        </ListGroup>
-        {erroNosIntervalos() === 'campo vazio' && <Alert color='danger'>Preencha ou exclua os campos acima descritos como 'Valor intermediário'</Alert>}
-        {erroNosIntervalos() === 'fora de ordem' && <Alert color='danger'>Os campos devem estar com valores em ordem crescente e sem repetições</Alert>}
+                    </td>}
+                    {(indexDoIntervalo === ultimoIntervalo - 1) && <td>
+                      <Button.Ripple color='flat-primary' onClick={() => criaIntervalo()}>
+                        <Plus size={18}/>
+                      </Button.Ripple>
+                    </td>}
+                  </tr>
+                )
+                else return (<><td>________</td><td>________________</td></>)
+              })}
+            </tbody>
+          </Table> 
+        </div>
+        {variaveis[index].erroNaVariavel[`${dimensao}campo-vazio`] && <Alert color='danger'>Preencha ou exclua os campos da coluna 'Menor que'</Alert>}
+        {variaveis[index].erroNaVariavel[`${dimensao}fora-de-ordem`] && <Alert color='danger'>Os campos devem estar com valores em ordem crescente e sem repetições</Alert>}
       </div>
     </Fragment>
   )
 }
 
-const DetalhesDaDimensao = ({ index, variaveis, dimensao, tabela, setTabela }) => {
+const DetalhesDaDimensao = ({ index, variaveis, setVariaveis, dimensao, tabela, setTabela }) => {
   return (
     <Fragment>
       {tabela.hasOwnProperty(dimensao) && tabela[dimensao].hasOwnProperty('id') && tabela[dimensao].id && variaveis[findVariavelById(variaveis, tabela[dimensao].id)].conteudo.tipoDaVariavel === 'NUMERO' && <ConfiguraIntervalos
         index={index}
         variaveis={variaveis}
+        setVariaveis={setVariaveis}
         dimensao={dimensao}
         tabela={tabela}
         setTabela={setTabela}  
       />} 
-      {tabela.hasOwnProperty(dimensao) && tabela[dimensao].hasOwnProperty('id') && tabela[dimensao].id && variaveis[findVariavelById(variaveis, tabela[dimensao].id)].conteudo.tipoDaVariavel === 'SELECAO' && <div>
+{/*       {tabela.hasOwnProperty(dimensao) && tabela[dimensao].hasOwnProperty('id') && tabela[dimensao].id && variaveis[findVariavelById(variaveis, tabela[dimensao].id)].conteudo.tipoDaVariavel === 'SELECAO' && <div>
         <Label className='form-label' for={`dimensao2${index}`}>Esta dimensão tem estas opções:</Label>
         <ul>
           {variaveis[findVariavelById(variaveis, tabela[dimensao].id)].conteudo.opcoes.map(opcao => {
             <li>{opcao.label}</li> 
           })}
         </ul> 
-      </div>} 
+      </div>} */}
       {tabela.hasOwnProperty(dimensao) && tabela[dimensao].hasOwnProperty('id') && tabela[dimensao].id && variaveis[findVariavelById(variaveis, tabela[dimensao].id)].conteudo.tipoDaVariavel === 'SIMNAO' && <div>
         <Label className='form-label' for={`dimensao2${index}`}>Esta dimensão tem estas opções:</Label>
         <ul>
           <li>Sim</li>
           <li>Não</li>
         </ul> 
-      </div>} 
+      </div>}  
     </Fragment>
   )
 }
@@ -233,88 +258,32 @@ const PreenchimentoDaTabela = ({ index, variaveis, tabela, setTabela }) => {
         <Table borderless striped responsive> 
           <thead className='thead-light'>
             <tr>
-              {tabela.dimensao1.intervalos.map((intervalo, index) => {
-                if (index === 0) return <th key={index}>??????</th>
-                return <th key={index}>{tabela.dimensao1.intervalos[index - 1].valor}{'≤X<'}{intervalo.valor}</th> 
+              <th>{variaveis[index].name}</th>
+              {tabela.dimensao1.intervalos.map((intervalo, coluna) => {
+                if (coluna < tabela.dimensao1.intervalos.length - 1) return (
+                  <th key={coluna}>
+                    {intervalo}{' ≤ X < '}{tabela.dimensao1.intervalos[coluna + 1]}
+                  </th>
+                )
               })}
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>Admin</td>
-              <td>
-                <CustomInput type='checkbox' id='admin-1' label='' defaultChecked />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='admin-2' label='' />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='admin-3' label='' />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='admin-4' label='' />
-              </td>
-            </tr>
-            <tr>
-              <td>Staff</td>
-              <td>
-                <CustomInput type='checkbox' id='staff-1' label='' />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='staff-2' label='' defaultChecked />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='staff-3' label='' />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='staff-4' label='' />
-              </td>
-            </tr>
-            <tr>
-              <td>Author</td>
-              <td>
-                <CustomInput type='checkbox' id='author-1' label='' defaultChecked />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='author-2' label='' />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='author-3' label='' defaultChecked />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='author-4' label='' />
-              </td>
-            </tr>
-            <tr>
-              <td>Contributor</td>
-              <td>
-                <CustomInput type='checkbox' id='contributor-1' label='' />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='contributor-2' label='' />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='contributor-3' label='' />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='contributor-4' label='' />
-              </td>
-            </tr>
-            <tr>
-              <td>User</td>
-              <td>
-                <CustomInput type='checkbox' id='user-1' label='' />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='user-2' label='' />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='user-3' label='' />
-              </td>
-              <td>
-                <CustomInput type='checkbox' id='user-4' label='' defaultChecked />
-              </td>
-            </tr>
+            {tabela.dimensao1.intervalos.map((intervalo, linha) => {
+              if (linha < tabela.dimensao1.intervalos.length - 1) return (
+                <tr key={linha}>
+                  <td><b>{intervalo}{' ≤ X < '}{tabela.dimensao1.intervalos[linha + 1]}</b></td>
+                  {tabela.dimensao1.intervalos.map((intervalo, coluna) => {
+                    if (coluna < tabela.dimensao1.intervalos.length - 1) return (
+                      <td key={coluna}>
+                        <Input type='text' id='helperText' placeholder='NameNameName' />
+                      </td>
+                    )
+                  })}
+                </tr>
+              )
+              else return (<><td>____________________</td><td>_______________</td><td>_______________</td><td>_______________</td></>)
+            })}
           </tbody>
         </Table> 
       </div>
@@ -323,7 +292,7 @@ const PreenchimentoDaTabela = ({ index, variaveis, tabela, setTabela }) => {
   )
 }
 
-const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
+const ConfiguraTabela = ({ index, variaveis, setVariaveis, tabela, setTabela }) => {
   const [quantidadeDeDimensoesDaTabela, setQuantidadeDeDimensoesDaTabela] = useState(0) 
   const [dimensoesOptions, setDimensoesOptions] = useState([]) // Precisa verificar se dimensoesOptions é maior que zero
 //  let defaultValue = null
@@ -345,16 +314,29 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
 /*   if (componentesDoItem.variavel) defaultValue = componentesDoItem.variavel
   else defaultValue = variaveisNumericas.length ? variaveisNumericas[0] : null */
 
+  useEffect(() => {
+    const temporaryarray = Array.from(variaveis)
+    if (quantidadeDeDimensoesDaTabela === 0) {
+      delete temporaryarray[index].erroNaVariavel.tabelaVazia
+      temporaryarray[index].erroNaVariavel.quantidadeDeDimensoes = true
+      setVariaveis(temporaryarray)
+    } else {
+      delete temporaryarray[index].erroNaVariavel.quantidadeDeDimensoes
+      if (quantidadeDeDimensoesDaTabela > 0) temporaryarray[index].erroNaVariavel.dimensao1NaoEscolhida = true
+      if (quantidadeDeDimensoesDaTabela === 2) temporaryarray[index].erroNaVariavel.dimensao2NaoEscolhida = true   
+      else delete temporaryarray[index].erroNaVariavel.dimensao2NaoEscolhida
+      setVariaveis(temporaryarray)
+    }
+  }, [quantidadeDeDimensoesDaTabela]) 
+
   const setQuantidadeDeDimensoes = (quantidade) => { 
     const tabelaTemporaria = Object.assign({}, tabela)
 
     if (!tabelaTemporaria.hasOwnProperty('dimensao1')) tabelaTemporaria.dimensao1 = { id: null }
 
-    if (quantidade === 1) {
-      delete tabelaTemporaria.dimensao2
-      if (tabelaTemporaria.hasOwnProperty('erroNaTabela')) delete tabelaTemporaria.erroNaTabela.dimesaoDuplicada
-    } else if (!tabelaTemporaria.hasOwnProperty('dimensao2')) tabelaTemporaria.dimensao2 = { id: null }
-    
+    if (quantidade === 1) delete tabelaTemporaria.dimensao2
+    else if (!tabelaTemporaria.hasOwnProperty('dimensao2')) tabelaTemporaria.dimensao2 = { id: null }   
+
     setTabela(tabelaTemporaria)
     setQuantidadeDeDimensoesDaTabela(quantidade)
   }
@@ -367,104 +349,31 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
       const diferenca = maximo - minimo
       const i1 = diferenca >= 3 ? (Math.round(diferenca / 3) + minimo).toString() : null
       const i2 = diferenca >= 3 ? ((Math.round(diferenca / 3) * 2) + minimo).toString() : null
-      return [ 
-        { 
-          valor: valorMinimo, 
-          erroNoIntervalo: {} 
-        }, 
-        { 
-          valor: i1, 
-          erroNoIntervalo: {} 
-        }, 
-        { 
-          valor: i2, 
-          erroNoIntervalo: {} 
-        },
-        { 
-          valor: valorMaximo, 
-          erroNoIntervalo: {} 
-        }
-      ]
+      return [valorMinimo, i1, i2, valor]
     } else {
-      if (valorMinimo) return [
-        { 
-          valor: valorMinimo, 
-          erroNoIntervalo: {} 
-        }, 
-        { 
-          valor: null, 
-          erroNoIntervalo: {} 
-        }, 
-        { 
-          valor: null, 
-          erroNoIntervalo: {} 
-        },        
-        { 
-          valor: null, 
-          erroNoIntervalo: {} 
-        }
-      ]
-      if (valorMaximo) return [
-        { 
-          valor: null, 
-          erroNoIntervalo: {} 
-        }, 
-        { 
-          valor: null, 
-          erroNoIntervalo: {} 
-        }, 
-        { 
-          valor: null, 
-          erroNoIntervalo: {} 
-        }, 
-        { 
-          valor: valorMaximo, 
-          erroNoIntervalo: {} 
-        }
-      ]
-      else return [
-        { 
-          valor: null, 
-          erroNoIntervalo: {} 
-        }, 
-        { 
-          valor: null, 
-          erroNoIntervalo: {} 
-        }, 
-        { 
-          valor: null, 
-          erroNoIntervalo: {} 
-        }, 
-        { 
-          valor: null, 
-          erroNoIntervalo: {} 
-        }
-      ]
+      if (valorMinimo) return [valorMinimo, null, null, null]
+      if (valorMaximo) return [null, null, null, valorMaximo]
+      return [null, null, null, null]
     }
   }
 
   const setDimensao = (dimensaoEscolhida, dimensao) => { 
-    const tabelaTemporaria = Object.assign({}, tabela)
-    
-    tabelaTemporaria[dimensao].id = dimensaoEscolhida.id
-    
+    const tabelaTemporaria = Object.assign({}, tabela) 
+    const temporaryarray = Array.from(variaveis)  
+    tabelaTemporaria[dimensao].id = dimensaoEscolhida.id   
     if (dimensaoEscolhida.conteudo.tipoDaVariavel === 'NUMERO') {
       if (!tabelaTemporaria[dimensao].hasOwnProperty('intervalos')) tabelaTemporaria[dimensao].intervalos = montaIntervalos(dimensaoEscolhida.conteudo)
     } else delete tabelaTemporaria[dimensao].intervalos
-
     if (tabelaTemporaria.hasOwnProperty('dimensao2')) {
       if (tabelaTemporaria.dimensao2.id) {
-        if (tabelaTemporaria.dimensao1.id === tabelaTemporaria.dimensao2.id) tabelaTemporaria.erroNaTabela.dimesaoDuplicada = true
-        else delete tabelaTemporaria.erroNaTabela.dimesaoDuplicada
+        if (tabelaTemporaria.dimensao1.id === tabelaTemporaria.dimensao2.id) temporaryarray[index].erroNaVariavel.dimesaoDuplicada = true
+        else delete temporaryarray[index].erroNaVariavel.dimesaoDuplicada 
       }
     }
-
+    delete temporaryarray[index].erroNaVariavel[`${dimensao}NaoEscolhida`]
+    setVariaveis(temporaryarray)
     setTabela(tabelaTemporaria)
   }
-
-  const erroNasTabelas = () => { 
-    return false
-  } 
   
   console.log("tabela=", tabela) 
 
@@ -486,7 +395,7 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
         isClearable={false}
         isDisabled={true}
       />}
-      {dimensoesOptions.length === 2 && <Select
+      {dimensoesOptions.length > 1 && <Select
         id={`quantidadeDeVariaveisDaTabela${index}`}               
         theme={selectThemeColors}
         maxMenuHeight={120}
@@ -496,6 +405,7 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
         onChange={e => { setQuantidadeDeDimensoes(e.value) }}
         isClearable={false}
       />}
+      {variaveis[index].erroNaVariavel.quantidadeDeDimensoes && <Alert color='danger'>Escolha a quantidade de dimensões da tabela</Alert>}
 
       {quantidadeDeDimensoesDaTabela > 0 && <div>
         <div className='divider'>
@@ -512,9 +422,11 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
           onChange={e => { setDimensao(e, 'dimensao1') }}
           isClearable={false}
         />
+        {variaveis[index].erroNaVariavel.dimensao1NaoEscolhida && <Alert color='danger'>Escolha a{quantidadeDeDimensoesDaTabela === 2 && ' 1ª'} dimensão</Alert>}
         <DetalhesDaDimensao
           index={index}
           variaveis={variaveis}
+          setVariaveis={setVariaveis}
           dimensao='dimensao1'
           tabela={tabela}
           setTabela={setTabela}  
@@ -536,16 +448,18 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
           onChange={e => { setDimensao(e, 'dimensao2') }}
           isClearable={false}
         />
-        {tabela.erroNaTabela && tabela.erroNaTabela.dimesaoDuplicada && <Alert color='danger'>Escolha dimensões distintas</Alert>}
+        {variaveis[index].erroNaVariavel.dimensao2NaoEscolhida && <Alert color='danger'>Escolha a 2ª dimensão</Alert>}
+        {variaveis[index].erroNaVariavel.dimesaoDuplicada && <Alert color='danger'>1ª e 2ª dimensões devem ser distintas</Alert>}
         <DetalhesDaDimensao
           index={index}
           variaveis={variaveis}
+          setVariaveis={setVariaveis}
           dimensao='dimensao2'
           tabela={tabela}
           setTabela={setTabela}  
         />
       </div>}
-      {!erroNasTabelas() && <div>
+{/*       {(isObjEmpty(variaveis[index].erroNaVariavel)) && <div>
         <div className='divider'>
           <div className='divider-text'><h4>{`Conteúdo da tabela`}</h4></div>
         </div>
@@ -556,7 +470,7 @@ const ConfiguraTabela = ({ index, variaveis, tabela, setTabela }) => {
           tabela={tabela}
           setTabela={setTabela}  
         />
-      </div>}
+      </div>}  */}
     </Fragment>
   )
 }
